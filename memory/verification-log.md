@@ -324,3 +324,16 @@ Evidence: 交付导航 tabs=prototype,docs,flowcharts；docs 切换 frameVisible
 Result: pass
 Consecutive Failures: 0
 Next Action: 全局验证通过，反馈总控推进 S8
+
+Date: 2026-08-21
+Step: step-03
+Scope: step
+Local URL / File: http://127.0.0.1:8891/index.html | docs/功能说明文档.md | docs/功能说明文档.html | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | Playwright
+Command / Check: 重新生成 HTML；检查 Markdown/HTML 同步；执行 S9 与 final 预检；浏览器打开说明文档和外呼拦截页，检查标注 8~11
+Passed: Markdown 和 HTML 统一为电声平台同步口径；标注提示词、覆盖清单及已回写标注的外呼拦截说明一致；外呼拦截页实际渲染 4 个标注；控制台 0 错误，资源 0 个 4xx/5xx
+Failed: 无
+Evidence: `Documentation sync check PASS`；S9/final 均输出 `Loop preflight PASS`；浏览器确认文档含“当前原型仅完成电声平台黑名单同步”，scene-block 标注 ID 为 8/9/10/11，ID 10 为电声平台同步设置，ID 11 的 FLD-075 为电声同步结果
+Result: pass
+Consecutive Failures: 0
+Next Action: 说明文档与标注说明已对齐

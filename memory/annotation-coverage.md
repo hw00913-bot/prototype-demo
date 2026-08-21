@@ -15,8 +15,8 @@
 | 7 | scene-list | `[data-anno="scene-task-detail"]` | R-002 | SRC-001~SRC-006 | FLD-001~015 | 统一任务详情抽屉与平台字段 |
 | 8 | scene-block | `[data-anno="block-group-list"]` | R-003 | SRC-003 | FLD-070 | 黑名单分组选择 |
 | 9 | scene-block | `[data-anno="block-filters"]` | R-003 | SRC-003 | FLD-071,073,074 | 号码记录筛选 |
-| 10 | scene-block | `[data-anno="block-management-actions"]` | R-003 | SRC-003 | none | 新增、导入、导出与同步配置 |
-| 11 | scene-block | `[data-anno="block-table"]` | R-003 | SRC-003 | FLD-070~075 | 号码、原因、来源、有效期、同步状态 |
+| 10 | scene-block | `[data-anno="block-management-actions"]` | R-003 | SRC-003 | none | 新增、导入、导出与电声平台同步配置 |
+| 11 | scene-block | `[data-anno="block-table"]` | R-003 | SRC-003 | FLD-070~075 | 号码、原因、来源、有效期、电声同步状态 |
 | 12 | report-call | `[data-anno="report-call-table"]` | R-004 | SRC-001,002,003,005,006 | FLD-006,040~045 | 呼叫量、接通量、未接通量、时长与比率 |
 | 13 | report-call | `[data-anno="report-call-tabs"]` | R-004 | SRC-001,002,003,005,006 | none | 外呼/客户统计口径切换 |
 | 14 | report-call | `[data-anno="report-call-filters"]` | R-004 | SRC-001,002,003,005,006 | FLD-006,040 | 日期、场景、平台筛选 |
