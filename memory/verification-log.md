@@ -337,3 +337,29 @@ Evidence: `Documentation sync check PASS`；S9/final 均输出 `Loop preflight P
 Result: pass
 Consecutive Failures: 0
 Next Action: 说明文档与标注说明已对齐
+
+Date: 2026-08-21
+Step: global
+Scope: documentation-and-annotations
+Local URL / File: docs/功能说明文档.md | docs/功能说明文档.html | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | static check
+Command / Check: 核对三角色权限矩阵；重新生成 HTML；验证 55 条标注的 permissionScope；执行 S9 和 final 预检
+Passed: Markdown/HTML、项目权限规则、标注提示词、覆盖清单和全部 55 条标注均使用同一三角色权限口径；标注缓存版本已更新；浏览器实测说明文档和外呼拦截页均加载新版口径
+Failed: 无
+Evidence: 55 条标注均不再包含“当前原型未定义角色权限”；`render_doc_html.py --check`、S9 和 final 预检均通过；Playwright 确认文档包含超级管理员/租户运营及线索记录权限说明，运行时加载 55 条标注、旧权限文案 0 条，外呼拦截页显示 4 个标注，控制台 0 错误、资源 0 个 4xx/5xx
+Result: pass
+Consecutive Failures: 0
+Next Action: 三角色权限说明与标注已对齐
+
+Date: 2026-08-21
+Step: global
+Scope: documentation-and-annotations
+Local URL / File: docs/功能说明文档.md | docs/功能说明文档.html | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | static check
+Command / Check: 将线索记录加入租户运营可处理范围；重新生成 HTML；核对 55 条标注权限范围；执行 S9 和 final 预检
+Passed: 租户运营权限已统一为本租户外呼场景、统计报表、通话记录和线索记录；所有 55 条标注同步更新；标注缓存版本已更新；浏览器实测文档与线索记录页均加载新版口径
+Failed: 无
+Evidence: `annotations/annotations.js` 中“通话记录和线索记录”权限描述共 55 条，旧的“标签、线索记录及其他”限制描述为 0 条；Playwright 确认说明文档包含新版范围，运行时加载 55 条标注、全部为新口径，线索记录页显示 2 个静态标注（其余 2 个为详情弹层标注），控制台 0 错误、资源 0 个 4xx/5xx
+Result: pass
+Consecutive Failures: 0
+Next Action: 租户运营线索记录权限已对齐
