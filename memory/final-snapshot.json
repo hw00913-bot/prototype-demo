@@ -1,17 +1,17 @@
 {
   "toolVersion": "2026-08-12-loop-integrity-v4",
-  "createdAt": "2026-08-19T17:23:49",
+  "createdAt": "2026-08-21T11:01:57",
   "gate": "final",
   "files": [
     {
       "path": "annotations/annotations.js",
-      "sha256": "c84c32b0d9aa93d9aef113c54f4dbd4a01f572cd8c375b91376156b5d971ac69",
-      "mtime": "2026-08-19T17:18:36"
+      "sha256": "672866de553a6c960ad690c00d552cfeea8f2434e872279c7ca37f5ab7fc6770",
+      "mtime": "2026-08-21T09:45:28"
     },
     {
       "path": "assets/css/app.css",
-      "sha256": "20ea989322a0c9e4bd1472d8b7f8f3ecbd15a501a5ecbb8635c51bcc60e2dcdb",
-      "mtime": "2026-08-19T14:16:53"
+      "sha256": "6acbd46b5b8fea8b0a77b8c9c1867c201c54ad86c35f7bb917d5e63a387e332f",
+      "mtime": "2026-08-21T08:39:48"
     },
     {
       "path": "assets/css/global.css",
@@ -19,9 +19,14 @@
       "mtime": "2026-08-19T15:50:33"
     },
     {
-      "path": "docs/interaction.html",
-      "sha256": "cf9ea897fbc2409d6266041b84795266b7bfaa2047fba7bee53a80f38cd21a46",
-      "mtime": "2026-08-19T17:23:41"
+      "path": "docs/功能说明文档.html",
+      "sha256": "0e94a5a18a29a7198e36d5b4ddf158252bbd7afc5be6d391e8618160a4ca9dfc",
+      "mtime": "2026-08-21T10:59:28"
+    },
+    {
+      "path": "docs/计算逻辑.html",
+      "sha256": "d2066b4ea0630bcac861e539e5cc6b21e9353c0d6a2074ab7c6c34367dd16e73",
+      "mtime": "2026-08-21T10:59:18"
     },
     {
       "path": "flowcharts/index.html",
@@ -35,13 +40,13 @@
     },
     {
       "path": "index.html",
-      "sha256": "b3da4c5ef4df15f4eb28475c9738663b040480d3dc9094ffdab3942f2a24904f",
-      "mtime": "2026-08-19T15:49:34"
+      "sha256": "19ac8563233b13d3a188c0c471ea31ba759f1693f4ca613894b55e052ac028bc",
+      "mtime": "2026-08-21T10:31:19"
     },
     {
       "path": "js/app.js",
-      "sha256": "577dfa534a97ff91e8706dec896c2eb9783c8f01ec0671700d09e2ca037e6a15",
-      "mtime": "2026-08-19T14:06:50"
+      "sha256": "5feda993a701b83626e0280a44fa6fa38ffa074d7a189ae7c4fef1f4c68ee2dc",
+      "mtime": "2026-08-20T16:21:18"
     },
     {
       "path": "js/common.js",
@@ -50,83 +55,88 @@
     },
     {
       "path": "js/delivery-nav.js",
-      "sha256": "3a3441f7a8b0e85d16bea83ac6595f776d7661c825e06f0f41227901f8bd5c1b",
-      "mtime": "2026-08-19T15:49:34"
+      "sha256": "38ea1035e49036e8627d03ed4eb8a3e07c5ca666550193e2cd53f8802c879207",
+      "mtime": "2026-08-21T10:58:29"
     },
     {
       "path": "js/nav.js",
-      "sha256": "1f7497ed4d374b25237ffe342761221722936a8fb3c052cfb8f71e440e906dfc",
-      "mtime": "2026-08-19T14:21:10"
+      "sha256": "9a09dbf4c757ad8618a461fffeb76f0f7a8985b2dbfe4414d2a9a68f2ef8a510",
+      "mtime": "2026-08-21T10:11:12"
     },
     {
       "path": "js/pages/home.js",
-      "sha256": "5c857333c15c6f3b06c5c54cb5824699b1a41cf36cfed2d88a470e58f419b9bc",
-      "mtime": "2026-08-19T17:17:52"
+      "sha256": "0eda9b03af6219df28f2d4338d0433eafe4be4a8ed865826a2ec77320ecb8b11",
+      "mtime": "2026-08-19T17:36:20"
     },
     {
       "path": "js/pages/report-billing.js",
-      "sha256": "2a83275501fbb0866a3ada59c14fd502b10dfefc9479ded4af0f270a3c23a7ae",
-      "mtime": "2026-08-19T17:17:18"
+      "sha256": "908f6e2acd5fa89613487bc40811fc380b5f092411d63c724486bc13322aa44d",
+      "mtime": "2026-08-21T09:30:24"
     },
     {
       "path": "js/pages/report-call.js",
-      "sha256": "d18ac15e6a8f114e7aea2521cabfb859f326eb712d66ae525f9d28d7dbacd543",
-      "mtime": "2026-08-19T17:17:12"
+      "sha256": "e12f235fcf66a3d6597ea52d79f44620bd89aa73a130eda0af4cee0f1c8a6628",
+      "mtime": "2026-08-21T09:30:24"
     },
     {
       "path": "js/pages/report-clue.js",
-      "sha256": "ac92d31cb55739dc330fce21713d53249b379ee57edcc6e779efe3282919ae92",
-      "mtime": "2026-08-19T17:17:32"
+      "sha256": "1c153bce00029924657c509ac36e6ed9f050a807af255fc4ddfa5b41f23a3a78",
+      "mtime": "2026-08-21T09:31:14"
     },
     {
       "path": "js/pages/result-clue.js",
-      "sha256": "5d76de245d9b64c6e8b939ba0d53868cf6f04d72246db8729419c0c579b98ac9",
-      "mtime": "2026-08-19T17:17:36"
+      "sha256": "82a7e53f84ab016c2a01daa2937d357b43a067527ae49d57a32fb7a049aeaab7",
+      "mtime": "2026-08-21T09:31:14"
     },
     {
       "path": "js/pages/result-records.js",
-      "sha256": "4b5dbe6211d87d066116b516a4964368706fc6583ecba98ac89d6468f186181d",
-      "mtime": "2026-08-19T17:18:09"
+      "sha256": "da76f7f40c5fa6dfdcf57b419cc7e8aa354da6028e0ed7b8768c0c938024ce81",
+      "mtime": "2026-08-21T09:31:14"
     },
     {
       "path": "js/pages/scene-block.js",
-      "sha256": "5ee9661a8cdf36d5016da46f21c5a62cbaf7499ccce837cda8e44f9cccbb40b6",
-      "mtime": "2026-08-19T17:17:06"
+      "sha256": "79b7501306efbecf2ed6ee35524548efcc1565bb828ea9f0e49f7219f7691376",
+      "mtime": "2026-08-21T09:30:24"
     },
     {
       "path": "js/pages/scene-list.js",
-      "sha256": "8d42eaa5f453d7f5cd18896e5b0b6365f82d2a3cdeeb56520a1f972d33c8d388",
-      "mtime": "2026-08-19T17:17:02"
+      "sha256": "0139b388827b482f68fa29b2310c0dbfb1b658e2a3d58ecc655621fdd15172dd",
+      "mtime": "2026-08-21T09:30:24"
+    },
+    {
+      "path": "js/pages/sys-account.js",
+      "sha256": "06c01e6046eea4e6790ddb4cdef8f3805eabcc226b6a1a934d9bc5de6acedd37",
+      "mtime": "2026-08-20T16:08:45"
     },
     {
       "path": "js/pages/sys-scene.js",
-      "sha256": "153e4a7c495c3463237676a7601cff4f597fa3db4ab4bd08bb3c0fc100ea00c0",
-      "mtime": "2026-08-19T17:16:58"
+      "sha256": "6802cf7a6102f548e7b98332b97d9ac05dd8b5b14ab14d53fc581007b3049fe6",
+      "mtime": "2026-08-21T09:34:31"
     },
     {
       "path": "js/pages/sys-tags.js",
-      "sha256": "1b6bf0a00667f26750a09fa613991f3ad0618929a245b6ca957b3ebb2f4e8917",
-      "mtime": "2026-08-19T17:17:43"
+      "sha256": "edee2bfd08c2109a8dff3f25bac6ba251696a411ee42941f8aea3721f98dca3e",
+      "mtime": "2026-08-21T09:21:26"
     },
     {
       "path": "js/pages/sys-tenant.js",
-      "sha256": "deb93995b5512930addf9c53dd6f76770fac88e3b404cbbf1546313b2047a3b6",
-      "mtime": "2026-08-19T17:17:48"
+      "sha256": "8aa37691d034785dc2d96b81f39685bec0f3591f2e9946e426c23315c4959004",
+      "mtime": "2026-08-21T09:34:31"
     },
     {
       "path": "memory/acceptance-map.md",
-      "sha256": "2b119ef1eea76312eb1ee49a56ed664eae8d85705f26ffea2a8ab78ccbac29ef",
-      "mtime": "2026-08-19T17:11:59"
+      "sha256": "eab15a4cb134c3a171d1d2a278b5c5066db57ecd84f05f30fc6def2a286e7d9e",
+      "mtime": "2026-08-21T08:26:52"
     },
     {
       "path": "memory/annotation-coverage.md",
-      "sha256": "5e7c41d29db25af3993d2bbb43f7081de24894848c00140a9124c4f454e72a7b",
-      "mtime": "2026-08-19T17:21:09"
+      "sha256": "97056122b323ea895f92d6733eac24ce7471a507e32eec2c9019dcf8c38d138e",
+      "mtime": "2026-08-21T10:58:29"
     },
     {
       "path": "memory/annotation-prompt.md",
-      "sha256": "875471be08bbb1c77e9d2232f947e84984ad3fb49404d33d89ac136dbc408f56",
-      "mtime": "2026-08-19T17:23:22"
+      "sha256": "fedb24140a9cf58481f70deadeb87f6725a6c7687204379505ecfc81ab93ff4a",
+      "mtime": "2026-08-21T09:47:20"
     },
     {
       "path": "memory/execution-steps.md",
@@ -136,7 +146,7 @@
     {
       "path": "memory/field-map.md",
       "sha256": "b50c0e5f46d84a07e9f6f2b71f32e9fe9db88d37529a58b4ebac02db0648af4f",
-      "mtime": "2026-08-19T16:34:11"
+      "mtime": "2026-08-21T08:27:28"
     },
     {
       "path": "memory/source-materials.md",
@@ -145,13 +155,13 @@
     },
     {
       "path": "memory/verification-log.md",
-      "sha256": "eb6ceefe69a9c802956d4f2568507c546ecc807f8d516e8784e4dd9cce0423e9",
-      "mtime": "2026-08-19T17:13:40"
+      "sha256": "534d54ad085b3cf69acdf1fbdc7c19bebb930d921bcf1be04dab9e51e6b744c9",
+      "mtime": "2026-08-21T11:01:31"
     },
     {
       "path": "mock/data.js",
-      "sha256": "e7dd4a0a9798ac0ccfab657888bb5aff2f64b5c1e095f42eed3aabd6e250d5a4",
-      "mtime": "2026-08-19T14:08:38"
+      "sha256": "141289b672ade68fa7164955e17634294b689a74c1c91d4a6fbb57a70d7e9503",
+      "mtime": "2026-08-21T08:22:05"
     }
   ]
 }

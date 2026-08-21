@@ -10,7 +10,6 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 MD_PATH = ROOT_DIR / 'docs/功能说明文档.md'
 DOC_HTML_PATH = ROOT_DIR / 'docs/功能说明文档.html'
-INTERACTION_HTML_PATH = ROOT_DIR / 'docs/interaction.html'
 
 def escape(s):
     return html.escape(s)
@@ -292,50 +291,6 @@ def generate_doc_html(toc, content_html):
 """
     return template
 
-def generate_interaction_alias(content_html):
-    return f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=功能说明文档.html">
-  <link rel="canonical" href="功能说明文档.html">
-  <link rel="icon" href="data:,">
-  <title>智能外呼统一中台 - 功能说明文档</title>
-  <style>
-    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f5f5f5; padding: 40px 20px; color: #333; line-height: 1.6; }}
-    .container {{ max-width: 1180px; margin: 0 auto; background: #fff; padding: 48px; }}
-    h1 {{ font-size: 24px; margin-bottom: 32px; border-bottom: 2px solid #1677ff; padding-bottom: 12px; }}
-    h2 {{ font-size: 18px; margin: 32px 0 16px; }}
-    h3 {{ font-size: 16px; margin: 24px 0 12px; }}
-    p {{ margin: 8px 0; font-size: 14px; }}
-    .table-wrap {{ width: 100%; overflow-x: auto; margin: 12px 0 20px; }}
-    table {{ width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }}
-    th, td {{ border: 1px solid #d9d9d9; padding: 10px 12px; text-align: left; vertical-align: top; }}
-    th {{ background: #fafafa; font-weight: 600; white-space: nowrap; }}
-    hr {{ border: 0; border-top: 1px solid #e8e8e8; margin: 24px 0; }}
-    .section-divider {{ margin: 32px 0; }}
-    .jump-btn {{ display: inline-block; padding: 8px 20px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; }}
-    blockquote {{ background: #f0f7ff; border-left: 4px solid #1677ff; padding: 12px 16px; margin: 16px 0; }}
-    code {{ background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }}
-    ul, ol {{ margin: 8px 0 16px 24px; }}
-    @media (max-width: 640px) {{ body {{ padding: 20px 12px; }} .container {{ padding: 24px 18px; }} }}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div style="text-align:right;margin-bottom:24px">
-      <a href="../index.html" class="jump-btn" data-delivery-switch="prototype">跳转演示页面 →</a>
-    </div>
-    {content_html}
-  </div>
-  <script src="../js/delivery-nav.js"></script>
-</body>
-</html>
-"""
-
-
 def build_outputs():
     md_text = MD_PATH.read_text(encoding='utf-8')
 
@@ -343,7 +298,6 @@ def build_outputs():
     doc_content = generate_doc_html(toc, content_html)
     return {
         DOC_HTML_PATH: doc_content,
-        INTERACTION_HTML_PATH: generate_interaction_alias(content_html),
     }
 
 

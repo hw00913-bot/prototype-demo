@@ -5,13 +5,26 @@
 ## 最新状态
 
 - Overall: S9 Annotated
-- Last verified: single-source documentation sync + final gate (2026-08-21)
+- Last verified: interaction removal + single-document final gate (2026-08-21)
 
 ## 机器可读记录格式
 
 每条记录必须包含以下键值行。`Step` 必须使用 `step-01`、`step-02` 等稳定 ID，且与 `memory/execution-steps.md` 对应。
 
 ## History
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8899/index.html | docs/功能说明文档.md | docs/功能说明文档.html | tools/render_doc_html.py | tools/loop_preflight.py
+Tool: sync check + browser evidence + project-level loop preflight
+Command / Check: 删除 interaction 文件与生成逻辑；检查项目业务引用；生成并校验唯一 HTML；点击顶部、交付导航和计算逻辑返回入口；执行 final 门禁
+Passed: docs/interaction.html 不存在；生成脚本只产出一个 HTML；三个可见入口均直接指向完整版；同步检查 PASS；控制台 0 错误；网络 0 个 4xx/5xx；项目级 final preflight PASS
+Failed: 无
+Evidence: interactionRemoved=true；topHref=docs/功能说明文档.html；deliveryHref=/docs/功能说明文档.html；calculationBackHref=功能说明文档.html；consoleErrorCount=0；http4xx5xxCount=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 后续只维护 docs/功能说明文档.md，并生成唯一 docs/功能说明文档.html
 
 Date: 2026-08-21
 Step: step-13

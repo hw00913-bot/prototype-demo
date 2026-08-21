@@ -2,6 +2,11 @@
   "workflow": "prototype-loop",
   "version": 1,
   "projectId": "demo-present-df4127ec",
+  "documentation": {
+    "source": "docs/功能说明文档.md",
+    "output": "docs/功能说明文档.html",
+    "compatibilityAliases": []
+  },
   "entry": "index.html",
   "stage": "none",
   "currentIteration": {
@@ -36,7 +41,7 @@
     "changeLog": "memory/change-log.md",
     "navigation": "config/nav.json",
     "annotations": "annotations/annotations.js",
-    "interactionDoc": "docs/interaction.html"
+    "interactionDoc": "docs/功能说明文档.html"
   },
   "verification": {
     "serveOverHttp": true,

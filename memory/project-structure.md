@@ -75,7 +75,6 @@
 - 标注运行时位置：`annotations/`
 - 完整说明唯一内容源：`docs/功能说明文档.md`
 - 完整说明展示页：`docs/功能说明文档.html`（由 `tools/render_doc_html.py` 生成）
-- Loop/S9 兼容入口：`docs/interaction.html`（由同一脚本生成并跳转到完整说明展示页）
 
 ## 不纳入实现/交付的目录
 

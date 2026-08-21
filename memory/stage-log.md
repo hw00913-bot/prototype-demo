@@ -246,3 +246,19 @@ decision: S9 completed
 next_stage: none
 blocked_by: none
 notes: none
+
+date: 2026-08-21T11:01:57
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: a33304058f24
+preflight_result_hash: 3378bccfc9cc8ab1
+stage: S9
+stage_name: 标注提示词准备
+input_artifacts: annotations/annotations.js
+output_artifacts: memory/final-snapshot.json
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/33-智能外呼/DEMO_PRESENT/tools/loop_preflight.py /Users/huhaowen/Documents/33-智能外呼/DEMO_PRESENT --stage final --completing-stage S9
+gate_result: pass
+decision: manual annotations approved and final revalidated
+next_stage: none
+blocked_by: none
+notes: 移除 docs/interaction.html，统一使用完整版说明文档并刷新终态快照

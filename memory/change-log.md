@@ -1,5 +1,13 @@
 # 项目变更记录
 
+## 2026-08-21（移除 interaction 兼容文件）
+
+- 按用户明确要求删除 `docs/interaction.html`，不再为 Loop 兼容额外生成或维护第二份 HTML。
+- `tools/render_doc_html.py` 现在只从唯一 Markdown 生成 `docs/功能说明文档.html`；`--check` 也只校验这一组源与产物。
+- 首页顶栏、交付导航、计算逻辑返回入口和 `config/workflow.json` 全部直接指向完整版 HTML。
+- 项目级 `tools/loop_preflight.py` 与 `tools/loop_run.py` 已改为以完整版 HTML 执行文档结构、交付导航和最终门禁校验。
+- `config/workflow.json` 增加单一文档模式声明：一个 Markdown 源、一个 HTML 产物、无兼容别名。
+
 ## 2026-08-21（完整版说明文档唯一事实源）
 
 - 按用户明确决策，将 `docs/功能说明文档.md` 固定为说明内容的唯一事实源。

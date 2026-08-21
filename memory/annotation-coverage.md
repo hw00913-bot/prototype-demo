@@ -66,7 +66,7 @@
 
 - R-001 数据整合：通过 scene-list、report-call、report-billing、result-records、result-clue、sys-scene 的平台维度锚点交叉覆盖。
 - R-002~R-011：均有对应页面的筛选、核心数据和关键操作/详情锚点。
-- R-012 导航功能：属于全局框架能力，不对导航装饰生成页面标注；在 `docs/interaction.html` 的主流程和异常说明中覆盖。
+- R-012 导航功能：属于全局框架能力，不对导航装饰生成页面标注；在 `docs/功能说明文档.html` 的主流程和异常说明中覆盖。
 - R-013 首页展示：由 `home-usage-cards` 覆盖。
 
 ## 来源与字段覆盖
