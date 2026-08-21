@@ -38,7 +38,7 @@
         '<div class="report-table-scroll"><table class="report-table" style="min-width:1050px;"><thead><tr><th>序号</th><th>呼叫时间</th><th>场景名称</th><th>智能平台</th><th>客户总数</th><th>有效通话客户数</th><th>累计通话时长</th><th>客户平均通话时长</th></tr></thead><tbody>' + renderCustomerRows() + '</tbody></table></div></div>';
     }
     return '<div class="report-table-panel"><div class="report-table-actions"><span class="report-icon-btn" onclick="doRefresh()" title="刷新">&#x21bb;</span><span class="report-icon-btn" onclick="showToast(\'列设置功能开发中\',\'info\')" title="列设置">&#9881;</span></div>' +
-      '<div class="report-table-scroll"><table class="report-table" data-anno="report-call-table" data-anno-page="report-call" data-anno-label="通话统计列表" data-anno-kind="table" data-anno-fields="FLD-006,FLD-040,FLD-041,FLD-043,FLD-045" style="min-width:1080px;"><thead><tr><th>序号</th><th>呼叫时间</th><th>场景名称</th><th>智能平台</th><th>拨打总次数</th><th>呼叫名单总数</th><th>接通总数</th><th>未接通总数</th><th>接通率</th><th>触达率</th><th>累计通话时长</th></tr></thead><tbody>' + renderRows() + '</tbody></table></div></div>';
+      '<div class="report-table-scroll"><table class="report-table" data-anno="report-call-table" data-anno-page="report-call" data-anno-label="通话统计列表" data-anno-kind="table" data-anno-fields="FLD-006,FLD-040,FLD-041,FLD-042,FLD-043,FLD-044,FLD-045" style="min-width:1080px;"><thead><tr><th>序号</th><th>呼叫时间</th><th>场景名称</th><th>智能平台</th><th>拨打总次数</th><th>呼叫名单总数</th><th>接通总数</th><th>未接通总数</th><th>接通率</th><th>触达率</th><th>累计通话时长</th></tr></thead><tbody>' + renderRows() + '</tbody></table></div></div>';
   }
 
   function doQuery() {
@@ -90,11 +90,11 @@
     }).join('');
     return '<div class="report-call-page">' +
       '<div class="report-page-header"><div class="report-title-row"><span class="report-title">通话统计</span><span class="report-subtitle">创建任务时导入外呼名单，通过手动启动任务进行智能外呼任务。</span></div></div>' +
-      '<div class="report-tabs">' +
+      '<div class="report-tabs" data-anno="report-call-tabs" data-anno-page="report-call" data-anno-label="通话统计口径切换" data-anno-kind="region">' +
         '<button class="report-tab active" onclick="window.Pages[\'report-call\'].switchTab(this,\'call\')">外呼统计</button>' +
         '<button class="report-tab" onclick="window.Pages[\'report-call\'].switchTab(this,\'customer\')">客户统计</button>' +
       '</div>' +
-      '<div class="filter-bar">' +
+      '<div class="filter-bar" data-anno="report-call-filters" data-anno-page="report-call" data-anno-label="通话统计筛选" data-anno-kind="region" data-anno-fields="FLD-006,FLD-040">' +
         '<div class="filter-item"><label>呼叫时间：</label><div class="filter-date-range"><input type="text" value="2026-06-01"><span class="sep">&#8594;</span><input type="text" value="2026-06-03"><span class="calendar-icon">&#128197;</span></div></div>' +
         '<div class="filter-item"><label>场景名称：</label><select class="filter-select" style="width:180px;"><option value="">请选择</option>' + sceneOptions + '</select></div>' +
         '<div class="filter-item"><label>智能平台：</label><select class="filter-select" style="width:160px;">' + platformOptions + '</select></div>' +

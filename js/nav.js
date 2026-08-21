@@ -26,7 +26,6 @@
   };
 
   var PlaceholderNames = {
-    'sys-account': '账号管理',
     'sys-channel': '通道管理'
   };
 

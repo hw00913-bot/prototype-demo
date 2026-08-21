@@ -94,7 +94,7 @@
         '<div class="scene-page-title-row"><span class="scene-page-title">业务场景</span></div>' +
         '<div class="scene-page-subtitle" style="margin-top:6px;">创建使用智能外呼任务的业务场景，通过分配外呼平台的通话机器人和通话通道完成创建。</div>' +
       '</div>' +
-      '<div class="filter-bar" style="margin:0 20px 16px;">' +
+      '<div class="filter-bar" data-anno="sys-scene-filters" data-anno-page="sys-scene" data-anno-label="业务场景筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" style="margin:0 20px 16px;">' +
         '<div class="filter-item"><label>场景名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:180px;"></div>' +
         '<div class="filter-item"><label>场景分类：</label><select class="filter-select" style="width:160px;"><option value="">请选择</option><option value="新线索">新线索</option><option value="冷线索">冷线索</option></select></div>' +
         '<div class="filter-item"><label>所属平台：</label><select class="filter-select" style="width:160px;"><option value="">全部</option>' + platformOptions() + '</select></div>' +
@@ -482,7 +482,7 @@
 
     var html =
       '<div class="biz-drawer-backdrop" id="bizAddSceneBackdrop" onclick="window.Pages[\'sys-scene\'].closeAddModal(event)">' +
-        '<div class="biz-drawer" id="bizAddSceneDrawer" onclick="event.stopPropagation()">' +
+        '<div class="biz-drawer" id="bizAddSceneDrawer" data-anno="sys-scene-form" data-anno-page="sys-scene" data-anno-label="业务场景配置表单" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" onclick="event.stopPropagation()">' +
           '<div class="biz-drawer-header"><span class="biz-drawer-title">' + modalTitle + '</span><span class="biz-drawer-close" onclick="window.Pages[\'sys-scene\'].closeAddModal()">&#x2715;</span></div>' +
           '<div class="biz-drawer-body">' +
             '<div class="biz-form">' +
@@ -490,7 +490,7 @@
               '<div class="biz-form-row"><label class="biz-form-label required">场景编码</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="sceneCodeInput" placeholder="请输入字母、数字、符号" maxlength="20" value="' + sceneCode + '" oninput="window.Pages[\'sys-scene\'].updateCharCount(this,\'codeCount\',20)"><span class="biz-char-count" id="codeCount">' + sceneCode.length + ' / 20</span></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label">场景描述</label><div class="biz-form-field"><textarea class="biz-form-textarea" id="sceneDescTextarea" placeholder="请输入场景简要描述" rows="3">' + description + '</textarea></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">可用租户</label><div class="biz-form-field"><div class="biz-checkbox-group">' + tenantCheckboxesHtml(tenants) + '</div></div></div>' +
-              '<div class="biz-form-row"><label class="biz-form-label required">智能平台</label><div class="biz-form-field"><div class="biz-radio-group">' + platformRadiosHtml(platform) + '</div></div></div>' +
+              '<div class="biz-form-row" data-anno="sys-scene-platform-selector" data-anno-page="sys-scene" data-anno-label="智能平台选择" data-anno-kind="region" data-anno-fields="FLD-006"><label class="biz-form-label required">智能平台</label><div class="biz-form-field"><div class="biz-radio-group">' + platformRadiosHtml(platform) + '</div></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">场景类型</label><div class="biz-form-field"><div class="biz-radio-group" id="sceneTypeGroup">' + sceneTypeRadiosHtml(sceneType) + '</div></div></div>' +
 
               /* 冰兰专属：数据导入方式（手动导入/接口传入） */
@@ -513,7 +513,7 @@
               '</div></div></div>' +
 
               /* ===== 一知科技面板 ===== */
-              '<div id="platformPanelYizhi" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelYizhi" class="biz-platform-panel hidden" data-anno="sys-scene-yizhi-config" data-anno-page="sys-scene" data-anno-label="一知科技平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">一知科技场景id</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="yizhiSceneIdInput" placeholder="请输入一知科技平台创建的自助场景id" value="' + yizhiSceneId + '"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">你需要先在一知后台创建自动任务后，将自动任务 id 复制粘贴到此处完成关联。</div></div></div></div>' +
                 '<div class="biz-form-row hidden" id="modelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
@@ -527,7 +527,7 @@
               '</div>' +
 
               /* ===== 中科金智能面板 ===== */
-              '<div id="platformPanelZhongkejin" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelZhongkejin" class="biz-platform-panel hidden" data-anno="sys-scene-zhongkejin-config" data-anno-page="sys-scene" data-anno-label="中科金平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">中科金任务id</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="zkjTaskIdInput" placeholder="请输入中科金智能平台创建的外呼任务id" value="' + zkjTaskId + '"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">你需要先在中科金后台创建自动任务后，将自动任务 id 复制粘贴到此处完成关联。</div></div></div></div>' +
                 '<div class="biz-form-row hidden" id="zkjModelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
@@ -538,7 +538,7 @@
               '</div>' +
 
               /* ===== 电声面板 ===== */
-              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden" data-anno="sys-scene-diansheng-config" data-anno-page="sys-scene" data-anno-label="电声平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-015">' +
                 '<div class="ds-call-strategy">' +
                   '<div class="ds-call-title">呼叫任务配置</div>' +
                   '<div class="biz-form-row"><label class="biz-form-label">匹配机器人</label><div class="biz-form-field">' +
@@ -588,7 +588,7 @@
               '</div>' +
 
               /* ===== 冰兰面板（呼叫策略） ===== */
-              '<div id="platformPanelBinglan" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelBinglan" class="biz-platform-panel hidden" data-anno="sys-scene-binglan-config" data-anno-page="sys-scene" data-anno-label="冰兰平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014,FLD-015">' +
                 '<div class="biz-section-title">呼叫策略</div>' +
                 '<div class="biz-form-row"><label class="biz-form-label required">机器人id</label><div class="biz-form-field">' +
                   '<div id="binglanRobotIdInputWrap"><input type="text" class="biz-form-input" placeholder="请输入机器人id"></div>' +
@@ -625,7 +625,7 @@
               '</div>' +
 
               /* ===== 厚朴面板 ===== */
-              '<div id="platformPanelHoupu" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">厚朴任务名称</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="houpuTaskName" value="' + houpuTaskName + '" placeholder="需与厚朴平台已创建的任务名称完全一致"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label required">数据列模式</label><div class="biz-form-field"><div class="biz-radio-group">' +
                   '<label class="biz-radio"><input type="radio" name="houpuColumnType" value="single" onchange="window.Pages[\'sys-scene\'].onHoupuColumnTypeChange()"><span>单条</span></label>' +
@@ -635,7 +635,7 @@
               '</div>' +
 
               /* ===== 大众通信面板 ===== */
-              '<div id="platformPanelDazhong" class="biz-platform-panel hidden">' +
+              '<div id="platformPanelDazhong" class="biz-platform-panel hidden" data-anno="sys-scene-dazhong-config" data-anno-page="sys-scene" data-anno-label="大众通信平台配置" data-anno-kind="region" data-anno-fields="FLD-002,FLD-006,FLD-012">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">大众通信任务ID</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="dazhongTaskId" placeholder="请输入任务 uuid" value="' + dazhongTaskId + '"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">请先在大众通信 SaaS 创建并配置任务，再将任务 ID（uuid）粘贴到此处关联。重呼、并发、呼叫时间等策略均在大众通信 SaaS 中配置。</div></div></div></div>' +
                 '<div class="biz-form-row hidden" id="dzModelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +

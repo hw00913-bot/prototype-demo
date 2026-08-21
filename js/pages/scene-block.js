@@ -159,7 +159,7 @@
 
   function renderRows(list) {
     var group = currentGroup();
-    if (!list.length) return '<tr><td colspan="11" class="block-empty">当前筛选条件下暂无黑名单号码</td></tr>';
+    if (!list.length) return '<tr><td colspan="10" class="block-empty">当前筛选条件下暂无黑名单号码</td></tr>';
     return list.map(function (item) {
       var status = overallRowStatus(item, group);
       var retry = status === '同步失败' || status === '待同步' ? '<button class="block-cell-sync-btn" onclick="window.Pages[\'scene-block\'].retryRecord(\'' + item.phone + '\')">重试</button>' : '';
@@ -171,7 +171,6 @@
         '<td>' + escapeHtml(group.name) + '</td>' +
         '<td>' + escapeHtml(addTypeLabels[item.addType]) + '</td>' +
         '<td title="' + escapeHtml(item.reason) + '">' + escapeHtml(item.reason || '--') + '</td>' +
-        '<td>' + escapeHtml(item.source) + '</td>' +
         '<td>' + escapeHtml(item.creator) + '</td>' +
         '<td>' + item.createdAt + '</td>' +
         '<td>' + escapeHtml(item.effective) + '</td>' +
@@ -198,21 +197,20 @@
       '<button class="danger" onclick="window.Pages[\'scene-block\'].requestRemoveSelected()">批量移除</button>' +
       '<a href="#" onclick="event.preventDefault();window.Pages[\'scene-block\'].clearSelection()">取消选择</a></div>' : '';
     return '<div class="scene-block-panel">' +
-      '<aside class="block-left">' +
+      '<aside class="block-left" data-anno="block-group-list" data-anno-page="scene-block" data-anno-label="黑名单分组" data-anno-kind="region" data-anno-fields="FLD-070">' +
         '<div class="block-group-filter"><label>分组名称</label><div class="block-search-input"><input value="' + escapeHtml(groupKeyword) + '" placeholder="请输入" oninput="window.Pages[\'scene-block\'].setGroupKeyword(this.value)"><span>⌕</span></div></div>' +
         '<div class="block-group-summary"><span>共 ' + groups.length + ' 个分组，' + rows.length + ' 个号码</span><a href="#" onclick="event.preventDefault();window.Pages[\'scene-block\'].openAddGroup()">新建分组</a></div>' +
         '<div>' + renderGroups() + '</div>' +
       '</aside>' +
       '<main class="block-right">' +
         '<div class="block-current-title"><div><strong>' + escapeHtml(group.name) + '</strong><span>中台统一维护黑名单，电声外呼平台由系统自动同步。</span></div></div>' +
-        '<div class="filter-bar" style="margin-bottom:16px;padding:16px 20px;">' +
+        '<div class="filter-bar" data-anno="block-filters" data-anno-page="scene-block" data-anno-label="黑名单筛选" data-anno-kind="region" data-anno-fields="FLD-071,FLD-073,FLD-074" style="margin-bottom:16px;padding:16px 20px;">' +
           '<div class="filter-item"><label>号码：</label><input id="blockPhoneFilter" class="filter-input" style="width:140px;" value="' + escapeHtml(filters.phone) + '" placeholder="请输入"></div>' +
           '<div class="filter-item"><label>添加类型：</label><select id="blockAddTypeFilter" class="filter-select" style="width:120px;"><option value="all">全部</option>' + renderAddTypeOptions(filters.addType) + '</select></div>' +
-          '<div class="filter-item"><label>平台状态：</label><select id="blockStatusFilter" class="filter-select" style="width:120px;"><option value="all">全部</option><option>已同步</option><option>待同步</option><option>同步失败</option><option>仅本地</option></select></div>' +
           '<div class="filter-item"><label>添加时间：</label><div class="filter-date-range"><input id="blockTimeStart" type="date" value="' + filters.start + '" style="width:110px;"><span class="sep">至</span><input id="blockTimeEnd" type="date" value="' + filters.end + '" style="width:110px;"></div></div>' +
           '<div class="btn-group"><button class="btn btn-default" onclick="window.Pages[\'scene-block\'].resetFilters()">重置</button><button class="btn btn-primary" onclick="window.Pages[\'scene-block\'].applyFilters()">搜索</button></div>' +
         '</div>' +
-        '<div class="block-actions">' +
+        '<div class="block-actions" data-anno="block-management-actions" data-anno-page="scene-block" data-anno-label="黑名单维护操作" data-anno-kind="region">' +
           '<button class="btn btn-primary" onclick="window.Pages[\'scene-block\'].openAddNumber()">新增号码</button>' +
           '<button class="btn btn-default" onclick="window.Pages[\'scene-block\'].openImportModal()">批量导入</button>' +
           '<button class="btn btn-default" onclick="window.Pages[\'scene-block\'].exportRows()">导出</button>' +
@@ -221,8 +219,8 @@
         '</div>' +
         selection +
         '<div class="block-result-summary">查询结果：共 ' + list.length + ' 条</div>' +
-        '<div class="block-table-card"><table class="block-table block-blacklist-table" data-anno="block-table" data-anno-page="scene-block" data-anno-label="黑名单号码列表" data-anno-kind="table" data-anno-fields="FLD-070,FLD-071,FLD-075">' +
-          '<thead><tr><th class="block-check-col"><label><input type="checkbox"' + allChecked + ' onchange="window.Pages[\'scene-block\'].toggleAllRows(this.checked)">全选</label></th><th>用户号码</th><th>所属分组</th><th>添加类型</th><th>添加原因</th><th>来源</th><th>添加人</th><th>添加时间</th><th>有效期</th><th>平台同步</th><th>操作</th></tr></thead>' +
+        '<div class="block-table-card"><table class="block-table block-blacklist-table" data-anno="block-table" data-anno-page="scene-block" data-anno-label="黑名单号码列表" data-anno-kind="table" data-anno-fields="FLD-070,FLD-071,FLD-072,FLD-073,FLD-074,FLD-075">' +
+          '<thead><tr><th class="block-check-col"><label><input type="checkbox"' + allChecked + ' onchange="window.Pages[\'scene-block\'].toggleAllRows(this.checked)">全选</label></th><th>用户号码</th><th>所属分组</th><th>添加类型</th><th>添加原因</th><th>添加人</th><th>添加时间</th><th>有效期</th><th>平台同步</th><th>操作</th></tr></thead>' +
           '<tbody>' + renderRows(list) + '</tbody>' +
         '</table></div>' +
       '</main></div>';
@@ -465,7 +463,6 @@
   function applyFilters() {
     filters.phone = document.getElementById('blockPhoneFilter').value;
     filters.addType = document.getElementById('blockAddTypeFilter').value;
-    filters.status = document.getElementById('blockStatusFilter').value;
     filters.start = document.getElementById('blockTimeStart').value;
     filters.end = document.getElementById('blockTimeEnd').value;
     if (filters.start && filters.end && filters.start > filters.end) return showToast('开始时间不能晚于结束时间', 'warning');
@@ -729,5 +726,3 @@
     closeModal: function () { activeModal = null; editingGroupId = null; pendingAction = null; updatePage(); }
   };
 })();
-
-

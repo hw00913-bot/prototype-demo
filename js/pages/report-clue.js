@@ -212,13 +212,13 @@
     var nevState = pageStates['manual-nev'];
     var iceState = pageStates['manual-ice'];
 
-    return '<div class="sub-tab-bar"><div class="sub-tab-bar-inner">' +
+    return '<div class="sub-tab-bar" data-anno="report-clue-vehicle-tabs" data-anno-page="report-clue" data-anno-label="NEV/ICE 线索切换" data-anno-kind="region"><div class="sub-tab-bar-inner">' +
       '<div class="sub-tab-item active" onclick="window.Pages[\'report-clue\'].switchSubTab(this,\'manual-nev\')">总部 NEV 线索</div>' +
       '<div class="sub-tab-item" onclick="window.Pages[\'report-clue\'].switchSubTab(this,\'manual-ice\')">总部 ICE 线索</div>' +
       '</div></div>' +
       '<!-- 总部 NEV 线索 -->' +
       '<div id="manual-nev" class="sub-tab-panel" style="display:flex;">' +
-        '<div class="filter-bar">' +
+        '<div class="filter-bar" data-anno="report-clue-stat-filters" data-anno-page="report-clue" data-anno-label="线索统计筛选" data-anno-kind="region" data-anno-fields="FLD-040">' +
           '<div class="filter-item"><label>导入时间：</label><div class="filter-date-range"><input type="date" class="filter-input date-input-start" style="width:130px;"><span class="sep">—</span><input type="date" class="filter-input date-input-end" style="width:130px;"></div></div>' +
           '<div class="filter-item"><label>业务类型：</label><select class="filter-select"><option value="cold" selected>冷线索</option><option value="new">新线索</option></select></div>' +
           '<div class="btn-group">' +
@@ -229,7 +229,7 @@
           '</div>' +
         '</div>' +
         '<div class="table-wrap">' +
-          '<div class="table-container"><table class="data-table" data-anno="report-clue-table" data-anno-page="report-clue" data-anno-label="线索统计列表" data-anno-kind="table" data-anno-fields="FLD-040">' +
+          '<div class="table-container"><table class="data-table" data-anno="report-clue-table" data-anno-page="report-clue" data-anno-label="线索统计列表" data-anno-kind="table" data-anno-fields="FLD-040,FLD-041,FLD-043,FLD-045">' +
             '<thead><tr><th>序号</th><th>导入日期</th><th>业务类型</th><th>导入线索量</th><th>外呼客户量</th><th>AI 外呼已接通量</th><th>已下发线索数</th><th>AI 接通率</th><th>平均通话时长</th><th>A (高意向)客户数</th><th>B (潜在)客户数</th><th>C (一般)客户数</th><th>D (忙碌/敷衍)客户数</th><th>E (拒绝/无效/无应答)客户数</th></tr></thead>' +
             '<tbody id="manual-nev-tbody">' + renderStatRows(nevRows, nevState.curPage, nevState.pageSize) + '</tbody>' +
           '</table></div>' +
@@ -272,7 +272,7 @@
       '</div></div>' +
       '<!-- 总部 NEV 线索明细 -->' +
       '<div id="ai-nev" class="sub-tab-panel" style="display:flex;">' +
-        '<div class="filter-bar">' +
+        '<div class="filter-bar" data-anno="report-clue-detail-filters" data-anno-page="report-clue" data-anno-label="线索明细筛选" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-024,FLD-025,FLD-031">' +
           '<div class="filter-item"><label>导入时间：</label><div class="filter-date-range"><input type="datetime-local" class="filter-input date datetime-input-start" style="width:180px;"><span class="sep">—</span><input type="datetime-local" class="filter-input date datetime-input-end" style="width:180px;"></div></div>' +
           '<div class="filter-item"><label>呼叫时间：</label><div class="filter-date-range"><input type="datetime-local" class="filter-input date datetime-input-start" style="width:180px;"><span class="sep">—</span><input type="datetime-local" class="filter-input date datetime-input-end" style="width:180px;"></div></div>' +
           '<div class="filter-item"><label>呼叫任务场景名称：</label><select class="filter-select"><option value="">全部</option><option value="scene1">一知-nev-新线索</option><option value="scene2">一知-保有客户-回访</option></select></div>' +
@@ -300,7 +300,7 @@
           '</div>' +
         '</div>' +
         '<div class="table-wrap">' +
-          '<div class="table-container"><table class="data-table">' +
+          '<div class="table-container"><table class="data-table" data-anno="report-clue-detail-table" data-anno-page="report-clue" data-anno-label="外呼线索明细" data-anno-kind="table" data-anno-fields="FLD-020,FLD-021,FLD-023,FLD-024,FLD-025,FLD-031">' +
             '<thead><tr><th>序号</th><th>导入时间</th><th>线索编码</th><th>呼叫任务场景名称</th><th>业务类型</th><th>手机号</th><th>门店编码</th><th>门店名称</th><th>呼叫时间</th><th>通话状态</th><th>通话时长</th><th>意向级别（外呼中台）</th><th>意向级别（业务系统）</th><th>下发门店</th></tr></thead>' +
             '<tbody id="ai-nev-tbody">' + renderDetailRows(nevDetailRows, nevState.curPage, nevState.pageSize) + '</tbody>' +
           '</table></div>' +
@@ -355,7 +355,7 @@
       '<div class="clue-tip-bar">' +
         '统计业务系统传入后，提交到外呼和回传业务系统的数据。' +
       '</div>' +
-      '<div class="filter-bar">' +
+      '<div class="filter-bar" data-anno="report-clue-return-filters" data-anno-page="report-clue" data-anno-label="线索回流筛选" data-anno-kind="region" data-anno-fields="FLD-024,FLD-040">' +
         '<div class="filter-item"><label>统计时间：</label><div class="filter-date-range"><input type="date" class="filter-input date-input-start" style="width:130px;" placeholder="开始时间"><span class="sep">—</span><input type="date" class="filter-input date-input-end" style="width:130px;" placeholder="结束时间"></div></div>' +
         '<div class="filter-item"><label>场景名称：</label><select class="filter-select" style="width:160px;"><option value="">全部</option><option value="scene1">燃油车新线索</option></select></div>' +
         '<div class="btn-group">' +
@@ -367,7 +367,7 @@
         '</div>' +
       '</div>' +
       '<div class="table-wrap">' +
-        '<div class="table-container"><table class="data-table">' +
+        '<div class="table-container"><table class="data-table" data-anno="report-clue-return-table" data-anno-page="report-clue" data-anno-label="线索回流统计" data-anno-kind="table" data-anno-fields="FLD-024,FLD-040">' +
           '<thead><tr><th style="width: 80px;">序号</th><th>统计时间 <span style="font-size: 10px; color: #bfbfbf; margin-left: 4px; cursor: pointer; user-select: none;">⇅</span></th><th>场景名称</th><th>线索传入数</th><th>提交外呼数</th><th>线索回流数</th></tr></thead>' +
           '<tbody id="tab-return-tbody">' + renderReturnRows(returnRows, state.curPage, state.pageSize) + '</tbody>' +
         '</table></div>' +
@@ -379,7 +379,7 @@
   /* ===== 页面整体渲染（顶格展示主 Tab，无多余蓝色 page-header） ===== */
   function render() {
     return '<div class="clue-report-page">' +
-      '<div class="tab-bar">' +
+      '<div class="tab-bar" data-anno="report-clue-main-tabs" data-anno-page="report-clue" data-anno-label="线索报表类型切换" data-anno-kind="region">' +
         '<div class="tab-item active" onclick="window.Pages[\'report-clue\'].switchTab(this,\'tab-manual\')">外呼线索统计</div>' +
         '<div class="tab-item" onclick="window.Pages[\'report-clue\'].switchTab(this,\'tab-ai\')">外呼线索明细</div>' +
         '<div class="tab-item" onclick="window.Pages[\'report-clue\'].switchTab(this,\'tab-return\')">线索回流统计</div>' +

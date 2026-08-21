@@ -64,15 +64,15 @@ window.Pages['sys-tags'] = (function() {
         '<span style="font-size:15px;font-weight:600;">📋 意向标签配置</span>' +
       '</div>' +
       '<div style="display:flex;gap:8px;">' +
-        '<button class="btn-scene-mgr" style="padding:6px 16px;background:#fff;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;font-size:13px;" onclick="window.Pages[\'sys-tags\'].openSceneModal()">⚙ 场景配置</button>' +
-        '<button class="btn-supplier-mgr" style="padding:6px 16px;background:#fff;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;font-size:13px;" onclick="window.Pages[\'sys-tags\'].openSupplierModal()">🏢 供应商管理</button>' +
+        '<button class="btn-scene-mgr" data-anno="sys-tags-scene-management" data-anno-page="sys-tags" data-anno-label="标签场景配置" data-anno-kind="action" style="padding:6px 16px;background:#fff;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;font-size:13px;" onclick="window.Pages[\'sys-tags\'].openSceneModal()">⚙ 场景配置</button>' +
+        '<button class="btn-supplier-mgr" data-anno="sys-tags-supplier-management" data-anno-page="sys-tags" data-anno-label="标签供应商管理" data-anno-kind="action" style="padding:6px 16px;background:#fff;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;font-size:13px;" onclick="window.Pages[\'sys-tags\'].openSupplierModal()">🏢 供应商管理</button>' +
       '</div>' +
     '</div>';
   }
 
   /* ===== 左侧配置树 ===== */
   function buildTreePanelHTML() {
-    var html = '<div class="tags-tree-panel" id="tags-tree-panel" style="width:260px;min-width:260px;background:#fafafa;border-right:1px solid #e8e8e8;overflow-y:auto;padding:8px 0;">';
+    var html = '<div class="tags-tree-panel" id="tags-tree-panel" data-anno="sys-tags-config-tree" data-anno-page="sys-tags" data-anno-label="标签配置树" data-anno-kind="region" data-anno-fields="FLD-060,FLD-061,FLD-062" style="width:260px;min-width:260px;background:#fafafa;border-right:1px solid #e8e8e8;overflow-y:auto;padding:8px 0;">';
     html += '<div class="tree-header" style="padding:8px 16px;font-size:12px;color:#999;font-weight:500;">配置树</div>';
 
     html += '<div class="tree-root-group">';
@@ -211,7 +211,7 @@ window.Pages['sys-tags'] = (function() {
 
     // 标签表格
     html += '<div style="flex:1;overflow-y:auto;">';
-    html += '<table class="data-table" style="width:100%;border-collapse:collapse;">';
+    html += '<table class="data-table" data-anno="sys-tags-supplier-map" data-anno-page="sys-tags" data-anno-label="供应商标签映射" data-anno-kind="table" data-anno-fields="FLD-060,FLD-061,FLD-062,FLD-063" style="width:100%;border-collapse:collapse;">';
     html += '<thead><tr>';
     html += '<th style="width:50px;text-align:center;">启用</th>';
     html += '<th style="width:60px;">序号</th>';
@@ -274,7 +274,7 @@ window.Pages['sys-tags'] = (function() {
     html += '这里维护当前租户类型+场景下的中台唯一标签。供应商标签集只能映射到这些本地标签。';
     html += '</div>';
     html += '<div style="flex:1;overflow-y:auto;">';
-    html += '<table class="data-table" style="width:100%;border-collapse:collapse;">';
+    html += '<table class="data-table" data-anno="sys-tags-table" data-anno-page="sys-tags" data-anno-label="中台标签列表" data-anno-kind="table" data-anno-fields="FLD-060,FLD-061,FLD-062,FLD-063" style="width:100%;border-collapse:collapse;">';
     html += '<thead><tr><th style="width:70px;">序号</th><th style="width:180px;">本地编码</th><th>本地标签名称</th><th style="width:100px;">排序</th><th style="width:150px;">操作</th></tr></thead>';
     html += '<tbody>';
     localTags.forEach(function(tag, idx) {

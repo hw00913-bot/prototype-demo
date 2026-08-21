@@ -18,11 +18,12 @@
 | js/pages/report-clue.js | page | 线索统计 | 线索统计数据展示 |
 | js/pages/result-records.js | page | 通话记录 | 通话记录查询 |
 | js/pages/result-clue.js | page | 线索记录 | 线索记录查询 |
+| js/pages/sys-account.js | page | 账号管理 | 账号管理配置 |
 | js/pages/sys-scene.js | page | 业务场景 | 业务场景配置 |
 | js/pages/sys-tags.js | page | 标签管理 | 标签管理配置 |
 | js/pages/sys-tenant.js | page | 租户管理 | 租户管理配置 |
 | mock/data.js | data | Mock数据 | 所有Mock数据源 |
-| config/nav.json | config | 导航配置 | 导航菜单配置 |
+| config/nav.json | config | 交付导航配置 | Loop 结构与交付入口配置 |
 | config/project.json | config | 项目配置 | 项目基本信息 |
 | assets/css/global.css | style | 全局样式 | 全局CSS样式 |
 | assets/css/app.css | style | 应用样式 | 应用CSS样式 |
@@ -34,7 +35,7 @@
 
 - 入口页面：`index.html`
 - 页面路由/导航：左侧边栏导航，点击切换右侧内容区域
-- 页面实现文件：`js/pages/*.js`（11个页面文件）
+- 页面实现文件：`js/pages/*.js`（12个页面文件）
 
 ## 页面路由结构
 
@@ -51,7 +52,7 @@
 │   ├── 通话记录 (result-records.js)
 │   └── 线索记录 (result-clue.js)
 └── 系统管理
-    ├── 账号管理 (无对应JS文件)
+    ├── 账号管理 (sys-account.js)
     ├── 租户管理 (sys-tenant.js)
     ├── 通道管理 (无对应JS文件)
     ├── 业务场景 (sys-scene.js)
@@ -77,4 +78,4 @@
 ## 不纳入实现/交付的目录
 
 - `tools/prototype-loop-orchestrator/`：项目内总控工具包，不作为业务实现、验证对账、标注覆盖或交付统计范围。
-- `.playwright-cli/`：Playwright测试配置，不纳入业务实现。
+- `.playwright-cli/`：浏览器验证生成缓存，已忽略且不纳入业务实现。

@@ -393,7 +393,7 @@
         '</div>';
     }
     return '<div class="record-detail-backdrop" id="recordDetailBackdrop" onclick="window.Pages[\'result-records\'].closeDetail(event)">' +
-      '<div class="record-detail-modal" onclick="event.stopPropagation()">' +
+      '<div class="record-detail-modal" data-anno="result-records-detail" data-anno-page="result-records" data-anno-label="通话详情" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036" onclick="event.stopPropagation()">' +
         '<div class="record-detail-header">' +
           '<button class="record-detail-close" onclick="window.Pages[\'result-records\'].closeDetail()">&#215;</button>' +
           '<span class="record-detail-title">会话 id：' + escapeHtml(titleId) + '</span>' +
@@ -569,7 +569,7 @@
         '<span class="record-title">通话记录</span>' +
         '<span class="record-subtitle">查看每一通外呼的结果</span>' +
       '</div>' +
-      '<div class="filter-bar" style="margin-bottom:16px;">' +
+      '<div class="filter-bar" data-anno="result-records-filters" data-anno-page="result-records" data-anno-label="通话记录筛选" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-022,FLD-024,FLD-025,FLD-027" style="margin-bottom:16px;">' +
         '<div class="filter-row">' +
           '<div class="filter-item"><label>用户号码：</label><input type="text" id="recordPhone" class="filter-input" placeholder="请输入" style="width:170px;"></div>' +
           '<div class="filter-item"><label>通话开始时间：</label><div class="filter-date-range"><input type="text" class="date-input" placeholder="请选择"><span class="sep">~</span><input type="text" class="date-input" placeholder="请选择"><span class="calendar-icon">&#128197;</span></div></div>' +
@@ -593,7 +593,7 @@
           '<span class="report-icon-btn" onclick="showToast(\'设置功能开发中\',\'info\')" title="列设置">&#9881;</span>' +
         '</div>' +
         '<div class="record-table-scroll">' +
-          '<table class="record-table" data-anno="result-records-table" data-anno-page="result-records" data-anno-label="通话记录列表" data-anno-kind="table">' +
+          '<table class="record-table" data-anno="result-records-table" data-anno-page="result-records" data-anno-label="通话记录列表" data-anno-kind="table" data-anno-fields="FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-027">' +
             '<thead><tr>' +
               '<th style="width: 60px;">序号</th>' +
               '<th style="width: 140px;">用户号码</th>' +

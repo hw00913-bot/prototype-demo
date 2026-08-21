@@ -4,14 +4,53 @@
 
 ## 最新状态
 
-- Overall: In Progress
-- Last verified: targeted step verification (2026-08-21)
+- Overall: S9 Annotated
+- Last verified: project cleanup regression + final gate (2026-08-21)
 
 ## 机器可读记录格式
 
 每条记录必须包含以下键值行。`Step` 必须使用 `step-01`、`step-02` 等稳定 ID，且与 `memory/execution-steps.md` 对应。
 
 ## History
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8895/index.html | docs/interaction.html | docs/计算逻辑.html | flowcharts/index.html
+Tool: static reference audit + JavaScript/JSON validation + browser regression + loop preflight
+Command / Check: 清理后检查剩余引用与忽略缓存；校验全部业务 JS 和 JSON；遍历 13 个导航路由；验证内置登录显隐、三类交付入口及 390px 移动端导航；执行 final 门禁
+Passed: 13/13 导航路由均有有效内容；内置登录层可显示并正常返回原型；功能说明、计算逻辑、流程图集均可加载；移动端交付导航可见；控制台 0 错误；网络 0 个 4xx/5xx；final preflight PASS
+Failed: 无
+Evidence: validRoutes=13/13；loginVisible=true；loginHidden=true；deliveryTabs=3；mobileNavVisible=true；consoleErrorCount=0；http4xx5xxCount=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 项目清理完成；后续验证采用 Loop 门禁或临时浏览器检查，不再在交付目录沉淀一次性脚本和截图缓存
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: index.html | docs/interaction.html
+Tool: static reference check + browser evidence + loop preflight
+Command / Check: 检查正式文档引用唯一性；验证首页和交付导航均指向 interaction.html；加载文档并检查资源、控制台与 final 门禁
+Passed: 功能说明与交互说明统一为 docs/interaction.html；旧版并行 HTML 无剩余引用；旧生成链路已移除；页面可加载；final preflight PASS
+Failed: 无
+Evidence: canonicalRefs=index.html/js/delivery-nav.js/config/workflow.json；legacyHtmlRefs=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 后续功能与交互说明仅维护 docs/interaction.html
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8892/index.html | memory/annotation-prompt.md | memory/annotation-coverage.md | docs/interaction.html | annotations/annotations.js
+Tool: annotation-generator + verification-before-completion + browser evidence + loop preflight
+Command / Check: 校验 55 个源码锚点唯一性与提示词一致性；逐页加载 11 个核心页面；打开业务场景抽屉验证 6 个平台配置锚点；渲染交互文档；执行 S9 与 final 门禁
+Passed: 源码锚点 55/55 唯一；提示词锚点与回写标注均为 55/55；ID 从 1 到 55 连续；首页标注 1 个、外呼列表 2 个、业务场景基础标注 3 个，打开抽屉后共 11 个；点击编号圆点可正常打开十维标注详情；交互文档 5 章/15 表且无占位内容；控制台 0 错误；网络 0 个 4xx/5xx；final preflight PASS
+Failed: 无
+Evidence: AnnotationData=55；idsContinuous=true；targetsUnique=55；sectionsComplete=true；homeMarkers=1；sceneListMarkers=2；sysSceneBaseMarkers=3；sysSceneDynamicMarkers=11；popupOpened=true
+Result: pass
+Consecutive Failures: 0
+Next Action: 标注已在原型中可见；后续仅根据 PM 评审意见调整具体文案或位置
 
 Date: 2026-08-21
 Step: step-08

@@ -12,11 +12,11 @@
     h1 { font-size: 24px; font-weight: 600; margin-bottom: 32px; color: #1a1a1a; border-bottom: 2px solid #1677ff; padding-bottom: 12px; }
     h2 { font-size: 18px; font-weight: 600; margin: 32px 0 16px; color: #1a1a1a; }
     h3 { font-size: 16px; font-weight: 600; margin: 24px 0 12px; color: #333; }
-    p { margin: 8px 0; font-size: 14px; color: #374151; }
-    strong { color: #111827; }
+    p { margin: 8px 0; font-size: 14px; }
+    strong { color: #333; }
     a { color: #1677ff; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .table-wrap { width: 100%; overflow-x: auto; margin: 12px 0 20px 0; }
+    .table-wrap { width: 100%; overflow-x: auto; margin: 12px 0; }
     table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }
     th, td { border: 1px solid #d9d9d9; padding: 10px 12px; text-align: left; vertical-align: top; }
     th { background: #fafafa; font-weight: 600; color: #333; white-space: nowrap; }
@@ -25,10 +25,8 @@
     .section-divider { margin: 32px 0; }
     .jump-btn { display: inline-block; padding: 8px 20px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; }
     .jump-btn:hover { background: #4096ff; text-decoration: none; }
-    blockquote { background: #F0F7FF; border-left: 4px solid #1677ff; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; color: #1E40AF; font-size: 13px; }
-    code { background: #F3F4F6; color: #EF4444; padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
-    ul, ol { margin: 8px 0 16px 24px; color: #374151; }
-    li { margin-bottom: 6px; }
+    .note { padding: 12px 16px; margin: 12px 0; border-left: 4px solid #1677ff; background: #f0f7ff; font-size: 13px; }
+    code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; }
     @media (max-width: 640px) { body { padding: 20px 12px; } .container { padding: 24px 18px; } }
   </style>
 </head>
@@ -37,2135 +35,224 @@
     <div style="text-align: right; margin-bottom: 24px;">
       <a href="../index.html" class="jump-btn" data-delivery-switch="prototype">跳转演示页面 →</a>
     </div>
-    <h1 id="title-1">东风日产智能外呼中台 · 统一功能说明文档</h1>
-<blockquote><strong>版本</strong>：v2.0 统一合并版<br><strong>更新时间</strong>：2026-08-20<br><strong>文档密级</strong>：内部产品技术基线文档<br><strong>适用范围</strong>：东风日产智能外呼中台各端（总部超管、大区/小区、门店租户、DCC线索中心、各外呼供应商接入）</blockquote>
-<hr>
-<h2 id="sec-1">一. 版本说明</h2>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>版本号</th>
-<th>更新时间</th>
-<th>修订人</th>
-<th>更新内容</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>v2.0</strong></td>
-<td>2026-08-20</td>
-<td>胡灏文 / 产品团队</td>
-<td><strong>全量整合与功能细化</strong>：<br>1. 合并一知科技、科大讯飞、冰兰、中科金、电声、大众通信、厚朴等多供应商接入规范；<br>2. 统一整合租户充值方案（计费明细/充值单关联与手动生效/余额调整）；<br>3. 整合意向标签管理体系（中台标签集与供应商标签池双模式树、自动推断映射与连续移位排序）；<br>4. 统一整合线索统计与线索明细报表（大区/小区/门店三级联动与拼音模糊搜索、敏感号码掩码脱敏）；<br>5. 完善账号管理（按所属租户隔离、头像上传、密码明密文切换、字符校验）与租户管理；<br>6. 完善右上角用户设置、账号信息详情与免校验全屏登录/退出流程；<br>7. 标准化中台 25 项通话状态枚举字典与多平台映射基线。</td>
-</tr>
-<tr>
-<td><strong>v1.2</strong></td>
-<td>2026-07-08</td>
-<td>胡灏文</td>
-<td>1. 外呼列表数据概览过滤客户数调整为去重过滤客户数；<br>2. 接听数调整为接听客户数（按去重口径统计）；<br>3. 总接听率口径调整为：接听客户数 / 外呼客户数；<br>4. 新增回调字段 <code>isRedial</code>（是否重拨）以标识线索重拨记录。</td>
-</tr>
-<tr>
-<td><strong>v1.1</strong></td>
-<td>2026-06-17</td>
-<td>胡灏文</td>
-<td>1. 接入中科金平台与电声平台外呼能力；<br>2. 业务场景新增多平台互斥配置与 <code>strategyCode</code> 策略调度机制；<br>3. 外呼黑名单新增分组维护、跨平台同步通道与批量处理。</td>
-</tr>
-<tr>
-<td><strong>v1.0</strong></td>
-<td>2026-05-20</td>
-<td>胡灏文</td>
-<td>1. 智能外呼中台初始化，包含数据概览、任务详情、呼叫名单；<br>2. 手动导入新增异步导入记录与导出失败记录；<br>3. 接入一知大小模型与关联账号功能。</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<h2 id="sec-2">二. 项目范围</h2>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>系统名称</th>
-<th>涉及板块</th>
-<th>功能范围</th>
-<th>对接系统范围</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>全局与认证</strong></td>
-<td>用户登录、右上角菜单、账号信息修改、退出登录</td>
-<td>SSO / 中台认证中心</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>首页工作台</strong></td>
-<td>租户用量看板（大/小模型可用分钟数、有效期、充值状态）</td>
-<td>计费中心、DCC</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>外呼场景</strong></td>
-<td>外呼列表、任务卡片调度、数据概览看板、意向配置、任务详情、呼叫名单、手工异步导入</td>
-<td>一知、科大讯飞、冰兰、中科金、电声、大众通信、厚朴</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>外呼拦截</strong></td>
-<td>外呼黑名单分组管理、号码批量维护、跨平台黑名单同步通道</td>
-<td>电声、冰兰、一知、科大讯飞</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>统计分析</strong></td>
-<td>通话统计（外呼/客户双维度）、计费统计（消费概览/明细）、线索统计（NEV/ICE线索）</td>
-<td>计费系统、DCC、数据中心</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>外呼结果</strong></td>
-<td>通话记录（录音播放/对话转写/外呼小结）、线索记录（三级级联/模糊搜索/客户标签/回访详情）</td>
-<td>DCC、业务系统、百炼智能体</td>
-</tr>
-<tr>
-<td><strong>智能外呼统一中台</strong></td>
-<td><strong>系统管理</strong></td>
-<td>账号管理（租户联动/CRUD）、租户管理（计费配置/充值抽屉/余额调整）、通道管理、业务场景（多平台单页表单）、标签管理（双模式树/映射池/排序算法）</td>
-<td>财务 D智链充值、各供应商开放平台</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<h2 id="sec-3">三. 逻辑说明</h2>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>流程名称</th>
-<th>跳转地址</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>认证与登录链路</strong></td>
-<td>用户访问系统 → 默认进入登录页（或右上角退出登录进入） → 展示东风日产品牌标识、拓扑网络背景、图形验证码 → 点击登录免校验直达系统首页。</td>
-</tr>
-<tr>
-<td><strong>外呼任务全生命周期</strong></td>
-<td>业务场景配置 → 生成任务策略（如电声 <code>strategyCode</code> 或一知任务） → 导入线索名单（校验预计冻结金额） → 外部平台异步呼叫 → 话单实时回调 → 中台映射统一通话状态与意向级别 → 数据看板与线索报表呈现。</td>
-</tr>
-<tr>
-<td><strong>租户资金与计费流转</strong></td>
-<td>充值单关联（试用单/付费单） → 生成待生效记录 → 手动点击生效弹窗（按套餐调整天数/金额） → 计入统一资金账户 → 外呼任务创建预冻结 → 任务完成/终止释放冻结并按分钟单价实际扣费。</td>
-</tr>
-<tr>
-<td><strong>意向标签映射流转</strong></td>
-<td>供应商平台返回原生标签 → 匹配「供应商标签集」 → 根据映射规则转换为「中台标准标签集」 → 驱动线索记录标签打标与数据概览意向洞察统计。</td>
-</tr>
-<tr>
-<td><strong>黑名单跨平台同步</strong></td>
-<td>中台创建黑名单分组并录入号码 → 触发已启用平台适配器（如电声 <code>groupCode</code> 自动建组） → 同步远端号码池 → 呼叫前本地+远端双重拦截。</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<h2 id="sec-4">四. 功能说明</h2>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-1">1. 全局规范、顶部导航与登录认证</h3>
-<p><strong>1）功能名称：</strong> 顶部导航、账号信息与系统登录认证</p>
-<p><strong>2）交互说明：</strong></p>
-<ul>
-<li><strong>顶部顶栏</strong>：左侧展示品牌应用名「智能外呼」与动态面包屑导航；右侧展示「📐 计算逻辑」文档外链与「<code>👤 产品-超管</code>」下拉菜单；</li>
-<li><strong>下拉菜单</strong>：点击展开包含「<code>🔧 账号信息</code>」与「<code>🚪 退出登录</code>」；</li>
-<li><strong>账号信息弹窗</strong>：点击后弹出居中模态框（720px），包含海报头像、账号（只读）、账号昵称（支持 20 字实时计数）、手机号（11位计数+编辑按钮）、密码（密文+修改按钮）、租户-角色。点击确定后即时同步刷新顶部导航栏昵称；</li>
-<li><strong>退出登录与全屏登录页</strong>：点击退出经二次确认后全屏平滑切入登录页。登录页左上角展示东风日产红圈车标 Logo，背景为科技感点线拓扑图，居中卡片支持账号密码/手机号切换，带图形验证码，点击「登录」直接免校验进入首页。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 中台当前登录会话状态与配置。</p>
-<p><strong>4）逻辑说明：</strong> 前端本地状态同步维护，关闭/重置时保证数据一致性。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>顶部面包屑</td>
-<td>动态指示当前页面路径</td>
-<td>前端路由</td>
-<td>根据菜单选中项自动计算</td>
-<td>文本</td>
-<td>首页</td>
-<td>异常路由回退至首页</td>
-</tr>
-<tr>
-<td>计算逻辑入口</td>
-<td>外链跳转计费与统计口径说明</td>
-<td>前端静态</td>
-<td>打开新标签页</td>
-<td>URL</td>
-<td><code>docs/计算逻辑.html</code></td>
-<td>--</td>
-</tr>
-<tr>
-<td>用户触发器</td>
-<td>展开/收起用户设置下拉菜单</td>
-<td>前端状态</td>
-<td>点击切换 <code>open</code> 状态</td>
-<td>组件</td>
-<td><code>👤 产品-超管</code></td>
-<td>点击外部空白自动收起</td>
-</tr>
-<tr>
-<td>账号信息-头像</td>
-<td>展示与更换用户头像</td>
-<td>本地存储</td>
-<td>Base64 / SVG 图像数据</td>
-<td>图片</td>
-<td>红色东风日产海报</td>
-<td>支持上传本地图片</td>
-</tr>
-<tr>
-<td>账号信息-账号</td>
-<td>展示当前登录账号唯一标识</td>
-<td>系统会话</td>
-<td><code>CurrentUser.username</code></td>
-<td>文本 (只读)</td>
-<td><code>super-product</code></td>
-<td>禁止修改</td>
-</tr>
-<tr>
-<td>账号信息-昵称</td>
-<td>维护当前显示昵称</td>
-<td>用户输入</td>
-<td>1~20 字符，支持汉字/字母/数字</td>
-<td>文本</td>
-<td><code>产品-超管</code></td>
-<td>为空时表单拦截并标红</td>
-</tr>
-<tr>
-<td>账号信息-手机号</td>
-<td>展示与修改安全绑定手机</td>
-<td>用户输入</td>
-<td>正则 <code>^1\d{10}$</code> 校验</td>
-<td>文本</td>
-<td><code>15975585393</code></td>
-<td>格式非法时拦截并提示</td>
-</tr>
-<tr>
-<td>账号信息-密码</td>
-<td>维护用户登录密码</td>
-<td>用户输入</td>
-<td>8~16 位大小写字母/数字/符号</td>
-<td>密文</td>
-<td><code>............</code></td>
-<td>长度不足或超长拦截</td>
-</tr>
-<tr>
-<td>账号信息-租户角色</td>
-<td>明确用户管理身份与组织归属</td>
-<td>系统配置</td>
-<td><code>CurrentUser.tenantRole</code></td>
-<td>文本 (只读)</td>
-<td><code>超级管理组-超级管理员</code></td>
-<td>禁止修改</td>
-</tr>
-<tr>
-<td>登录页-图形验证码</td>
-<td>动态彩色防刷图形验证码</td>
-<td>前端 Canvas</td>
-<td>随机 4 位字符，多色带微噪点</td>
-<td>Canvas 图形</td>
-<td><code>a 8 C q</code></td>
-<td>点击画布即时重绘刷新</td>
-</tr>
-<tr>
-<td>登录页-直接登录</td>
-<td>免校验直接进入中台</td>
-<td>前端行为</td>
-<td>隐藏登录遮罩，调用 <code>Nav.init()</code></td>
-<td>点击事件</td>
-<td>--</td>
-<td>提示「登录成功，欢迎回来」</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-2">2. 首页 / 数据概览与用量看板</h3>
-<p><strong>1）功能名称：</strong> 首页概览工作台与租户用量看板</p>
-<p><strong>2）交互说明：</strong> 登录后默认直达首页，顶部展示租户用量卡片（大模型可用分钟数、小模型可用分钟数、有效期、呼叫状态），右侧提供「充值」快捷入口；下方展示快速导航、外呼概览趋势图表与快捷任务入口。</p>
-<p><strong>3）数据来源：</strong> AI 智能外呼中台、租户计费账户体系。</p>
-<p><strong>4）逻辑说明：</strong> 可用分钟数由「统一可用资金余额 ÷ 该模型当前有效单价」动态计算生成。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>大模型可用分钟</td>
-<td>展示当前租户大模型剩余可用时长</td>
-<td>计费模块</td>
-<td><code>可用资金余额 ÷ 大模型单价</code></td>
-<td>整数 (分钟)</td>
-<td><code>30,000</code></td>
-<td>单价为0或停用显 <code>--</code></td>
-</tr>
-<tr>
-<td>小模型可用分钟</td>
-<td>展示当前租户小模型剩余可用时长</td>
-<td>计费模块</td>
-<td><code>可用资金余额 ÷ 小模型单价</code></td>
-<td>整数 (分钟)</td>
-<td><code>30,000</code></td>
-<td>单价为0或停用显 <code>--</code></td>
-</tr>
-<tr>
-<td>账户有效期</td>
-<td>租户服务有效截止日期</td>
-<td>租户充值记录</td>
-<td>取已生效套餐最大日期</td>
-<td>YYYY-MM-DD</td>
-<td><code>2026-12-31</code></td>
-<td>过期标红预警</td>
-</tr>
-<tr>
-<td>呼叫控制状态</td>
-<td>标识当前是否允许发起外呼</td>
-<td>租户状态</td>
-<td>正常 / 余额不足 / 已过期 / 停用</td>
-<td>标签组件</td>
-<td><code>正常</code></td>
-<td>异常时外呼按钮置灰</td>
-</tr>
-<tr>
-<td>快捷充值按钮</td>
-<td>点击快速打开充值管理抽屉</td>
-<td>前端行为</td>
-<td>打开对应租户充值管理</td>
-<td>点击事件</td>
-<td>--</td>
-<td>--</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-3">3. 外呼场景 - 外呼列表</h3>
-<p><strong>1）功能名称：</strong> 外呼任务卡片与列表调度管理</p>
-<p><strong>2）交互说明：</strong> 顶部提供任务名称、智能平台（一知/科大/冰兰/中科金/电声）、场景类型、创建时间等多条件筛选与重置；下方以任务卡片矩阵形式展示任务状态、数据来源、平台标识；卡片提供「查看」「编辑」「终止」「暂停」「删除」等操作。</p>
-<p><strong>3）数据来源：</strong> 中台任务库及各供应商平台任务回调。</p>
-<p><strong>4）逻辑说明：</strong> 纯冰兰/电声任务遵循特定平台状态机（如电声 <code>statusType=1</code> 为进行中，<code>0</code> 为用户暂停；冰兰任务编辑置灰）。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>任务卡片-名称</td>
-<td>展示外呼任务业务名称</td>
-<td>中台任务库</td>
-<td><code>task.name</code></td>
-<td>文本</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>任务卡片-平台标识</td>
-<td>标识外呼引擎供应商</td>
-<td>中台任务库</td>
-<td>一知/科大/冰兰/中科金/电声</td>
-<td>彩色标签</td>
-<td>一知科技</td>
-<td>总部超管可见，门店隐藏</td>
-</tr>
-<tr>
-<td>任务卡片-数据来源</td>
-<td>标识线索录入方式</td>
-<td>中台任务库</td>
-<td>手动导入 / 接口传入</td>
-<td>文本标签</td>
-<td>接口传入</td>
-<td>--</td>
-</tr>
-<tr>
-<td>任务卡片-状态</td>
-<td>展示任务当前运行生命周期</td>
-<td>平台状态映射</td>
-<td>未开始/进行中/用户暂停/已终止/已完成</td>
-<td>状态点+文本</td>
-<td>进行中</td>
-<td>异常状态兜底未开始</td>
-</tr>
-<tr>
-<td>操作-查看</td>
-<td>点击进入任务详情多 Tab 看板</td>
-<td>前端路由</td>
-<td>传参 <code>taskId</code> 跳转详情</td>
-<td>点击事件</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>操作-暂停/启动</td>
-<td>暂停或恢复外呼策略调度</td>
-<td>供应商接口</td>
-<td>调用对应平台暂停/恢复接口</td>
-<td>点击事件</td>
-<td>--</td>
-<td>接口失败时阻断本地切换</td>
-</tr>
-<tr>
-<td>操作-终止任务</td>
-<td>永久停止当前任务所有批次外呼</td>
-<td>供应商接口</td>
-<td>二次确认后调用终止流程</td>
-<td>点击事件</td>
-<td>--</td>
-<td>已终止/已完成任务禁用</td>
-</tr>
-<tr>
-<td>操作-删除任务</td>
-<td>物理删除未运行的本地任务记录</td>
-<td>前端行为</td>
-<td>运行中任务拦截删除</td>
-<td>点击事件</td>
-<td>--</td>
-<td>弹出确认提示</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-4">4. 外呼场景 - 外呼列表 - 查看 - 数据概览</h3>
-<p><strong>1）功能名称：</strong> 单任务外呼数据概览看板</p>
-<p><strong>2）交互说明：</strong> 进入任务详情默认激活「数据概览」Tab，包含四大区块：</p>
-<ol>
-<li><strong>外呼数据</strong>：导入客户数、外呼客户数、去重过滤客户数、总接听率、挂机率、平均通话时长、总外呼数、过滤比例、接听客户数；</li>
-<li><strong>意向分类</strong>：展示 A/B 类及 A+B 类客户数及占比，支持点击「配置」按钮自定义关联标签并计算并集；</li>
-<li><strong>意向洞察</strong>：展示任务意向等级分布环形图与客户关注点排行条形图（支持点击「全部」弹窗查看完整排名与占比）；</li>
-<li><strong>通话时长分布</strong>：展示 0-5s、6-10s、11-30s、31-60s、61-90s、>90s 柱状区间分布。</li>
-</ol>
-<p><strong>3）数据来源：</strong> 供应商话单回调、百炼智能体 NLP 提取、中台聚合计算。</p>
-<p><strong>4）逻辑说明：</strong></p>
-<ul>
-<li>总接听率 = 接听客户数 (去重) ÷ 外呼客户数 (去重)；</li>
-<li>过滤比例 = 去重过滤客户数 ÷ 导入客户数；</li>
-<li>意向分类多标签配置取<strong>并集</strong>去重统计。</li>
-</ul>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>导入客户数</td>
-<td>任务接收的总客户手机号数 (去重)</td>
-<td>中台任务库</td>
-<td>按手机号去重 count</td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>外呼客户数</td>
-<td>成功提交至供应商接口的手机号总数 (去重)</td>
-<td>中台任务库</td>
-<td>接口成功记录去重 count</td>
-<td>整数</td>
-<td>0</td>
-<td>提交失败不计入</td>
-</tr>
-<tr>
-<td>去重过滤客户数</td>
-<td>经黑名单或规则拦截过滤的客户数 (去重)</td>
-<td>中台拦截库</td>
-<td>状态为已过滤的手机号去重</td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>总接听率</td>
-<td>外呼接通转化率</td>
-<td>聚合计算</td>
-<td><code>接听客户数 ÷ 外呼客户数</code></td>
-<td>百分比</td>
-<td>0.0%</td>
-<td>分母为0时显示 0.0%</td>
-</tr>
-<tr>
-<td>接听客户数</td>
-<td>实际产生通话接听的客户数 (去重)</td>
-<td>回调话单</td>
-<td>话单状态为已接通去重</td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>平均通话时长</td>
-<td>成功接听通话的平均建立连接时长</td>
-<td>回调话单</td>
-<td><code>总通话秒数 ÷ 接听总次数</code></td>
-<td>秒数 (整型)</td>
-<td>0秒</td>
-<td>--</td>
-</tr>
-<tr>
-<td>意向分类配置按钮</td>
-<td>弹出意向等级与标签关联配置框</td>
-<td>前端行为</td>
-<td>点击弹出配置弹窗</td>
-<td>点击事件</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>意向分布环形图</td>
-<td>呈现当前任务各意向等级占比分布</td>
-<td>NLP 标签库</td>
-<td>按 A/B/C/D/E/F 聚合占比</td>
-<td>ECharts 环形图</td>
-<td>空图表</td>
-<td>无数据时居中提示暂无数据</td>
-</tr>
-<tr>
-<td>客户关注点排行</td>
-<td>通话中提及频次最高的前 10 个关注点</td>
-<td>NLP 关键词</td>
-<td>标签词频降序 Top 10</td>
-<td>横向条形图</td>
-<td>0</td>
-<td>一知总部租户或无数据隐藏</td>
-</tr>
-<tr>
-<td>全部关注点弹窗</td>
-<td>点击「全部」弹出完整关注点排行榜</td>
-<td>NLP 关键词</td>
-<td>完整词频降序列表+占比进度条</td>
-<td>模态弹窗</td>
-<td>--</td>
-<td>支持滚动浏览</td>
-</tr>
-<tr>
-<td>通话时长柱状图</td>
-<td>呈现通话时长 6 个阶梯区间的分布分布</td>
-<td>回调话单</td>
-<td>阶梯区间分组聚合计数</td>
-<td>柱状图</td>
-<td>0</td>
-<td>--</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-5">5. 外呼场景 - 外呼列表 - 查看 - 任务详情</h3>
-<p><strong>1）功能名称：</strong> 任务元数据与底层策略查看</p>
-<p><strong>2）交互说明：</strong> 展示创建日期、话术/机器人名称、任务 ID、任务描述、启动方式（自动/手动）、拨打时段（星期与时间段）、风控策略（频次限制与黑名单策略）、自动重拨设置（重拨间隔与最大次数）。右上角提供「终止任务」操作。</p>
-<p><strong>3）数据来源：</strong> 中台任务库、供应商策略接口。</p>
-<p><strong>4）逻辑说明：</strong> 只读呈现，保障任务执行过程中的策略审计完整性。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>创建日期</td>
-<td>任务初始生成时间戳</td>
-<td>中台任务库</td>
-<td><code>task.createTime</code></td>
-<td>YYYY-MM-DD HH:mm:ss</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>话术/机器人名称</td>
-<td>任务关联的 AI 机器人模型</td>
-<td>场景配置</td>
-<td>取机器人名称+版本</td>
-<td>文本</td>
-<td>东风日产线索机器人</td>
-<td>--</td>
-</tr>
-<tr>
-<td>任务 ID</td>
-<td>中台与外部关联任务唯一标识</td>
-<td>中台/供应商</td>
-<td><code>robotCallJobId</code> / <code>strategyCode</code></td>
-<td>字符串</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>启动方式</td>
-<td>任务下发后的触发执行模式</td>
-<td>场景配置</td>
-<td>自动启动 / 手动触发</td>
-<td>文本</td>
-<td>自动启动</td>
-<td>--</td>
-</tr>
-<tr>
-<td>拨打时段</td>
-<td>允许发起外呼的合法时间范围</td>
-<td>场景配置</td>
-<td>星期组合 + 起止时间段</td>
-<td>格式化文本</td>
-<td>工作日 09:00~18:00</td>
-<td>非此时段任务自动挂起顺延</td>
-</tr>
-<tr>
-<td>风控与重拨策略</td>
-<td>防骚扰限制与未接通重呼机制</td>
-<td>场景配置</td>
-<td>N天M呼、间隔分钟、最大重试</td>
-<td>文本描述</td>
-<td>3天3呼，间隔60分</td>
-<td>未配置时显示关闭</td>
-</tr>
-<tr>
-<td>终止任务按钮</td>
-<td>紧急叫停当前任务所有外呼</td>
-<td>供应商接口</td>
-<td>调用对应终止接口</td>
-<td>点击事件</td>
-<td>--</td>
-<td>弹出二次确认</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-6">6. 外呼场景 - 外呼列表 - 查看 - 呼叫名单与手动导入</h3>
-<p><strong>1）功能名称：</strong> 呼叫名单状态流转、手工异步导入与错误重试机制</p>
-<p><strong>2）交互说明：</strong></p>
-<ul>
-<li><strong>名单子 Tab</strong>：包含「已分配」「待呼叫」「已呼叫」「已过滤」「呼叫失败」5 个状态子标签；</li>
-<li><strong>待呼叫操作</strong>：支持点击「终止外呼」展示复选框，勾选后批量移出待呼叫队列并弹出二次确认；</li>
-<li><strong>呼叫失败列表交互</strong>：列表按号码提交时间倒序排列，展示用户号码、提交时间、失败原因（<code>errMsg</code>）；</li>
-<li><strong>手动导入弹窗</strong>：点击「手动导入」弹出大弹窗（1040px），包含「上传文件」与「导入记录」两个 Tab：</li>
-<li><strong>上传文件 Tab</strong>：拖拽或选择 Excel/CSV 文件，自动校验单次号码上限，并按预计消耗校验租户可用资金余额；</li>
-<li><strong>导入记录 Tab</strong>：列表呈现历史批次、文件名、总数、成功数、失败数、导入时间与操作；提供「导出失败记录」按钮（自动生成带 UTF-8 BOM 的 CSV 文件）。</li>
-</ul>
-<p><strong>3）各名单数据来源与取值逻辑（水滴标记规范）：</strong></p>
-<ol>
-<li><strong>已分配号码名单（水滴标记 10）</strong>：</li>
-</ol>
-<ul>
-<li><strong>数据来源</strong>：1. 手动导入：导入成功的号码；2. 自动传入：取业务场景传入的外呼账号。</li>
-<li><strong>取值逻辑</strong>：见流程【呼叫流程】，号码导入/传入落库后初始处于已分配状态。</li>
-</ul>
-<ol>
-<li><strong>待呼叫号码名单</strong>：</li>
-</ol>
-<ul>
-<li><strong>数据来源</strong>：对接外部外呼系统【异步导入客户到外呼任务接口】。</li>
-<li><strong>取值逻辑</strong>：将已分配的手机号通过接口传入到外部智能外呼系统；当接收到回调后，如果回调结果为导入失败的，号码移到呼叫失败列表；如果回调结果为导入成功的，号码展示在待呼叫直到号码已呼叫。</li>
-<li><strong>判断规则</strong>：通过【异步导入客户到外呼任务接口】提交，并通过事件回调接口【API导入外呼任务结果通知回调】获取对应的导入结果。</li>
-</ul>
-<ol>
-<li><strong>已呼叫号码名单（水滴标记 15）</strong>：</li>
-</ol>
-<ul>
-<li><strong>数据来源</strong>：外部平台话单推送或中台拉取。</li>
-<li><strong>取值逻辑</strong>：通过【通话记录同步接口】获取单个任务 id 的通话记录与话单详情。</li>
-</ul>
-<ol>
-<li><strong>已过滤号码名单（水滴标记 16）</strong>：</li>
-</ol>
-<ul>
-<li><strong>数据来源</strong>：中台黑名单/规则拦截库及外部平台过滤回调。</li>
-<li><strong>取值逻辑</strong>：通过【过滤客户回调接口】获取到任务的过滤手机号及拦截原因。</li>
-</ul>
-<ol>
-<li><strong>异步导入失败的手机号列表（呼叫失败）</strong>：</li>
-</ol>
-<ul>
-<li><strong>数据来源</strong>：从【API 导入外呼任务结果通知回调】接口获取对应的导入失败记录。</li>
-<li><strong>字段映射</strong>：用户号码对应 <code>phoneNumber</code>；号码提交时间对应任务 id+批次号提交到接口的时间；失败原因对应 <code>errMsg</code>。</li>
-<li><strong>自动重试判断规则</strong>：</li>
-<li>① 失败数据，每 <strong>30 分钟</strong>系统自动重新提交一次；</li>
-<li>② 当天最终失败的数据，隔天不再重试，将最后一条失败数据回传给业务系统；</li>
-<li>③ 如果提交一知后，回调返回“客户已存在”就不要下发给 dcc。</li>
-</ul>
-<p><strong>4）各供应商手机号导入限制规范（来自 WIKI 知识库基线）：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>智能外呼供应商</th>
-<th>导入接口与鉴权方式</th>
-<th>单次号码导入上限</th>
-<th>批次与调度模式</th>
-<th>超限处理与界面提示</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>电声平台</strong> (<code>diansheng</code>)</td>
-<td><code>POST /lead/batch/async/import</code><br>(JSON Body + 32位 MD5 签名)</td>
-<td><strong>50 条</strong></td>
-<td>分段异步导入，一个号码一个 <code>importBatchId</code>，传 <code>isCompleted=true</code> 触发执行批次</td>
-<td>超过 50 条接口报错 <code>S0007</code>；界面文案统一提示：“单次号码数量不大于 50”</td>
-</tr>
-<tr>
-<td><strong>大众通信</strong> (<code>dazhong</code>)</td>
-<td><code>POST /agent-api/user/{user_id}/task/{task_id}/number</code><br>(Token 鉴权)</td>
-<td><strong>100 条</strong></td>
-<td>同步批量追加号码，请求体 <code>data[]</code> 数组，不可导入重复号码</td>
-<td>超过 100 条拒绝提交，界面提示拆分文件（单次最多 100 条）</td>
-</tr>
-<tr>
-<td><strong>厚朴智能</strong> (<code>houpu</code>)</td>
-<td><code>POST /job/appendBatchData</code><br>(JWT Bearer 鉴权，有效期1天)</td>
-<td><strong>1,000 条</strong></td>
-<td>按 <code>taskName</code> 批量追加；支持 <code>single</code> 纯号码及 <code>multiple</code> (含 <code>ext1</code>~<code>ext20</code>)</td>
-<td>超过 1,000 条拦截导入并提示拆分批次</td>
-</tr>
-<tr>
-<td><strong>中科金智能</strong> (<code>zhongkejin</code>)</td>
-<td>得助开放平台号码组导入接口<br>(AccessKey 鉴权)</td>
-<td><strong>2,000 条</strong></td>
-<td>绑定任务关联的单一号码组</td>
-<td>超过 2,000 条拦截导入</td>
-</tr>
-<tr>
-<td><strong>冰兰平台</strong> (<code>binglan</code>)</td>
-<td><code>POST /api/v4/task-add</code><br>(<code>client_id</code> + UUID + 时间戳 MD5)</td>
-<td><strong>300,000 条</strong> (30万)</td>
-<td>支持 CSV/XLS/XLSX，重新上传将覆盖原有号码池</td>
-<td>超限提示文件过大</td>
-</tr>
-<tr>
-<td><strong>一知科技 / 科大讯飞</strong></td>
-<td>异步导入客户到外呼任务接口</td>
-<td><strong>10,000 条</strong></td>
-<td>通用异步文件解析与状态轮询</td>
-<td>超过 10,000 条提示拆分导入</td>
-</tr>
-</tbody>
-</table></div>
-<blockquote><strong>资金余额预校验复合公式</strong>：<br>用户导入文件时，系统同时进行<strong>供应商单次硬限制</strong>与<strong>租户可用资金余额</strong>双重校验：<br>$$\text{预计冻结金额} = \text{导入有效号码数} \times \text{单号码预计分钟 (默认2分)} \times \text{当前有效单价} \le \text{当前可用资金余额}$$<br>若超限则拒绝导入，并明确提示最大允许导入数量：<br>$$\text{最大允许导入数} = \min\left(\text{当前供应商单次上限},\; \lfloor \frac{\text{当前可用资金余额}}{\text{单号码预计分钟} \times \text{有效单价}} \rfloor\right)$$</blockquote>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>已分配号码名单</td>
-<td>初始导入或接口录入的待分发名单</td>
-<td>手动导入/场景接口</td>
-<td>见呼叫流程，导入成功即落入已分配</td>
-<td>列表表格</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>待呼叫号码名单</td>
-<td>已成功提交外部平台但尚未呼叫的名单</td>
-<td>异步导入接口</td>
-<td>API导入通知回调成功后进入待呼叫</td>
-<td>列表表格</td>
-<td>--</td>
-<td>回调失败移入呼叫失败</td>
-</tr>
-<tr>
-<td>待呼叫-批量终止</td>
-<td>紧急拦截取消待呼叫队列中的号码</td>
-<td>调度引擎</td>
-<td>勾选复选框批量终止并移出队列</td>
-<td>点击事件</td>
-<td>--</td>
-<td>弹出二次确认</td>
-</tr>
-<tr>
-<td>已呼叫号码名单</td>
-<td>已收到实际话单回调的呼叫记录</td>
-<td>通话记录同步接口</td>
-<td>获取单个任务 id 的通话结果话单</td>
-<td>列表表格</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>已过滤号码名单</td>
-<td>经黑名单或防骚扰规则拦截的名单</td>
-<td>过滤客户回调接口</td>
-<td>获取黑名单/时段/频次拦截号码</td>
-<td>列表表格</td>
-<td>--</td>
-<td>明确展示过滤原因</td>
-</tr>
-<tr>
-<td>呼叫失败名单</td>
-<td>异步提交外部平台接口失败的号码</td>
-<td>API导入结果通知回调</td>
-<td>提取 phoneNumber、提交时间、errMsg</td>
-<td>列表表格</td>
-<td>--</td>
-<td>倒序排列，每30分钟重试</td>
-</tr>
-<tr>
-<td>失败重试调度</td>
-<td>自动化重试机制</td>
-<td>调度引擎</td>
-<td>每30分钟重试，跨天停止并回传业务系统</td>
-<td>后台任务</td>
-<td>--</td>
-<td>隔天不再重试</td>
-</tr>
-<tr>
-<td>供应商导入限制校验</td>
-<td>严格按对接供应商限制单次导入规模</td>
-<td>前端配置</td>
-<td>电声50/大众100/厚朴1000/中科金2000/一知10000</td>
-<td>逻辑校验</td>
-<td>--</td>
-<td>超过供应商上限拦截并精准提示</td>
-</tr>
-<tr>
-<td>资金余额预校验</td>
-<td>拦截可用额度不足的超额导入</td>
-<td>计费模块</td>
-<td>计算预计冻结金额与可用余额比对</td>
-<td>逻辑校验</td>
-<td>--</td>
-<td>超额提示最大允许导入数</td>
-</tr>
-<tr>
-<td>导出失败记录</td>
-<td>下载导入失败的号码与原因明细</td>
-<td>导入日志</td>
-<td>生成 CSV（带 BOM，含手机号与失败原因）</td>
-<td>文件下载</td>
-<td>--</td>
-<td>失败数为0时提示全部成功</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-7">7. 外呼场景 - 外呼拦截（外呼黑名单管理）</h3>
-<p><strong>1）功能名称：</strong> 外呼黑名单分组管理、租户隔离与跨平台同步通道</p>
-<p><strong>2）交互说明：</strong> 左右双栏结构：</p>
-<ul>
-<li><strong>左侧分组栏</strong>：分组名称搜索、分组列表（显示组名、号码数量徽标、有效期）、新建分组按钮；</li>
-<li><strong>右侧号码栏</strong>：手机号搜索、添加时间筛选、重置/查询；支持「新增号码」「批量导入」「批量导出」「移动分组」「移出黑名单」；</li>
-<li><strong>新建分组弹窗</strong>：分组名称（必填，0/50）、分组描述（0/200）、有效期（下拉，默认永久）；</li>
-<li><strong>新增号码弹窗</strong>：所属分组（只读）、电话号码（支持一次添加 1~10 个号码，动态增减行）、添加类型（普通添加/退订/投诉）、添加原因（0/200）。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 中台黑名单库、外部平台黑名单同步适配器。</p>
-<p><strong>4）逻辑与配置规则说明：</strong></p>
-<ul>
-<li><strong>黑名单租户强隔离</strong>：</li>
-</ul>
-<ol>
-<li><strong>数据归属隔离</strong>：黑名单分组与号码的创建严格按租户（<code>tenantId</code>）隔离，各租户仅能查看、维护并使用本租户新增的黑名单；</li>
-<li><strong>拦截生效范围</strong>：外呼任务执行黑名单过滤时，<strong>仅匹配当前任务所属租户下的黑名单库</strong>，严格禁止跨租户互相影响或共享拦截；</li>
-<li><strong>超管审计视角</strong>：总部超级管理员具备全局切换查看权限，门店租户仅拥有本租户黑名单管理权限；</li>
-</ol>
-<ul>
-<li><strong>平台同步映射配置边界</strong>：</li>
-<li><strong>需要映射黑名单的智能平台由开发后台统一配置，业务平台前端不提供配置功能</strong>；</li>
-<li>业务用户仅负责在前端录入、维护黑名单分组与号码，系统底层自动读取后台预设的供应商同步通道执行下发与状态回写；</li>
-<li><strong>平台同步与移除</strong>：移除号码时需先同步解除各外部平台远端黑名单，全部成功后再清除本地；含号码的分组禁止直接删除。</li>
-</ul>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>黑名单租户隔离</td>
-<td>确保当前租户仅能使用本租户新增的黑名单</td>
-<td>租户上下文</td>
-<td>按 <code>tenantId</code> 过滤分组与号码数据</td>
-<td>逻辑隔离</td>
-<td>当前租户</td>
-<td>严格禁止跨租户共享与拦截</td>
-</tr>
-<tr>
-<td>平台映射后台配置</td>
-<td>需要映射黑名单的平台由开发后台配置，前端不提供配置入口</td>
-<td>后台系统配置</td>
-<td>由后端读取平台同步策略并自动下发</td>
-<td>后台配置</td>
-<td>--</td>
-<td>业务前端仅展示同步结果</td>
-</tr>
-<tr>
-<td>分组搜索与切换</td>
-<td>快速检索并切换当前黑名单分组</td>
-<td>本地数据</td>
-<td>分组名称模糊匹配</td>
-<td>文本输入</td>
-<td>--</td>
-<td>清空自动恢复全部</td>
-</tr>
-<tr>
-<td>新建分组-名称</td>
-<td>设定黑名单业务分组标识</td>
-<td>用户输入</td>
-<td>限制 50 字符，防重名</td>
-<td>文本</td>
-<td>--</td>
-<td>为空或重名提示拦截</td>
-</tr>
-<tr>
-<td>新建分组-有效期</td>
-<td>设定当前组内号码的默认拦截时效</td>
-<td>用户选择</td>
-<td>永久有效 / 30天 / 90天 / 自定义</td>
-<td>下拉选择</td>
-<td>永久有效</td>
-<td>到期自动失效解除</td>
-</tr>
-<tr>
-<td>新增号码-多行录入</td>
-<td>批量录入 1~10 个待拦截手机号</td>
-<td>用户输入</td>
-<td>11 位手机号正则 <code>^1\d{10}$</code></td>
-<td>动态输入项</td>
-<td>1项</td>
-<td>自动去重并过滤非法格式</td>
-</tr>
-<tr>
-<td>跨平台同步状态</td>
-<td>展示该号码在各外呼平台的下发同步结果</td>
-<td>同步引擎</td>
-<td>成功 / 失败 / 同步中 / 未启用</td>
-<td>标签组件</td>
-<td>未启用</td>
-<td>失败支持单条或批量重试</td>
-</tr>
-<tr>
-<td>移出黑名单操作</td>
-<td>解除拦截并清理外部平台黑名单</td>
-<td>中台/供应商</td>
-<td>调用各平台删除接口后清除本地</td>
-<td>点击事件</td>
-<td>--</td>
-<td>弹出二次确认，失败报错</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-8">8. 统计分析 - 通话统计与计费统计</h3>
-<p><strong>1）功能名称：</strong> 通话全量多维指标统计与消费成本账单</p>
-<p><strong>2）交互说明：</strong></p>
-<ul>
-<li><strong>通话统计</strong>：提供「外呼统计」（以场景/任务维度统计 10 项指标）与「客户统计」（以客户/平台维度统计 7 项指标）双 Tab；支持按时间范围、智能平台筛选；</li>
-<li><strong>计费统计</strong>：顶部展示消费概览卡片（总消费金额、总通话次数、一知费用、中科金费用、电声费用等）；下方展示计费明细表（呼叫时间、场景名、平台、通话时长、单价、通话次数、消费金额、模型类型）。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 中台账单与话单聚合引擎。</p>
-<p><strong>4）逻辑说明：</strong> 消费金额 = 通话分钟数 (按秒向上进位或实际计费秒数) × 当前有效单价。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>外呼统计-外呼量</td>
-<td>统计期内发起的总呼叫频次</td>
-<td>话单数据库</td>
-<td><code>count(call_id)</code></td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>外呼统计-接通率</td>
-<td>实际接通次数占总外呼次数比例</td>
-<td>聚合计算</td>
-<td><code>接通次数 ÷ 总外呼次数</code></td>
-<td>百分比</td>
-<td>0.0%</td>
-<td>分母为0显示 0.0%</td>
-</tr>
-<tr>
-<td>外呼统计-意向率</td>
-<td>意向客户(A+B+C)占接通客户比例</td>
-<td>聚合计算</td>
-<td><code>意向客户数 ÷ 接通客户数</code></td>
-<td>百分比</td>
-<td>0.0%</td>
-<td>分母为0显示 0.0%</td>
-</tr>
-<tr>
-<td>消费概览-总金额</td>
-<td>统计期内所有场景与平台累计消费</td>
-<td>计费账单</td>
-<td><code>sum(consume_amount)</code></td>
-<td>金额 (¥)</td>
-<td>¥0.00</td>
-<td>保留两位小数</td>
-</tr>
-<tr>
-<td>计费明细-单价</td>
-<td>呼叫发生时适用的模型分钟单价快照</td>
-<td>计费配置</td>
-<td>关联任务执行时的单价快照</td>
-<td>金额 (元/分)</td>
-<td>--</td>
-<td>--</td>
-</tr>
-<tr>
-<td>计费明细-模型类型</td>
-<td>标识该次呼叫消耗的 AI 引擎级别</td>
-<td>场景配置</td>
-<td>大模型 / 小模型</td>
-<td>标签</td>
-<td>小模型</td>
-<td>--</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-9">9. 统计分析 - 线索统计</h3>
-<p><strong>1）功能名称：</strong> 总部线索导入下发与意向回流统计</p>
-<p><strong>2）交互说明：</strong> 包含「总部 NEV 线索」与「总部 ICE 线索」二级 Tab；筛选项包含导入时间（默认近 7 天）、业务类型；操作包含重置、查询、异步导出、刷新；表格展示导入日期、业务类型、导入线索量、已接通量、已下发线索数、AI 接通率、平均时长、各意向级别客户数分布。</p>
-<p><strong>3）数据来源：</strong> AI 外呼平台、总部 DCC/线索中心。</p>
-<p><strong>4）逻辑说明：</strong> 按导入日期 + 业务类型 Group By 聚合。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>导入线索量</td>
-<td>批次录入线索唯一 ID 汇总</td>
-<td>DCC/中台</td>
-<td><code>count(distinct clue_id)</code></td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>已下发线索数</td>
-<td>已成功推流回传给门店的线索量</td>
-<td>DCC 接口</td>
-<td>状态为下发成功的 count</td>
-<td>整数</td>
-<td>0</td>
-<td>--</td>
-</tr>
-<tr>
-<td>AI 接通率</td>
-<td>外呼接通线索转化比例</td>
-<td>聚合计算</td>
-<td><code>已接通线索量 ÷ 导入线索量</code></td>
-<td>百分比</td>
-<td>0.0%</td>
-<td>分母为0显示 0.0%</td>
-</tr>
-<tr>
-<td>各意向级别分布</td>
-<td>A/B/C/D/E 各意向级别的客户数</td>
-<td>NLP 识别</td>
-<td>Group By intent_level count</td>
-<td>复合数值</td>
-<td>0</td>
-<td>空显示 <code>--</code></td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-10">10. 外呼结果 - 通话记录</h3>
-<p><strong>1）功能名称：</strong> 全量单通通话流水与录音详情抽屉</p>
-<p><strong>2）交互说明：</strong> 筛选栏支持按用户号码、场景名称、通话状态（25 项标准字典）、智能平台、拨打时间区间过滤；列表呈现序号、用户号码（掩码脱敏）、开始/结束时间、时长、场景名、状态标签、外呼总结、平台标识；点击「查看详情」滑出右侧抽屉，包含音频播放器卡片、对话实时转写气泡、外呼小结（32 项标准业务字段）及结果标签。</p>
-<p><strong>3）数据来源：</strong> 供应商话单回调、ASR 语音转写文本、NLP 总结。</p>
-<p><strong>4）逻辑说明：</strong> 用户号码默认执行 <code>138<em>*</em>*8888</code> 掩码脱敏。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>用户号码</td>
-<td>被叫客户手机号</td>
-<td>话单数据</td>
-<td>统一执行掩码处理</td>
-<td><code>138<em>*</em>*8888</code></td>
-<td>--</td>
-<td>保持脱敏一致性</td>
-</tr>
-<tr>
-<td>通话状态标签</td>
-<td>呈现标准化的 25 项呼叫结果</td>
-<td>状态映射表</td>
-<td>根据各供应商编码映射为中台字典</td>
-<td>颜色标签</td>
-<td>--</td>
-<td>映射缺失兜底「外呼失败」</td>
-</tr>
-<tr>
-<td>音频播放器</td>
-<td>在线试听完整通话录音</td>
-<td>录音存储 OSS</td>
-<td>提供播放/暂停/进度条/倍速</td>
-<td>媒体组件</td>
-<td>--</td>
-<td>录音缺失提示文件不存在</td>
-</tr>
-<tr>
-<td>对话转写记录</td>
-<td>还原人机双向交互对话流</td>
-<td>ASR 转写</td>
-<td>区分机器人(左)与客户(右)气泡</td>
-<td>列表文本</td>
-<td>--</td>
-<td>带有各轮次时间戳</td>
-</tr>
-<tr>
-<td>外呼小结卡片</td>
-<td>呈现 NLP 结构化提取的业务关键信息</td>
-<td>NLP 模型</td>
-<td>意向车型、购车预算、到店意向等 32 字段</td>
-<td>键值列表</td>
-<td>无</td>
-<td>字段未识别显示「未提及」</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-11">11. 外呼结果 - 线索记录</h3>
-<p><strong>1）功能名称：</strong> 线索维度多级下钻与客户画像全景看板</p>
-<p><strong>2）交互说明：</strong></p>
-<ul>
-<li><strong>高级筛选卡片</strong>：支持折叠/展开；集成「大区 → 小区 → 门店」三级级联选择，门店下拉顶部集成「输入门店名称过滤...」拼音/字符模糊搜索；支持用户号码、最后回访时间、通话状态、场景与意向级别多选联动；</li>
-<li><strong>线索数据表格</strong>：13 列线索全景数据（线索ID、客户手机、大区、小区、门店、回访次数、最后通话状态、外呼意向、业务意向等）；</li>
-<li><strong>弹窗矩阵</strong>：</li>
-</ul>
-<ol>
-<li><strong>客户标签弹窗</strong>：展示 6 维度画像标签（意向等级、客户关注点、城市偏好、到店意向、购车时间、通话特性）；</li>
-<li><strong>回访详情弹窗</strong>：按时间倒序展示该线索历次回访记录表格与录音回放入口；</li>
-<li><strong>通话详情抽屉</strong>：完整展开选定轮次的转写流与 32 项小结。</li>
-</ol>
-<p><strong>3）数据来源：</strong> DCC 线索中心、AI 智能外呼中台、百炼智能体。</p>
-<p><strong>4）逻辑说明：</strong> 门店模糊搜索实时过滤，级联父级切换或重置时自动复位联动。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>大区/小区/门店级联</td>
-<td>组织架构权限与数据层级筛选</td>
-<td>组织机构库</td>
-<td>大区单选 → 小区单选 → 门店多选</td>
-<td>级联下拉</td>
-<td>全部</td>
-<td>切换上级自动清空下级选中</td>
-</tr>
-<tr>
-<td>门店模糊搜索</td>
-<td>快速定位特定经销店</td>
-<td>前端匹配</td>
-<td>拼音首字母 / 中文名称实时检索</td>
-<td>输入过滤</td>
-<td>--</td>
-<td>无匹配项显示暂无门店</td>
-</tr>
-<tr>
-<td>客户标签弹窗</td>
-<td>展示 AI 萃取的 6 维度结构化标签</td>
-<td>NLP 画像</td>
-<td>意向/关注点/城市/到店/购车/特性</td>
-<td>标签弹窗</td>
-<td>--</td>
-<td>未提取维度显示暂无</td>
-</tr>
-<tr>
-<td>回访详情弹窗</td>
-<td>展现线索全部跟进生命周期流水</td>
-<td>外呼流转库</td>
-<td>按回访时间倒序排列</td>
-<td>表格弹窗</td>
-<td>--</td>
-<td>分页展示，支持试听录音</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-12">12. 系统管理 - 账号管理</h3>
-<p><strong>1）功能名称：</strong> 租户多账号隔离维护与权限配置</p>
-<p><strong>2）交互说明：</strong> 左侧展示租户卡片列表（租户名称、账号数徽标、描述、状态），点击租户卡片切换右侧数据；右侧展示该租户下的账号表格（账号、昵称、手机号、角色、状态、创建时间、操作）；提供手机号与角色筛选；右上角提供「新建账号」按钮；每行提供「编辑」「重置密码」「删除」操作。</p>
-<ul>
-<li><strong>新建/编辑账号弹窗</strong>（680px 像素级对齐）：</li>
-</ul>
-<ol>
-<li>所属租户：灰色只读框，回显当前选中租户；</li>
-<li>头像：80×80 虚线框（带 <code>+</code> 图标），支持点击选择图片、预览海报图与移除；</li>
-<li>账号：输入框，下方提示 <code>支持字母，符号，数字</code>（编辑时禁用）；</li>
-<li>账号昵称：输入框，右侧实时显示 <code>0 / 20</code> 字数计数，下方提示 <code>支持汉字，字母，符号，数字</code>；</li>
-<li>手机号码：输入框，右侧实时显示 <code>0 / 11</code> 字数计数；</li>
-<li>登录密码：密码输入框，右侧带 👁 眼睛图标（支持点击切换明密文），下方提示 <code>支持大小写字母，符号，数字，8~16 位</code>；</li>
-<li>角色：单选 Radio 组（<code>○ 租户管理员</code> / <code>○ 租户运营</code>）；</li>
-<li>状态：单选 Radio 组（<code>○ 禁用</code> / <code>● 启用</code>）；</li>
-<li>底部操作：右对齐「取消」与「确定」按钮。</li>
-</ol>
-<p><strong>3）数据来源：</strong> 中台账号体系与租户关联数据。</p>
-<p><strong>4）逻辑说明：</strong> 账号唯一性校验，手机号 11 位格式正则校验，密码复杂度校验，删除前校验运行中关联任务。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>左侧租户卡片</td>
-<td>切换展示不同租户下的账号列表</td>
-<td>租户库</td>
-<td>呈现名称、账号数徽标、状态</td>
-<td>卡片列表</td>
-<td>首个租户激活</td>
-<td>高亮当前选中租户</td>
-</tr>
-<tr>
-<td>弹窗-所属租户</td>
-<td>明确当前账号归属的组织单元</td>
-<td>界面状态</td>
-<td>取当前激活租户名称</td>
-<td>文本 (只读)</td>
-<td>当前租户</td>
-<td>禁止跨租户篡改</td>
-</tr>
-<tr>
-<td>弹窗-头像上传</td>
-<td>维护账号个性化头像</td>
-<td>本地文件</td>
-<td>支持图片本地预览与删除</td>
-<td>80x80 容器</td>
-<td>默认加号</td>
-<td>上传非图片格式拦截提示</td>
-</tr>
-<tr>
-<td>弹窗-账号标识</td>
-<td>用户登录系统的唯一账号 ID</td>
-<td>用户输入</td>
-<td>字母/数字/符号组合</td>
-<td>文本</td>
-<td>--</td>
-<td>编辑模式只读，重名拦截</td>
-</tr>
-<tr>
-<td>弹窗-账号昵称</td>
-<td>系统内展示的友好称谓</td>
-<td>用户输入</td>
-<td>0~20 字符，右侧内嵌实时计数</td>
-<td>文本</td>
-<td>--</td>
-<td>为空或超长拦截并标红</td>
-</tr>
-<tr>
-<td>弹窗-手机号码</td>
-<td>绑定安全与通知手机</td>
-<td>用户输入</td>
-<td>11 位数字，右侧内嵌实时计数</td>
-<td>文本</td>
-<td>--</td>
-<td>格式不合规时拦截提示</td>
-</tr>
-<tr>
-<td>弹窗-登录密码</td>
-<td>设置初始密码或重置密码</td>
-<td>用户输入</td>
-<td>8~16 位大小写字母/数字/符号</td>
-<td>密文/明文</td>
-<td>--</td>
-<td>右侧眼睛图标自由切换可见性</td>
-</tr>
-<tr>
-<td>弹窗-角色单选</td>
-<td>分配租户级管理或运营权限</td>
-<td>用户选择</td>
-<td>租户管理员 / 租户运营</td>
-<td>Radio 组</td>
-<td>租户管理员</td>
-<td>必须选择其一</td>
-</tr>
-<tr>
-<td>弹窗-状态单选</td>
-<td>控制账号能否正常登录系统</td>
-<td>用户选择</td>
-<td>启用 / 禁用</td>
-<td>Radio 组</td>
-<td>启用</td>
-<td>禁用后该账号无法登录系统</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-13">13. 系统管理 - 租户管理与计费配置</h3>
-<p><strong>1）功能名称：</strong> 租户全生命周期管理、计费单价维护与数据导出</p>
-<p><strong>2）交互说明：</strong></p>
-<ul>
-<li><strong>租户列表</strong>：展示租户名称、租户ID、租户类型、大模型可用分钟数、小模型可用分钟数、有效期、呼叫控制状态、操作（计费配置、充值管理、编辑、删除）；</li>
-<li><strong>新建/编辑租户弹窗</strong>：租户名称（必填，0/50）、租户类型（门店/总部）、租户描述（0/50）、状态（启用/禁用）；</li>
-<li><strong>计费配置弹窗</strong>：维护大模型默认分钟单价（元/分）、小模型默认分钟单价（元/分）及启停状态；单价必须大于 0；</li>
-<li><strong>计费汇总导出</strong>：点击导出当前全部租户的 UTF-8 BOM CSV 文件（含历史充值总额、扣费总额、冻结总和、可用余额等）。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 租户数据中心、计费单价配置表。</p>
-<p><strong>4）逻辑说明：</strong> 扣费总额 = 实际消费金额 + 已生效手工扣减金额；单价调整只影响后续任务，不追溯已冻结任务。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>租户名称</td>
-<td>经销店或总部组织全称</td>
-<td>用户输入</td>
-<td>限制 50 字符，防重复</td>
-<td>文本</td>
-<td>--</td>
-<td>为空提示必填</td>
-</tr>
-<tr>
-<td>租户类型</td>
-<td>区分门店端与总部端业务逻辑</td>
-<td>用户选择</td>
-<td>门店租户 / 总部租户</td>
-<td>下拉/单选</td>
-<td>门店租户</td>
-<td>影响后续标签与场景枚举</td>
-</tr>
-<tr>
-<td>大模型单价</td>
-<td>该租户使用大模型时的计费基准</td>
-<td>计费配置</td>
-<td>浮点数，单位：元/分钟</td>
-<td>金额 (2位小数)</td>
-<td>0.20</td>
-<td>必须 > 0，否则阻止保存</td>
-</tr>
-<tr>
-<td>小模型单价</td>
-<td>该租户使用小模型时的计费基准</td>
-<td>计费配置</td>
-<td>浮点数，单位：元/分钟</td>
-<td>金额 (2位小数)</td>
-<td>0.10</td>
-<td>必须 > 0，否则阻止保存</td>
-</tr>
-<tr>
-<td>计费汇总导出</td>
-<td>批量导出全量租户计费资产报表</td>
-<td>计费中心</td>
-<td>生成 CSV（带 BOM，保留两位小数）</td>
-<td>文件下载</td>
-<td>--</td>
-<td>包含扣费总额与可用分钟</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-14">14. 系统管理 - 租户管理 - 充值管理抽屉</h3>
-<p><strong>1）功能名称：</strong> 租户充值单关联、单据手动生效与线下余额调整</p>
-<p><strong>2）交互说明：</strong> 点击租户操作栏「充值管理」滑出右侧大抽屉，包含三个 Tab：</p>
-<ol>
-<li><strong>计费明细 Tab</strong>：分大模型/小模型展示默认单价、冻结分钟数、冻结金额、通话余额、可用分钟数；下方展示冻结任务明细（任务名、供应商、模型、单价快照、冻结分钟/金额、冻结时间）；</li>
-<li><strong>充值单管理 Tab</strong>：</li>
-</ol>
-<ul>
-<li>关联类型选择：<code>付费单</code>（默认）/ <code>试用单</code>；</li>
-<li><strong>付费单流程</strong>：输入 D智链外部充值单号 → 点击「读取」→ 自动反显门店编码、门店名称、所属租户及充值金额（不直接落库） → 核对无误后点击「确认关联」→ 生成「待生效」历史关联记录；</li>
-<li><strong>试用单流程</strong>：无需外部单号，选择试用有效时长（1个月/30天、2个月/60天、3个月/90天），填写试用通话费（>0） → 点击「确认关联」→ 生成「待生效」试用记录；</li>
-<li><strong>单据生效操作</strong>：每条已关联单据独立提供「生效」按钮：</li>
-<li>仅坐席费单：弹出「确认添加有效时长」弹窗（反显套餐天数，支持微调天数） → 确认后更新租户有效期；</li>
-<li>仅通话费单：弹出「确认添加通话余额」弹窗（反显充值金额，支持微调金额） → 确认后充入统一资金账户；</li>
-<li>组合单：弹出同时调整有效期与金额的双字段确认弹窗；</li>
-</ul>
-<ol>
-<li><strong>余额调整 Tab</strong>：支持不关联单据的手工扣减，必须填写扣减金额（不得超过当前资金余额）与扣减原因，提交后生成不可删除的扣减流水记录。</li>
-</ol>
-<p><strong>3）数据来源：</strong> D智链充值系统、中台充值流水库、中台资金总账。</p>
-<p><strong>4）逻辑说明：</strong> 所有通话充值统一汇入单一资金账户，不按大/小模型割裂；所有单据关联后必须二次点击「生效」方能正式到账。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>充值单读取</td>
-<td>校验外部 D智链单号并反显信息</td>
-<td>D智链接口</td>
-<td>仅做查询展示，不写入历史列表</td>
-<td>按钮事件</td>
-<td>--</td>
-<td>单号不存在或租户不匹配报错</td>
-</tr>
-<tr>
-<td>确认关联</td>
-<td>确认将单据写入中台关联历史</td>
-<td>前端行为</td>
-<td>生成 <code>待生效</code> 状态的历史记录</td>
-<td>点击事件</td>
-<td>--</td>
-<td>重复关联拦截并提示</td>
-</tr>
-<tr>
-<td>试用单关联</td>
-<td>开通无需外部支付的试用套餐</td>
-<td>用户输入</td>
-<td>选择 30/60/90 天与赠送通话费</td>
-<td>表单提交</td>
-<td>1个月 (30天)</td>
-<td>费用必须 > 0</td>
-</tr>
-<tr>
-<td>单据手动生效</td>
-<td>确认将充值单据资产正式计入租户</td>
-<td>前端模态框</td>
-<td>弹出确认弹窗并支持调整实际天数/金额</td>
-<td>模态弹窗</td>
-<td>套餐反显值</td>
-<td>已生效单据禁止重复生效</td>
-</tr>
-<tr>
-<td>手工扣减</td>
-<td>线下退款或坏账时的资金冲减</td>
-<td>用户输入</td>
-<td>填写扣减金额与必填原因</td>
-<td>表单提交</td>
-<td>--</td>
-<td>扣减金额不得大于当前资金余额</td>
-</tr>
-<tr>
-<td>扣减流水记录</td>
-<td>审计手工扣减的历史明细</td>
-<td>中台总账</td>
-<td>记录扣减时间、金额、原因、操作人</td>
-<td>列表表格</td>
-<td>--</td>
-<td>记录终身保留，禁止删除</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-15">15. 系统管理 - 业务场景</h3>
-<p><strong>1）功能名称：</strong> 业务场景维护与多外呼平台互斥表单配置</p>
-<p><strong>2）交互说明：</strong> 列表展示场景名称、智能平台、场景类型、机器人、更新时间与状态；点击新建/编辑打开单页表单：</p>
-<ul>
-<li>顶部选择「智能平台」（Radio: 冰兰 / 科大讯飞 / 一知科技 / 中科金智能 / 电声平台）；</li>
-<li>选中平台后，下方字段动态互斥切换：</li>
-<li><strong>冰兰平台</strong>：呼叫通道（联友 VCP / 冰兰外呼通道）、线路、机器人 ID；若选择冰兰外呼通道，自动隐藏中台本地呼叫时段、自动重拨、黑名单拦截等策略；</li>
-<li><strong>一知/中科金</strong>：场景 ID、模型类型（大模型/小模型）、选择账号（根据模型级联过滤）；</li>
-<li><strong>电声平台</strong>：场景类型自动绑定 <code>leadTypeCode</code>（新线索 <code>NEW_LEAD</code> / 冷线索 <code>COLD_LEAD</code>），自动只读匹配机器人编码，配置多时段 <code>callTimeWindow</code> 与排除日期，自动重拨（固定 N天M呼），底部按钮显示「确定并生成任务」，自动调用电声接口生成 <code>strategyCode</code>；</li>
-<li>场景删除时自动校验是否被运行中外呼任务引用。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 中台场景库、各供应商机器人与策略接口。</p>
-<p><strong>4）逻辑说明：</strong> 平台配置完全隔离互斥，保障异构供应商接入标准统一。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>智能平台选择</td>
-<td>决定底层对接的 AI 外呼引擎</td>
-<td>用户选择</td>
-<td>冰兰/科大/一知/中科金/电声</td>
-<td>Radio 组</td>
-<td>一知科技</td>
-<td>切换时重置下方专属表单</td>
-</tr>
-<tr>
-<td>场景类型匹配</td>
-<td>设定业务场景类型与机器人映射</td>
-<td>用户选择</td>
-<td>督办/服务/回访/新线索/冷线索</td>
-<td>下拉/单选</td>
-<td>新线索</td>
-<td>电声仅允许新线索与冷线索</td>
-</tr>
-<tr>
-<td>电声-确定并生成任务</td>
-<td>同步在电声平台创建外呼策略</td>
-<td>电声接口</td>
-<td>调用 <code>/strategy/policy/create</code> 生成 <code>strategyCode</code></td>
-<td>接口调用</td>
-<td>--</td>
-<td>接口失败阻断入库并保持表单</td>
-</tr>
-<tr>
-<td>删除场景校验</td>
-<td>防止误删正在被外呼引用的场景</td>
-<td>中台任务库</td>
-<td>检查是否存在未结束的外呼任务</td>
-<td>逻辑校验</td>
-<td>--</td>
-<td>存在运行中任务拦截删除</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-16">16. 系统管理 - 标签管理</h3>
-<p><strong>1）功能名称：</strong> 统一意向标签管理体系与映射引擎</p>
-<p><strong>2）交互说明：</strong> 左右双栏交互：</p>
-<ul>
-<li><strong>左侧配置树</strong>：双根节点结构：</li>
-</ul>
-<ol>
-<li><strong>中台标签集</strong>（中台模式）：两级结构（租户类型 → 场景）；</li>
-<li><strong>供应商标签集</strong>（供应商模式）：三级结构（供应商 → 租户类型 → 场景）；</li>
-</ol>
-<ul>
-<li>叶子节点带状态圆点：绿色 = 已配置启用标签，灰色 = 未启用；</li>
-<li><strong>右侧中台模式</strong>：展示本地标准标签表（序号、本地编码、标签名称、排序、操作），支持 CRUD 与行内编辑；</li>
-<li><strong>右侧供应商模式</strong>：展示供应商标签池表格（启用勾选、序号、本地编码、标签名称、映射本地标签下拉、排序、操作）；</li>
-<li><strong>高级机制</strong>：</li>
-<li><strong>自动推断映射</strong>：勾选启用新标签时，根据关键词算法自动推断映射至对应本地标准标签；</li>
-<li><strong>连续移位排序</strong>：修改任一行排序数值时，自动移位（<code>shiftSortValues</code>）同集其他标签，保持序号连续不重叠；</li>
-<li><strong>场景/供应商管理弹窗</strong>：顶部提供全局场景与供应商的 CRUD 及启停维护。</li>
-</ul>
-<p><strong>3）数据来源：</strong> 供应商原始标签池、中台标准标签字典、映射关系库。</p>
-<p><strong>4）逻辑说明：</strong> 严格遵循超管权限控制；删除本地标准标签时必须校验是否存在供应商映射依赖。</p>
-<p><strong>5）功能明细：</strong></p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>功能名称</th>
-<th>功能说明</th>
-<th>数据来源</th>
-<th>取值逻辑</th>
-<th>数据格式</th>
-<th>默认值</th>
-<th>异常处理</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>配置树-模式切换</td>
-<td>切换维护中台标准集或供应商映射池</td>
-<td>前端状态</td>
-<td>点击树节点切换 <code>treeMode</code></td>
-<td>树组件</td>
-<td>中台标签集</td>
-<td>自动展开当前激活父节点</td>
-</tr>
-<tr>
-<td>状态圆点指示器</td>
-<td>直观标识各场景是否已配置生效标签</td>
-<td>标签配置库</td>
-<td>存在 <code>enabled=true</code> 标签即标绿</td>
-<td>颜色圆点</td>
-<td>灰色 (未配置)</td>
-<td>配置更新即时联动刷新</td>
-</tr>
-<tr>
-<td>启用/停用勾选</td>
-<td>控制该供应商标签是否参与业务流转</td>
-<td>供应商配置</td>
-<td>点击 Checkbox 切换启用状态</td>
-<td>复选框</td>
-<td>未勾选</td>
-<td>停用后不参与话单映射</td>
-</tr>
-<tr>
-<td>映射本地标签下拉</td>
-<td>将供应商私有标签归一化至中台标准</td>
-<td>中台标准库</td>
-<td>下拉选项取同租户类型+场景的标准标签</td>
-<td>下拉选择</td>
-<td>自动推断值</td>
-<td>未映射标红警示</td>
-</tr>
-<tr>
-<td>行内排序连续移位</td>
-<td>维护标签在前端界面展示的先后次序</td>
-<td>用户输入</td>
-<td>修改某行排序值，其余行自动后移/前移</td>
-<td>整数编辑</td>
-<td>递增序列</td>
-<td>保持 1~N 连续无空洞</td>
-</tr>
-<tr>
-<td>删除依赖校验</td>
-<td>防止误删已被供应商引用的本地标签</td>
-<td>映射关联库</td>
-<td>检索 <code>MockSupplierLocalTagMappings</code></td>
-<td>逻辑校验</td>
-<td>--</td>
-<td>存在引用时拦截并列出关联方</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<h2 id="sec-5">五. 其他说明</h2>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-17">1. 全局统一 25 项中台通话状态枚举与多平台映射字典（Wiki 权威基线）</h3>
-<p>中台统一标准化以下 <strong>25 项 DCC 本地通话状态枚举</strong>，通话记录、线索记录、外呼拦截与报表统计均统一遵循此字典，禁止出现非标展示值：</p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>序号</th>
-<th>中台标准通话状态</th>
-<th>一知科技回传</th>
-<th>科大讯飞回传</th>
-<th>中科金回传 (13终态码)</th>
-<th>电声平台 (20260713)</th>
-<th>大众通信 (官方API v4)</th>
-<th>业务流转与统计口径说明</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>1</strong></td>
-<td><strong>已接通</strong></td>
-<td>已接听 / 200</td>
-<td>1-已接通</td>
-<td>7-已接听</td>
-<td><code>answerStatus=301</code> / <code>main=3</code> 兜底</td>
-<td>1-呼叫成功</td>
-<td>接通类状态，计入接通数和有效通话客户数</td>
-</tr>
-<tr>
-<td><strong>2</strong></td>
-<td><strong>秒挂</strong></td>
-<td>通话 < 3秒挂断</td>
-<td>—</td>
-<td>—</td>
-<td><code>answerStatus=302</code> 秒挂</td>
-<td>—</td>
-<td>电声特有接通细分状态，计入接通口径</td>
-</tr>
-<tr>
-<td><strong>3</strong></td>
-<td><strong>伪接通</strong></td>
-<td>智能防骚扰/语音信箱</td>
-<td>—</td>
-<td>—</td>
-<td><code>answerStatus=303</code> 伪接通</td>
-<td>—</td>
-<td>电声特有接通细分状态，计入接通口径</td>
-</tr>
-<tr>
-<td><strong>4</strong></td>
-<td><strong>无人接听</strong></td>
-<td>无应答</td>
-<td>2-无人接听</td>
-<td>5-未接听；11-来电提醒</td>
-<td><code>answerStatus=206</code> 无应答</td>
-<td>4-无应答/无人接听</td>
-<td>用户未接听，归入未接通</td>
-</tr>
-<tr>
-<td><strong>5</strong></td>
-<td><strong>占线</strong></td>
-<td>忙线中</td>
-<td>3-占线</td>
-<td>9-占线</td>
-<td>—</td>
-<td>8-占线/用户正忙</td>
-<td>用户忙线，归入未接通或再次跟进</td>
-</tr>
-<tr>
-<td><strong>6</strong></td>
-<td><strong>拒接</strong></td>
-<td>拒接</td>
-<td>4-拒接</td>
-<td>—</td>
-<td><code>answerStatus=205</code> 拒接</td>
-<td>3-拒接</td>
-<td>用户主动拒接，归入未接通</td>
-</tr>
-<tr>
-<td><strong>7</strong></td>
-<td><strong>空号</strong></td>
-<td>空号</td>
-<td>5-空号</td>
-<td>13-空号</td>
-<td>运营商 SIP 404</td>
-<td>5-空号</td>
-<td>号码无效类，归入未接通</td>
-</tr>
-<tr>
-<td><strong>8</strong></td>
-<td><strong>关机</strong></td>
-<td>关机</td>
-<td>6-关机</td>
-<td>15-关机</td>
-<td>运营商 SIP 480</td>
-<td>6-关机</td>
-<td>终端关机，归入未接通</td>
-</tr>
-<tr>
-<td><strong>9</strong></td>
-<td><strong>停机</strong></td>
-<td>停机</td>
-<td>7-停机</td>
-<td>14-停机</td>
-<td>运营商 SIP 486</td>
-<td>7-停机</td>
-<td>号码停机，归入未接通</td>
-</tr>
-<tr>
-<td><strong>10</strong></td>
-<td><strong>欠费</strong></td>
-<td>主叫/被叫欠费</td>
-<td>8-欠费</td>
-<td>—</td>
-<td>运营商 SIP 402</td>
-<td>10-欠费</td>
-<td>被叫侧或号码欠费导致触达失败</td>
-</tr>
-<tr>
-<td><strong>11</strong></td>
-<td><strong>无法接通</strong></td>
-<td>无法接通</td>
-<td>9-无法接通</td>
-<td>12-无法接通</td>
-<td><code>answerMainStatus=2</code> 兜底</td>
-<td>—</td>
-<td>电声子状态缺失时使用主状态兜底</td>
-</tr>
-<tr>
-<td><strong>12</strong></td>
-<td><strong>黑名单过滤</strong></td>
-<td>本地/平台黑名单</td>
-<td>10-黑名单过滤</td>
-<td>—</td>
-<td><code>leadStatus=BLOCKED</code></td>
-<td>11-黑名单；12-用户屏蔽</td>
-<td>黑名单或用户屏蔽类限制</td>
-</tr>
-<tr>
-<td><strong>13</strong></td>
-<td><strong>拦截规则</strong></td>
-<td>频次/时段规则拦截</td>
-<td>11-拦截规则</td>
-<td>—</td>
-<td>中台策略引擎产生</td>
-<td>—</td>
-<td>科大侧或中台拦截规则命中</td>
-</tr>
-<tr>
-<td><strong>14</strong></td>
-<td><strong>待呼叫去重</strong></td>
-<td>重复号码过滤</td>
-<td>12-待呼叫去重</td>
-<td>—</td>
-<td>中台去重引擎产生</td>
-<td>—</td>
-<td>待呼叫阶段去重过滤</td>
-</tr>
-<tr>
-<td><strong>15</strong></td>
-<td><strong>分机号错误</strong></td>
-<td>分机号错误</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>分机号码格式不合法</td>
-</tr>
-<tr>
-<td><strong>16</strong></td>
-<td><strong>呼叫受限</strong></td>
-<td>呼叫受限</td>
-<td>—</td>
-<td>8-限制拨打</td>
-<td>—</td>
-<td>9-呼入限制</td>
-<td>号码或运营商限制呼入</td>
-</tr>
-<tr>
-<td><strong>17</strong></td>
-<td><strong>主叫欠费</strong></td>
-<td>线路账户欠费</td>
-<td>—</td>
-<td>—</td>
-<td>线路欠费</td>
-<td>—</td>
-<td>主叫线路账户欠费</td>
-</tr>
-<tr>
-<td><strong>18</strong></td>
-<td><strong>呼损客户</strong></td>
-<td>线路振铃前掉线</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>外呼系统呼损类客户状态</td>
-</tr>
-<tr>
-<td><strong>19</strong></td>
-<td><strong>外呼失败</strong></td>
-<td>接口提交/调度失败</td>
-<td>异常返回</td>
-<td>6-拨打失败</td>
-<td>接口返回非 S0000</td>
-<td>—</td>
-<td>系统侧拨打失败</td>
-</tr>
-<tr>
-<td><strong>20</strong></td>
-<td><strong>转人工呼损</strong></td>
-<td>触发转人工坐席未接</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>转人工环节呼损</td>
-</tr>
-<tr>
-<td><strong>21</strong></td>
-<td><strong>线路拦截</strong></td>
-<td>运营商机房拦截</td>
-<td>—</td>
-<td>—</td>
-<td>SIP 603</td>
-<td>2-运营商拦截</td>
-<td>线路或运营商侧拦截</td>
-</tr>
-<tr>
-<td><strong>22</strong></td>
-<td><strong>等待重呼</strong></td>
-<td>处于重试间隔中</td>
-<td>调度中间态</td>
-<td>4-等待重呼</td>
-<td>调度中间态</td>
-<td>—</td>
-<td>等待系统重新呼叫</td>
-</tr>
-<tr>
-<td><strong>23</strong></td>
-<td><strong>号码故障</strong></td>
-<td>号码格式损坏</td>
-<td>—</td>
-<td>17-号码故障</td>
-<td>—</td>
-<td>—</td>
-<td>中科金号码故障状态</td>
-</tr>
-<tr>
-<td><strong>24</strong></td>
-<td><strong>线路故障</strong></td>
-<td>网关断开/信令超时</td>
-<td>—</td>
-<td>18-线路故障</td>
-<td>SIP 500/503</td>
-<td>—</td>
-<td>中科金线路故障状态</td>
-</tr>
-<tr>
-<td><strong>25</strong></td>
-<td><strong>等待呼叫</strong></td>
-<td>队列中待分发</td>
-<td>调度初始态</td>
-<td>—</td>
-<td><code>WAIT_START</code></td>
-<td>0-等待呼叫</td>
-<td>尚未形成最终结果，不计入接通或未接通</td>
-</tr>
-</tbody>
-</table></div>
-<blockquote><strong>冰兰平台 20 项未接通原因码</strong>：当冰兰返回 <code>callStatus=未接通</code> 时，解析 <code>missedCallReason</code>：#1 空号、#2 停机、#3 黑名单用户、#4 高频呼叫拦截、#5 暂时无法拨通、#6 占线、#7 拒接、#8 关机、#9 用户无应答、#10 线路限制、#11 呼叫转移限呼、#12 线路故障、#13 通话中、#14 不在服务区、#15 号码错误、#16 来电提醒、#17 欠费、#18 无法连接、#19 用户正忙、#20 呼叫超时主叫挂断。</blockquote>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-18">2. 意向级别跨平台对齐字典（Wiki 权威基线）</h3>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>概念等级</th>
-<th>大众通信 (code 1~6)</th>
-<th>一知总部 / 百炼</th>
-<th>一知门店回调</th>
-<th>冰兰 (API V4)</th>
-<th>电声 (Rank/Status)</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>A / 高意向</strong></td>
-<td>1（有了明确意向）</td>
-<td>高意向</td>
-<td>高意向</td>
-<td>高意向</td>
-<td>Rank A (<code>intentionStatus=2</code> 有意向)</td>
-</tr>
-<tr>
-<td><strong>B / 有意向</strong></td>
-<td>2（可能有意向）</td>
-<td>潜在</td>
-<td>低意向</td>
-<td>有意向</td>
-<td>Rank B/C (<code>intentionStatus=2</code> 有意向)</td>
-</tr>
-<tr>
-<td><strong>C / 无意向</strong></td>
-<td>3（无意向）</td>
-<td>一般</td>
-<td>意向待定</td>
-<td>无意向</td>
-<td><code>intentionStatus=1</code> (无意向)</td>
-</tr>
-<tr>
-<td><strong>D / 忙碌</strong></td>
-<td>4（用户在忙）</td>
-<td>忙碌 / 敷衍</td>
-<td>无意向</td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>E / 无效</strong></td>
-<td>5（其他）</td>
-<td>拒绝 / 无效 / 无应答</td>
-<td>未接通</td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>F / 助理</strong></td>
-<td>6（智能助理）</td>
-<td>未接通 (百炼默认)</td>
-<td>停机 / 空号</td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>已购车</strong></td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>已购车</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>意向未知</strong></td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>意向未知</td>
-<td><code>intentionStatus=0</code> (无结果)</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-19">3. 租户充值计费、资金数学模型与生命周期</h3>
-<ol>
-<li><strong>账户资金平衡公式</strong>：</li>
-</ol>
-<p>$$B = R - D - C$$</p>
-<p>$$A = \max(B - F, 0)$$</p>
-<ul>
-<li>$R$：已生效通话充值总额（仅已支付且手动生效的通话费单与组合单计入，坐席费仅更新有效期）；</li>
-<li>$D$：累计手工扣减金额；</li>
-<li>$C$：累计实际通话消费金额；</li>
-<li>$B$：当前资金总余额；</li>
-<li>$F$：当前有效冻结总额；</li>
-<li>$A$：当前统一可用金额（页面内部隐藏，作为换算与校验基准）。</li>
-</ul>
-<ol>
-<li><strong>模型可用分钟换算（不同模型分钟数不可相加）</strong>：</li>
-</ol>
-<p>$$M_{LA} = \lfloor \frac{A}{P_L} \rfloor \quad (\text{大模型可用分钟数，} P_L \text{ 为大模型有效单价})$$</p>
-<p>$$M_{SA} = \lfloor \frac{A}{P_S} \rfloor \quad (\text{小模型可用分钟数，} P_S \text{ 为小模型有效单价})$$</p>
-<ol>
-<li><strong>冻结、结算与释放生命周期</strong>：</li>
-</ol>
-<ul>
-<li>单任务预计冻结金额：$F_i = \text{预计通话分钟数} \times p_i$；</li>
-<li>任务完成时实际消费：$C_i = m_{a,i} \times p_i$（$m_{a,i}$ 为实际通话分钟数，$p_i$ 为单价快照）；</li>
-<li>未使用冻结金额：$U_i = \max(F_i - C_i, 0)$；</li>
-<li>结算后新余额：$B' = B - C_i$，结算后新冻结：$F' = F - F_i$；</li>
-<li><strong>自动解冻机制</strong>：任务完成、任务终止、或冻结创建满 <strong>24 小时</strong>，系统自动解除冻结占用，保证幂等。</li>
-</ul>
-<ol>
-<li><strong>手工扣减与线下调整</strong>：</li>
-</ol>
-<ul>
-<li>线下坏账或特殊冲减通过「余额调整」录入，扣减上限为当前资金余额（$\text{扣减金额} \le \text{当前资金余额}$）；</li>
-<li>手工扣减流水永久记录，不可撤销或删除。</li>
-</ul>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-20">4. 销售区域层级与经销商组织架构（Wiki 基础数据基线）</h3>
-<p>中台组织与门店级联严格遵循 <strong>10 个销售大区、54 个销售小区、591 家经销商门店</strong> 权威主数据：</p>
-<div class="table-wrap"><table>
-<thead><tr>
-<th>销售大区</th>
-<th>涵盖销售小区 (共 54 小区)</th>
-<th>涵盖省份范围</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>华北区</strong></td>
-<td>北京区 · 天津区 · 冀北区 · 冀南区 · 山西区</td>
-<td>北京、天津、河北、山西</td>
-</tr>
-<tr>
-<td><strong>东北区</strong></td>
-<td>沈阳区 · 辽东区 · 辽西区 · 吉林区 · 黑龙江区 · 内蒙古区</td>
-<td>辽宁、吉林、黑龙江、内蒙古</td>
-</tr>
-<tr>
-<td><strong>华东一区</strong></td>
-<td>上海区 · 杭州区 · 浙东区 · 浙南区 · 福建区</td>
-<td>上海、浙江、福建</td>
-</tr>
-<tr>
-<td><strong>华东二区</strong></td>
-<td>苏州区 · 苏中区 · 苏北区 · 常锡区 · 安徽区</td>
-<td>江苏、安徽</td>
-</tr>
-<tr>
-<td><strong>华东三区</strong></td>
-<td>鲁东区 · 鲁北区 · 鲁南区 · 鲁西区</td>
-<td>山东</td>
-</tr>
-<tr>
-<td><strong>华中一区</strong></td>
-<td>郑州区 · 豫东区 · 豫北区 · 豫西区 · 武汉区 · 鄂北区 · 鄂南区</td>
-<td>河南、湖北</td>
-</tr>
-<tr>
-<td><strong>华中二区</strong></td>
-<td>长株潭区 · 湘北区 · 湘南区 · 江西区 · 广西区</td>
-<td>湖南、江西、广西</td>
-</tr>
-<tr>
-<td><strong>华南区</strong></td>
-<td>广州区 · 深圳区 · 东莞区 · 佛肇区 · 粤东区 · 粤中区 · 海粤区</td>
-<td>广东、海南</td>
-</tr>
-<tr>
-<td><strong>西南区</strong></td>
-<td>成都区 · 川北区 · 川南区 · 川藏区 · 重庆区 · 云南区 · 贵州区</td>
-<td>四川、重庆、云南、贵州、西藏</td>
-</tr>
-<tr>
-<td><strong>西北区</strong></td>
-<td>陕宁区 · 甘青区 · 新疆区</td>
-<td>陕西、宁夏、甘肃、青海、新疆</td>
-</tr>
-</tbody>
-</table></div>
-<hr>
-<hr class="section-divider">
-<h3 id="sub-21">5. 线索回流统计与数据脱敏安全规范</h3>
-<ol>
-<li><strong>线索回流统计看板</strong>：</li>
-</ol>
-<ul>
-<li>追踪业务系统（DCC/线索中心）传入、提交外呼和回传业务系统的全链路漏斗；</li>
-<li>包含统计时间（date 粒度）、场景名称、线索传入数、提交外呼数、线索回流数、回流转化率等指标。</li>
-</ul>
-<ol>
-<li><strong>手机号掩码脱敏</strong>：</li>
-</ol>
-<ul>
-<li>列表表格、通话记录、线索明细及弹窗展示中，所有客户手机号码一律统一处理为 <strong><code>前3位 + 4个星号 + 后4位</code></strong>（例如 <code>138<strong><em>*8888</code> 或 <code>159</strong></em>*5393</code>）；</li>
-<li>导出 CSV/Excel 时根据当前登录操作员权限决定是否解密导出。</li>
-</ul>
-<ol>
-<li><strong>多租户数据强隔离</strong>：</li>
-</ol>
-<ul>
-<li>门店租户登录仅可查看并操作本租户下的场景、账号、任务与名单；</li>
-<li>总部超管（<code>产品-超管</code>）具备全局租户切换、跨平台统一配置与底层标签映射管理权限。</li>
-</ul>
+
+    <h1>智能外呼统一中台 · 功能说明文档</h1>
+    <div class="note"><strong>唯一维护入口：</strong>本页已统一承载原型的功能说明与交互说明，并基于当前静态原型、验收映射、字段映射与资料来源生成。原型使用 Mock 数据，不代表已完成真实接口、权限矩阵或生产异常恢复机制。</div>
+
+    <h2>一. 版本说明</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>版本号</th><th>更新时间</th><th>更新内容</th></tr></thead>
+        <tbody>
+          <tr><td>v2.2</td><td>2026-08-21</td><td>收敛功能说明与交互说明：统一以本页为唯一正式文档入口，移除旧版并行 HTML 及其过期生成、验证工具。</td></tr>
+          <tr><td>v2.1</td><td>2026-08-21</td><td>重新执行 S9：将标注锚点从 15 个扩展为 55 个；按筛选、数据区、关键动作、详情层和六平台差异拆分；清除历史标注，重新生成提示词、覆盖清单与交互说明。</td></tr>
+          <tr><td>v2.0</td><td>2026-08-20</td><td>合并多平台原型能力，完善业务场景、标签、租户、线索和统计页面。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二. 项目范围</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>系统名称</th><th>涉及板块</th><th>功能范围</th><th>对接系统范围</th></tr></thead>
+        <tbody>
+          <tr><td>智能外呼统一中台</td><td>首页</td><td>大/小模型可用分钟数、有效期、呼叫控制状态</td><td>SRC-009 充值方案</td></tr>
+          <tr><td>智能外呼统一中台</td><td>外呼场景</td><td>外呼任务筛选、任务卡片、统一详情、平台差异详情</td><td>SRC-001~SRC-006 六个平台</td></tr>
+          <tr><td>智能外呼统一中台</td><td>外呼拦截</td><td>黑名单分组、号码筛选、维护、同步状态</td><td>SRC-003 电声</td></tr>
+          <tr><td>智能外呼统一中台</td><td>统计分析</td><td>通话统计、计费统计、线索汇总/明细/回流</td><td>SRC-001~SRC-006、SRC-009、SRC-010</td></tr>
+          <tr><td>智能外呼统一中台</td><td>外呼结果</td><td>通话记录、通话详情、线索记录、标签与回访详情</td><td>SRC-001~SRC-006</td></tr>
+          <tr><td>智能外呼统一中台</td><td>系统管理</td><td>业务场景、标签、租户配置</td><td>SRC-001~SRC-007、SRC-009</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三. 逻辑说明</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>流程名称</th><th>跳转地址</th></tr></thead>
+        <tbody>
+          <tr><td>外呼任务查看 → 通话记录 → 线索记录 → 统计报表</td><td>本期未提供 ProcessOn 链接。</td></tr>
+          <tr><td>业务场景创建 → 选择平台 → 展示平台专属配置 → 保存场景</td><td>本期未提供 ProcessOn 链接。</td></tr>
+          <tr><td>租户计费配置 → 充值单关联/生效 → 余额调整 → 呼叫控制</td><td>本期未提供 ProcessOn 链接。</td></tr>
+          <tr><td>供应商标签 → 启用与排序 → 映射中台标签 → 线索标签展示</td><td>本期未提供 ProcessOn 链接。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>四. 功能说明</h2>
+
+    <hr class="section-divider">
+    <h3>1. 首页 - 用量余额</h3>
+    <p><strong>1）功能名称：</strong> 用量余额</p>
+    <p><strong>2）交互说明：</strong> 进入首页后直接展示当前演示租户的余额、有效期和呼叫控制状态，无额外操作。</p>
+    <p><strong>3）数据来源：</strong> SRC-009；当前 Mock 租户、计费规则、充值历史、冻结任务和余额调整数据。</p>
+    <p><strong>4）逻辑说明：</strong> 可用分钟数按已生效充值与余额调整计算，并扣除已消费及冻结占用；有效期取可用配置中的最近有效范围；呼叫控制结合余额、有效期和控制状态判断。</p>
+    <p><strong>5）功能明细：</strong> 见下表。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>大/小模型可用分钟数</td><td>分别展示两类模型可用于外呼的分钟数</td><td>SRC-009 / Mock 计费数据</td><td>可用余额按对应模型的单价折算为分钟并扣除占用</td><td>分钟数</td><td>0</td><td>缺少有效价格配置时不推算虚假分钟数</td></tr>
+        <tr><td>呼叫控制状态</td><td>提示当前租户是否具备发起呼叫条件</td><td>余额、有效期、控制状态</td><td>余额与有效期有效且控制开关允许时显示可发起</td><td>状态标签</td><td>不可发起</td><td>数据不足时按不可发起处理</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>2. 外呼场景 - 外呼列表</h3>
+    <p><strong>1）功能名称：</strong> 外呼任务筛选、任务列表与任务详情</p>
+    <p><strong>2）交互说明：</strong> 用户按名称、状态、平台查询；点击任务卡片打开详情抽屉。详情按平台展示差异字段；厚朴提供令牌失效演示，大众任务信息为只读。</p>
+    <p><strong>3）数据来源：</strong> SRC-001~SRC-006；FLD-001~FLD-015。</p>
+    <p><strong>4）逻辑说明：</strong> 筛选条件为同时满足；卡片数量区分已分配、待处理和已呼叫；详情统一基础字段并追加平台特有字段。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>外呼任务筛选</td><td>按任务名、任务状态、所属平台缩小列表</td><td>FLD-003、004、006</td><td>非空条件按 AND 组合，平台名称严格匹配</td><td>文本/枚举</td><td>全部</td><td>无匹配时展示空列表并提示查询完成</td></tr>
+        <tr><td>外呼任务列表</td><td>展示六平台任务及执行进度</td><td>FLD-001、003、004、006~009</td><td>待处理 = 已分配 - 已呼叫；状态按统一枚举展示</td><td>卡片/状态标签/数字</td><td>Mock 全量</td><td>字段缺失时按页面兜底值展示</td></tr>
+        <tr><td>任务详情</td><td>查看基础信息、名单和平台差异配置</td><td>FLD-001~015</td><td>按选中任务平台决定详情区块</td><td>抽屉</td><td>首个详情页签</td><td>外部详情未返回时展示明确空状态</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>3. 外呼场景 - 外呼黑名单</h3>
+    <p><strong>1）功能名称：</strong> 黑名单分组、号码维护与平台同步</p>
+    <p><strong>2）交互说明：</strong> 选择分组后筛选号码；可新增、批量导入、导出、移动、移除、重试同步或维护同步设置。</p>
+    <p><strong>3）数据来源：</strong> SRC-003；FLD-070~FLD-075。</p>
+    <p><strong>4）逻辑说明：</strong> 号码归属一个黑名单组，添加类型、原因、来源、有效期和同步状态分别记录；批量动作只对已选行生效。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>黑名单筛选</td><td>按号码、添加类型、添加时间查询</td><td>FLD-071、073、074</td><td>非空条件同时匹配当前分组记录</td><td>文本/枚举/日期</td><td>全部</td><td>开始时间晚于结束时间时应阻止查询</td></tr>
+        <tr><td>平台同步状态</td><td>展示号码与外部平台同步结果</td><td>FLD-075</td><td>映射为已同步或同步失败等状态</td><td>状态标签</td><td>待同步</td><td>失败记录可选择后重试</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>4. 统计分析 - 通话统计</h3>
+    <p><strong>1）功能名称：</strong> 外呼统计/客户统计、筛选与统计列表</p>
+    <p><strong>2）交互说明：</strong> 切换统计口径后替换表格；按日期、场景、平台查询，重置恢复默认条件。</p>
+    <p><strong>3）数据来源：</strong> SRC-001、002、003、005、006；FLD-006、040~045。</p>
+    <p><strong>4）逻辑说明：</strong> 接通率 = 接通总数 / 拨打总次数；触达率按当前列表的名单口径计算；分母为 0 时展示 0%。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>通话统计列表</td><td>展示每日场景和平台的呼叫效果</td><td>FLD-006、040~045</td><td>按日期、场景、平台聚合呼叫、接通、未接通和时长</td><td>数字/百分比/时长</td><td>外呼统计</td><td>无数据时展示空状态；分母为 0 显示 0%</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>5. 统计分析 - 计费统计</h3>
+    <p><strong>1）功能名称：</strong> 计费口径、计费筛选、汇总与明细</p>
+    <p><strong>2）交互说明：</strong> 按日期、租户和平台查询；点击列表详情打开计费明细弹窗。</p>
+    <p><strong>3）数据来源：</strong> SRC-003、005、006、009；FLD-006、050、055。</p>
+    <p><strong>4）逻辑说明：</strong> 客户接通才计费，按分钟收费，不满 1 分钟按 1 分钟计；当前原型展示计费时长和模型类型，不虚构真实费用。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>计费统计列表</td><td>展示租户、平台、模型类型与计费时长</td><td>SRC-009 / MockBillingStatsRows</td><td>筛选后按行展示汇总数据</td><td>日期/文本/分钟</td><td>全部平台</td><td>无匹配数据时展示空表</td></tr>
+        <tr><td>计费明细</td><td>追溯汇总行对应的明细记录</td><td>MockBillingDetail</td><td>按汇总记录 ID 关联明细</td><td>弹窗表格</td><td>当前汇总行</td><td>无明细时显示“暂无数据”</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>6. 统计分析 - 线索统计</h3>
+    <p><strong>1）功能名称：</strong> 线索汇总、线索明细与线索回流</p>
+    <p><strong>2）交互说明：</strong> 主 Tab 切换三种报表；汇总和明细可在 NEV/ICE 间切换，再按时间、业务类型、场景、意向或门店过滤。</p>
+    <p><strong>3）数据来源：</strong> SRC-010；FLD-020、021、023~025、031、040、041、043、045。</p>
+    <p><strong>4）逻辑说明：</strong> 汇总展示导入、外呼、接通、下发及 A~E 意向分级；明细下钻到手机号、场景、通话状态和意向；回流统计比较传入、提交外呼和回流数量。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>线索统计列表</td><td>展示 NEV/ICE 的批次汇总</td><td>MockClueStatNEV/ICE</td><td>按导入日期和业务类型聚合</td><td>数字/百分比/时长</td><td>NEV</td><td>分母为 0 的比例显示 0%</td></tr>
+        <tr><td>外呼线索明细</td><td>查看单条线索的呼叫和意向结果</td><td>MockClueDetailNEV/ICE</td><td>按筛选条件匹配明细行</td><td>表格</td><td>NEV</td><td>电话按当前原型脱敏规则展示</td></tr>
+        <tr><td>线索回流统计</td><td>比较业务系统传入与回流数量</td><td>MockClueReturn</td><td>按统计时间和场景聚合</td><td>表格</td><td>全部</td><td>无数据时展示空状态</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>7. 外呼结果 - 通话记录</h3>
+    <p><strong>1）功能名称：</strong> 通话记录筛选、列表与详情</p>
+    <p><strong>2）交互说明：</strong> 基础条件可直接查询，展开后增加场景、状态和平台；点击详情打开录音、转写、摘要和平台字段。</p>
+    <p><strong>3）数据来源：</strong> SRC-001、002、003、005、006；FLD-020~036。</p>
+    <p><strong>4）逻辑说明：</strong> 时间、状态和平台按统一字段展示；大众详情通过其呼叫标识模拟查询，未返回时展示明确占位状态。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>通话记录列表</td><td>展示每通外呼的号码、时间、时长、场景和状态</td><td>FLD-020~025、027</td><td>通话时长 = 结束时间 - 开始时间</td><td>脱敏电话/日期时间/状态</td><td>全量记录</td><td>时间缺失时不计算虚假时长</td></tr>
+        <tr><td>通话详情</td><td>查看录音、对话文本、摘要与标签</td><td>FLD-026、028~036</td><td>按选中记录关联详情数据</td><td>弹窗</td><td>当前记录</td><td>详情未返回时显示未返回状态</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>8. 外呼结果 - 线索记录</h3>
+    <p><strong>1）功能名称：</strong> 线索记录筛选、列表、客户标签与回访详情</p>
+    <p><strong>2）交互说明：</strong> 按电话、回访时间、通话状态、场景和意向查询；点击“查看”打开客户标签，点击“详情”打开多次回访抽屉。</p>
+    <p><strong>3）数据来源：</strong> SRC-003、004、006；FLD-020、021、024~027、031、036。</p>
+    <p><strong>4）逻辑说明：</strong> 一条线索聚合多次回访，列表展示最后回访状态与意向，详情按时间顺序展示每次回访。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>线索记录列表</td><td>展示六平台线索及最后回访结果</td><td>MockClueRecordRows</td><td>按最后回访状态、场景、平台和意向展示</td><td>表格</td><td>全量线索</td><td>无标签时“查看”入口显示为“-”</td></tr>
+        <tr><td>线索多次回访详情</td><td>查看各次回访时间、状态、记录和意向</td><td>线索 revisits 数据</td><td>按选中线索展开回访数组</td><td>抽屉表格</td><td>当前线索</td><td>无回访时展示空记录</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>9. 系统管理 - 业务场景</h3>
+    <p><strong>1）功能名称：</strong> 场景列表、通用表单与六平台差异配置</p>
+    <p><strong>2）交互说明：</strong> 筛选或查看场景；点击新建打开抽屉，填写通用字段后选择一个智能平台，页面只展示该平台专属配置，保存前执行必填校验。</p>
+    <p><strong>3）数据来源：</strong> SRC-001~SRC-006；FLD-002、003、006、012~015。</p>
+    <p><strong>4）逻辑说明：</strong> 平台为互斥单选；一知、中科金关联外部任务和模型账号，电声包含呼叫时段/重呼/黑名单/启动策略，冰兰包含通道/机器人/时段/拦截，厚朴关联任务名称与数据列模式，大众通过 UUID 关联且策略在 SaaS 侧维护。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>智能平台选择</td><td>决定当前场景使用的平台及专属表单</td><td>FLD-006</td><td>六个平台互斥单选，切换后隐藏其他平台面板</td><td>单选</td><td>未选择</td><td>未选择平台时阻止保存</td></tr>
+        <tr><td>电声平台配置</td><td>配置机器人、呼叫时段、重呼、黑名单和启动策略</td><td>SRC-003</td><td>场景类型匹配机器人；至少一个完整呼叫时段</td><td>组合表单</td><td>自动启动开启</td><td>时段不完整或必填缺失时阻止保存</td></tr>
+        <tr><td>大众通信平台配置</td><td>关联已在 SaaS 创建的任务</td><td>SRC-006 / FLD-002</td><td>输入任务 UUID；重呼、并发和呼叫时间在 SaaS 侧配置</td><td>文本</td><td>空</td><td>UUID 缺失时阻止保存</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>10. 系统管理 - 标签管理</h3>
+    <p><strong>1）功能名称：</strong> 标签配置树、中台标签与供应商标签映射</p>
+    <p><strong>2）交互说明：</strong> 在左侧树选择中台或供应商、租户类型和场景；右侧维护标签启停、名称、排序及供应商到中台的映射；工具栏可维护场景和供应商。</p>
+    <p><strong>3）数据来源：</strong> SRC-007、003、006；FLD-060~063。</p>
+    <p><strong>4）逻辑说明：</strong> 中台标签是统一标准，供应商标签保留原生语义并映射到中台标签；停用供应商或场景时禁止继续修改其标签配置。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>标签配置树</td><td>按标签体系、租户类型和场景定位配置上下文</td><td>MockTagSuppliers/MockTagScenes</td><td>点击叶子节点加载对应配置</td><td>树</td><td>首个可用节点</td><td>节点停用时右侧进入只读/禁用状态</td></tr>
+        <tr><td>供应商标签映射</td><td>将供应商原生标签映射到中台标准标签</td><td>FLD-060~063</td><td>启用供应商标签后选择一个本地标签映射</td><td>表格/下拉</td><td>未映射</td><td>目标标签不存在时保持未映射并提示</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr class="section-divider">
+    <h3>11. 系统管理 - 租户管理</h3>
+    <p><strong>1）功能名称：</strong> 租户筛选、租户表单、计费配置、充值与余额管理</p>
+    <p><strong>2）交互说明：</strong> 按名称筛选；可新建/编辑租户；从列表进入大/小模型计费配置或充值管理抽屉，处理充值关联、生效和余额调整。</p>
+    <p><strong>3）数据来源：</strong> SRC-002、009；FLD-050~055。</p>
+    <p><strong>4）逻辑说明：</strong> 租户信息与计费信息分离维护；充值单关联后可按套餐规则生效；余额调整记录单独留痕；呼叫控制结合有效期、余额和控制状态。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead>
+      <tbody>
+        <tr><td>租户列表</td><td>展示租户基础信息、余额、有效期和呼叫状态</td><td>FLD-050~055</td><td>关联租户、价格规则、充值与余额数据生成展示摘要</td><td>表格</td><td>全量租户</td><td>计费数据缺失时不虚构余额</td></tr>
+        <tr><td>租户计费配置</td><td>维护大模型/小模型价格与启用状态</td><td>SRC-009 / FLD-055</td><td>按租户和模型类型保存配置</td><td>弹窗表格</td><td>现有配置</td><td>价格格式非法时阻止保存</td></tr>
+        <tr><td>租户充值与余额管理</td><td>关联充值单、手动生效、余额调整和记录追溯</td><td>SRC-009</td><td>充值生效后进入可用余额；冻结与调整单独记录</td><td>抽屉/表格/弹窗</td><td>计费明细页签</td><td>重复充值单、金额非法或未选择单据时阻止提交</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>五. 其他说明</h2>
+    <h3>1. 已知限制与核对说明</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>说明项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>数据边界</td><td>当前全部为静态 Mock 数据；查询、保存、导入、导出和平台请求均用于演示。</td></tr>
+          <tr><td>权限边界</td><td>当前验收资料未定义角色权限矩阵，页面标注不得推断“仅管理员”或其他角色权限。</td></tr>
+          <tr><td>流程图</td><td><code>flowcharts/processon-links.txt</code> 当前无有效链接，本文不伪造 ProcessOn 地址。</td></tr>
+          <tr><td>挂起项</td><td>通道管理占位和线索记录移动端横向溢出按用户要求继续挂起，不在本轮 S9 标注重生成中处理。</td></tr>
+          <tr><td>标注回写</td><td>本轮 55 条标注已回写至 <code>annotations/annotations.js</code>；弹窗和抽屉标注在打开相应交互层后显示。</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
   <script src="../js/delivery-nav.js"></script>
 </body>

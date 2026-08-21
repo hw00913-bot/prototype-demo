@@ -75,7 +75,7 @@
             '<span class="scene-page-subtitle">当前系统所有的外呼呼叫记录。</span>' +
           '</div>' +
         '</div>' +
-        '<div class="filter-bar">' +
+        '<div class="filter-bar" data-anno="scene-list-filters" data-anno-page="scene-list" data-anno-label="外呼任务筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-006">' +
           '<div class="filter-item"><label>场景名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:200px;"></div>' +
           '<div class="filter-item"><label>状态：</label><select class="filter-select" style="width:140px;">' +
             '<option value="">请选择</option><option value="not_started">未开始</option><option value="running">进行中</option><option value="completed">已完成</option><option value="paused">用户暂停</option><option value="terminated">已终止</option>' +
@@ -86,7 +86,7 @@
             '<button class="btn btn-primary" onclick="window.Pages[\'scene-list\'].doQuery()">查询</button>' +
           '</div>' +
         '</div>' +
-        '<div class="scene-card-grid" data-anno="scene-list-grid" data-anno-page="scene-list" data-anno-label="外呼任务列表" data-anno-kind="region" data-anno-fields="FLD-001,FLD-003,FLD-004,FLD-006">' + cards + '</div>' +
+        '<div class="scene-card-grid" data-anno="scene-list-grid" data-anno-page="scene-list" data-anno-label="外呼任务列表" data-anno-kind="region" data-anno-fields="FLD-001,FLD-003,FLD-004,FLD-006,FLD-007,FLD-008,FLD-009">' + cards + '</div>' +
       '</div>';
   }
 
@@ -899,7 +899,7 @@
 
     var html = '' +
       '<div class="scene-detail-backdrop" id="sceneDetailBackdrop" onclick="window.Pages[\'scene-list\'].closeDetail(event)">' +
-        '<div class="scene-detail-drawer" onclick="event.stopPropagation()">' +
+        '<div class="scene-detail-drawer" data-anno="scene-task-detail" data-anno-page="scene-list" data-anno-label="外呼任务详情" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011,FLD-012,FLD-013,FLD-014,FLD-015" onclick="event.stopPropagation()">' +
           '<div class="scene-detail-header">' +
             '<span class="scene-detail-close" onclick="window.Pages[\'scene-list\'].closeDetail()">&times;</span>' +
             '<span class="scene-detail-title">查看外呼</span>' +

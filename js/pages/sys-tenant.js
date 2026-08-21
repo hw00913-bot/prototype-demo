@@ -886,19 +886,19 @@
           '<div class="tenant-list-title"><span>租户管理</span></div>' +
           '<div class="tenant-list-desc">管理每个租户的信息。</div>' +
         '</div>' +
-        '<div class="filter-bar" style="margin-bottom:16px;">' +
+        '<div class="filter-bar" data-anno="sys-tenant-filters" data-anno-page="sys-tenant" data-anno-label="租户筛选" data-anno-kind="region" data-anno-fields="FLD-050" style="margin-bottom:16px;">' +
           '<div class="filter-item"><label>租户名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:210px;"></div>' +
           '<div class="btn-group"><button class="btn btn-default" onclick="resetFilter(this.closest(\'.tenant-page\'))">重置</button><button class="btn btn-primary" onclick="doQuery()">查询</button></div>' +
         '</div>' +
         '<div class="tenant-list-card">' +
           '<div class="tenant-list-tools">' +
             '<button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].exportTenantBilling()" style="height:34px;padding:0 16px;">导出</button>' +
-            '<button class="btn btn-primary" onclick="window.Pages[\'sys-tenant\'].openCreateTenantModal()" style="height:34px;padding:0 16px;">+ 新建</button>' +
+            '<button class="btn btn-primary" data-anno="sys-tenant-create" data-anno-page="sys-tenant" data-anno-label="新建租户" data-anno-kind="action" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055" onclick="window.Pages[\'sys-tenant\'].openCreateTenantModal()" style="height:34px;padding:0 16px;">+ 新建</button>' +
             '<span class="biz-icon-btn" onclick="doRefresh()" title="刷新">&#x21bb;</span>' +
             '<span class="biz-icon-btn" onclick="showToast(\'设置功能开发中\',\'info\')" title="设置">&#x2699;</span>' +
           '</div>' +
           '<div class="table-container">' +
-            '<table class="data-table tenant-native-table">' +
+            '<table class="data-table tenant-native-table" data-anno="sys-tenant-table" data-anno-page="sys-tenant" data-anno-label="租户列表" data-anno-kind="table" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055">' +
               '<thead><tr>' +
                 '<th>序号</th><th>租户名称</th><th>有效期</th><th>计费配置</th><th>大模型可用分钟数</th><th>小模型可用分钟数</th><th>呼叫控制状态</th><th>租户类型</th><th>租户 id</th><th>描述</th><th>状态</th><th>更新人</th><th>更新时间</th><th>操作</th>' +
               '</tr></thead>' +
@@ -971,7 +971,7 @@
     closePricingConfigModal();
     var html = '' +
       '<div class="tenant-pricing-modal-backdrop" id="tenantPricingConfigBackdrop" onclick="window.Pages[\'sys-tenant\'].closePricingConfigModal(event)">' +
-        '<div class="tenant-pricing-modal" id="tenantPricingConfigModal" data-tenant-name="' + tenantName + '" onclick="event.stopPropagation()">' +
+        '<div class="tenant-pricing-modal" id="tenantPricingConfigModal" data-anno="sys-tenant-pricing" data-anno-page="sys-tenant" data-anno-label="租户计费配置" data-anno-kind="region" data-anno-fields="FLD-050,FLD-055" data-tenant-name="' + tenantName + '" onclick="event.stopPropagation()">' +
           '<div class="tenant-pricing-modal-header">' +
             '<div>' +
               '<div class="tenant-pricing-modal-title">计费配置</div>' +
@@ -1055,7 +1055,7 @@
     var summary = getTenantBillingSummary(tenantLocked);
     var html = '' +
       '<div class="biz-drawer-backdrop" id="tenantBillingBackdrop" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer(event)">' +
-        '<div class="biz-drawer tenant-drawer" id="tenantBillingDrawer" onclick="event.stopPropagation()" data-row-id="' + row.id + '" data-new="' + (existed ? '0' : '1') + '">' +
+        '<div class="biz-drawer tenant-drawer" id="tenantBillingDrawer" data-anno="sys-tenant-billing" data-anno-page="sys-tenant" data-anno-label="租户充值与余额管理" data-anno-kind="region" data-anno-fields="FLD-050,FLD-055" onclick="event.stopPropagation()" data-row-id="' + row.id + '" data-new="' + (existed ? '0' : '1') + '">' +
           '<div class="biz-drawer-header">' +
             '<span class="biz-drawer-title">充值管理</span>' +
             '<span class="biz-drawer-close" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer()">&#x2715;</span>' +
@@ -1641,7 +1641,7 @@
 
     var html = '' +
       '<div class="modal-overlay" id="tenantFormModalBackdrop" style="position:fixed;inset:0;z-index:5500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);" onclick="window.Pages[\'sys-tenant\'].closeTenantFormModal(event)">' +
-        '<div class="tenant-form-modal" id="tenantFormModal" onclick="event.stopPropagation()">' +
+        '<div class="tenant-form-modal" id="tenantFormModal" data-anno="sys-tenant-form" data-anno-page="sys-tenant" data-anno-label="租户信息表单" data-anno-kind="region" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055" onclick="event.stopPropagation()">' +
           '<div class="tenant-form-modal-header">' +
             '<span class="tenant-form-modal-title" id="tenantFormModalTitle">' + data.title + '</span>' +
             '<button class="tenant-form-modal-close" onclick="window.Pages[\'sys-tenant\'].closeTenantFormModal()">✕</button>' +
