@@ -1,0 +1,146 @@
+{
+  "version": "2026-06-24",
+  "authority": "runtime-control",
+  "description": "PM 需求到静态演示原型的确定性阶段状态机。docs/ 只解释本文件，不作为运行时源。",
+  "stages": [
+    {
+      "id": "S0",
+      "name": "总控启动",
+      "purpose": "判断用户是否要开始计划或继续一个原型项目。",
+      "primary_worker": "prototype-loop-orchestrator",
+      "outputs": [
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S1"
+      ]
+    },
+    {
+      "id": "S1",
+      "name": "项目讨论",
+      "purpose": "执行 PM Brief Intake，澄清启动所需的目标、范围、非范围、输入材料、迭代方式、页面结构、资料计划、标注策略和验收方向，并只写入启动快照 memory/project-startup-plan.md。",
+      "primary_worker": "superpowers-pm-prototype/skills/brainstorming",
+      "outputs": [
+        "memory/project-startup-plan.md",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S2"
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "计划门禁",
+      "purpose": "写入项目级 CLAUDE.md 后，由产品经理显式确认 S1 启动规划；approve-plan 绑定迭代名、确认人、确认依据和两份文件摘要并冻结启动规划。S2 后启动规划只读。",
+      "primary_worker": "prototype-loop-orchestrator",
+      "requires_pm_approval": true,
+      "outputs": [
+        "CLAUDE.md",
+        "config/workflow.json",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S3"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "项目记忆生成",
+      "purpose": "基于 S1 启动规划和 S2 CLAUDE.md 初始化当前项目记忆、资料索引、字段映射、业务规则和开放问题。后续变更只更新 memory/*、docs/decisions.md 或 memory/change-log.md，不回改启动规划。",
+      "primary_worker": "memory-generator",
+      "outputs": [
+        "memory/project.md",
+        "memory/business-rules.md",
+        "memory/source-materials.md",
+        "memory/field-map.md",
+        "memory/open-items.md",
+        "docs/decisions.md"
+      ],
+      "next": [
+        "S4"
+      ]
+    },
+    {
+      "id": "S4",
+      "name": "项目初始化",
+      "purpose": "确认标准原型项目结构就绪：创建、迁移和底座裁剪在 loop 源仓库由 create_project 完成；生成项目内 S4 只确认结构、工具脚本、S0-S3 计划和 S3 记忆已就绪。能力选择由总控运行时完成。",
+      "primary_worker": "loop-project-scaffolder",
+      "outputs": [
+        "standard_project_structure",
+        "tools/loop_run.py",
+        "tools/loop_preflight.py"
+      ],
+      "next": [
+        "S5"
+      ]
+    },
+    {
+      "id": "S5",
+      "name": "项目结构读取",
+      "purpose": "读取真实文件结构，排除总控工具包，建立后续拆分边界。",
+      "primary_worker": "structure-reader",
+      "outputs": [
+        "memory/project-structure.md",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S6"
+      ]
+    },
+    {
+      "id": "S6",
+      "name": "需求实现拆分",
+      "purpose": "按真实项目结构把确认需求拆成可执行、可验证、可标注追溯的步骤。",
+      "primary_worker": "project-decomposer",
+      "outputs": [
+        "memory/task-plan.md",
+        "memory/execution-steps.md",
+        "memory/acceptance-map.md",
+        "memory/open-items.md",
+        "memory/field-map.md"
+      ],
+      "next": [
+        "S7"
+      ]
+    },
+    {
+      "id": "S7",
+      "name": "实现与单步验证循环",
+      "purpose": "由 prototype-builder 按执行步骤实现业务页面、样式、mock 和交互；每步完成后调用 prototype-verifier 做单步验证，并记录变更、验证和熔断状态。",
+      "primary_worker": "prototype-builder",
+      "outputs": [
+        "memory/change-log.md",
+        "memory/verification-log.md",
+        "memory/circuit-state.json"
+      ],
+      "next": [
+        "S8"
+      ]
+    },
+    {
+      "id": "S8",
+      "name": "全局验证",
+      "purpose": "所有步骤通过后执行整体验收、页面链路和追溯验证。",
+      "primary_worker": "prototype-verifier",
+      "outputs": [
+        "memory/verification-log.md",
+        "memory/acceptance-map.md"
+      ],
+      "next": [
+        "S9"
+      ]
+    },
+    {
+      "id": "S9",
+      "name": "标注提示词准备",
+      "purpose": "在全局验证通过后，整理可由 PM 手动投喂给标注生成器的提示词、资料引用和交互说明；不强制自动写入 annotations.js。",
+      "primary_worker": "annotation-generator",
+      "outputs": [
+        "memory/annotation-prompt.md",
+        "docs/interaction.html",
+        "memory/annotation-coverage.md"
+      ],
+      "next": []
+    }
+  ]
+}

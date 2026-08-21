@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>东风日产智能外呼 - 登录</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/css/app.css?v=1">
+</head>
+<body style="margin:0;padding:0;overflow:hidden;background:#fff;">
+
+<div class="login-page-container">
+  <!-- 左上角 Logo 与系统名称 -->
+  <div class="login-top-logo">
+    <svg class="login-top-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="46" stroke="#c00" stroke-width="8" fill="#fff"/>
+      <rect x="12" y="40" width="76" height="20" fill="#c00" rx="3"/>
+      <text x="50" y="54" font-size="11" font-weight="900" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" letter-spacing="1">NISSAN</text>
+    </svg>
+    <span class="login-top-logo-title">东风日产智能外呼</span>
+  </div>
+
+  <!-- 科技感拓扑背景 -->
+  <div class="login-network-bg">
+    <svg width="100%" height="100%" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <circle cx="150" cy="180" r="32" fill="#1677ff" fill-opacity="0.08"/>
+      <circle cx="150" cy="180" r="14" fill="#1677ff" fill-opacity="0.18"/>
+      <circle cx="150" cy="180" r="5" fill="#1677ff" fill-opacity="0.4"/>
+      <circle cx="340" cy="310" r="28" fill="#ff4d4f" fill-opacity="0.08"/>
+      <circle cx="340" cy="310" r="10" fill="#ff4d4f" fill-opacity="0.25"/>
+      <line x1="162" y1="189" x2="328" y2="302" stroke="#d9d9d9" stroke-width="1.2" stroke-dasharray="4 2"/>
+      <circle cx="80" cy="780" r="40" fill="#52c41a" fill-opacity="0.06"/>
+      <circle cx="80" cy="780" r="18" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="60" cy="850" r="14" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="140" cy="760" r="22" fill="#1677ff" fill-opacity="0.12"/>
+      <line x1="80" y1="780" x2="60" y2="850" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="80" y1="780" x2="140" y2="760" stroke="#e8e8e8" stroke-width="1.2"/>
+      <circle cx="1260" cy="120" r="16" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1210" cy="100" r="6" stroke="#1677ff" stroke-width="1" fill="none"/>
+      <circle cx="1225" cy="170" r="4" fill="#fa8c16" fill-opacity="0.5"/>
+      <line x1="1210" y1="100" x2="1260" y2="120" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1260" y1="120" x2="1225" y2="170" stroke="#e8e8e8" stroke-width="1.2"/>
+      <circle cx="1500" cy="500" r="12" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1500" cy="620" r="18" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1400" cy="680" r="10" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1570" cy="780" r="8" fill="#ff4d4f" fill-opacity="0.3"/>
+      <line x1="1500" y1="500" x2="1500" y2="620" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1500" y1="620" x2="1400" y2="680" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1500" y1="620" x2="1570" y2="780" stroke="#e8e8e8" stroke-width="1.2"/>
+    </svg>
+  </div>
+
+  <!-- 中央登录卡片 -->
+  <div class="login-card-container">
+    <div class="login-tabs-header">
+      <div class="login-tab-btn active" id="loginTabPwd" onclick="switchTab('pwd')">账号密码登录</div>
+      <div class="login-tab-btn" id="loginTabPhone" onclick="switchTab('phone')">手机号登录</div>
+    </div>
+
+    <!-- 账号密码登录表单 -->
+    <div id="loginFormPwd">
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">👤</span>
+          <input type="text" class="login-input-field" id="loginUsername" placeholder="请输入账号" value="super-product">
+        </div>
+      </div>
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🔒</span>
+          <input type="password" class="login-input-field" id="loginPassword" placeholder="请输入密码" value="123456Aa@">
+        </div>
+      </div>
+      <div class="login-captcha-row">
+        <div class="login-captcha-wrap">
+          <span class="login-input-icon" style="color:#8c8c8c;">✉</span>
+          <input type="text" class="login-captcha-field" id="loginCaptcha" placeholder="图形验证码" value="a8Cq">
+        </div>
+        <div class="login-captcha-box" onclick="drawCaptcha()" title="点击刷新验证码">
+          <canvas id="loginCaptchaCanvas" width="100" height="38"></canvas>
+        </div>
+      </div>
+      <button class="login-submit-btn" id="loginSubmitBtn" onclick="directLogin()">登 录</button>
+    </div>
+
+    <!-- 手机号登录表单 -->
+    <div id="loginFormPhone" style="display:none;">
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">📱</span>
+          <input type="text" class="login-input-field" placeholder="请输入手机号码" value="15975585393">
+        </div>
+      </div>
+      <div class="login-captcha-row">
+        <div class="login-captcha-wrap">
+          <span class="login-input-icon" style="color:#8c8c8c;">🔢</span>
+          <input type="text" class="login-captcha-field" placeholder="短信验证码" value="8866">
+        </div>
+        <button class="btn btn-default" style="height:40px;width:110px;font-size:13px;" onclick="alert('验证码已发送：8866')">获取验证码</button>
+      </div>
+      <button class="login-submit-btn" onclick="directLogin()">登 录</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(type) {
+    var tabPwd = document.getElementById('loginTabPwd');
+    var tabPhone = document.getElementById('loginTabPhone');
+    var formPwd = document.getElementById('loginFormPwd');
+    var formPhone = document.getElementById('loginFormPhone');
+    if (type === 'pwd') {
+      tabPwd.classList.add('active');
+      tabPhone.classList.remove('active');
+      formPwd.style.display = 'block';
+      formPhone.style.display = 'none';
+    } else {
+      tabPwd.classList.remove('active');
+      tabPhone.classList.add('active');
+      formPwd.style.display = 'none';
+      formPhone.style.display = 'block';
+    }
+  }
+
+  function drawCaptcha() {
+    var canvas = document.getElementById('loginCaptchaCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    var chars = ['a', '8', 'C', 'q'];
+    var colors = ['#389e0d', '#1677ff', '#722ed1', '#d4380d'];
+    ctx.font = 'bold 22px "Courier New", monospace';
+    for (var i = 0; i < chars.length; i++) {
+      ctx.save();
+      ctx.fillStyle = colors[i % colors.length];
+      var x = 14 + i * 22;
+      var y = 26 + (Math.random() * 4 - 2);
+      ctx.translate(x, y);
+      ctx.rotate((Math.random() - 0.5) * 0.25);
+      ctx.fillText(chars[i], 0, 0);
+      ctx.restore();
+    }
+    for (var j = 0; j < 3; j++) {
+      ctx.strokeStyle = 'rgba(22,119,255,0.25)';
+      ctx.beginPath();
+      ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+      ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+      ctx.stroke();
+    }
+  }
+
+  function directLogin() {
+    window.location.href = 'index.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', drawCaptcha);
+</script>
+</body>
+</html>

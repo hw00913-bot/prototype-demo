@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>充值计费计算逻辑</title>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+      font-size: 15px; color: #1f1f1f; background: #f0f2f5; line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+    .header {
+      background: #fff; border-radius: 8px; padding: 32px 40px; margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .header h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+    .header .meta {
+      font-size: 13px; color: #999; display: flex; gap: 24px; margin-top: 12px;
+    }
+    .header .nav-row { margin-top: 16px; display: flex; gap: 12px; }
+    .nav-btn {
+      display: inline-block; padding: 6px 16px; border-radius: 6px; font-size: 13px;
+      text-decoration: none; font-weight: 500; border: 1px solid #d9d9d9; color: #333; background: #fff;
+    }
+    .nav-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .nav-btn.primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .nav-btn.primary:hover { background: #4096ff; }
+
+    .content { display: flex; flex-direction: column; gap: 20px; }
+
+    .card {
+      background: #fff; border-radius: 8px; padding: 28px 40px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .card h2 {
+      font-size: 18px; font-weight: 600; color: #1a1a1a;
+      padding-bottom: 10px; border-bottom: 2px solid #1677ff; margin-bottom: 20px;
+    }
+    .card h3 { font-size: 16px; font-weight: 600; color: #333; margin: 24px 0 12px; }
+    .card h4 { font-size: 14px; font-weight: 600; color: #555; margin: 16px 0 8px; }
+
+    .card p { margin: 8px 0; }
+    .card ul, .card ol { margin: 8px 0 8px 24px; }
+    .card li { margin: 4px 0; }
+
+    .formula-box {
+      background: #f6f8fa; border-left: 3px solid #1677ff;
+      padding: 14px 20px; margin: 14px 0; border-radius: 0 6px 6px 0;
+      overflow-x: auto;
+    }
+    .formula-box .mjx-chtml { font-size: 115% !important; }
+
+    table {
+      width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #e8e8e8; padding: 8px 12px; text-align: left; vertical-align: top;
+    }
+    th { background: #fafafa; font-weight: 600; color: #333; }
+    tr:hover { background: #fafafa; }
+
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px;
+      font-weight: 500;
+    }
+    .tag-core { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+    .tag-formula { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
+    .tag-rule { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+
+    .example-block {
+      background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px;
+      padding: 16px 20px; margin: 14px 0;
+    }
+    .example-block h4 { color: #d48806; margin-top: 0; }
+
+    .toc { list-style: none; padding: 0; columns: 2; column-gap: 32px; }
+    .toc li { margin: 4px 0; }
+    .toc a { color: #1677ff; text-decoration: none; font-size: 14px; }
+    .toc a:hover { text-decoration: underline; }
+
+    .back-top {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: #fff;
+      border: none; cursor: pointer; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: none; align-items: center; justify-content: center;
+    }
+    .back-top.show { display: flex; }
+
+    @media (max-width: 768px) {
+      .container { padding: 16px 12px 60px; }
+      .card { padding: 20px 20px; }
+      .header { padding: 20px 20px; }
+      .toc { columns: 1; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .card { box-shadow: none; border: 1px solid #e8e8e8; page-break-inside: avoid; }
+      .back-top { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>充值计费计算逻辑</h1>
+    <p style="color:#666;font-size:14px;">本文档面向开发和运营，用数学公式系统描述租户充值计费的完整计算链路，包括充值入账、资金余额、手工扣减、单价解析、任务冻结、可用余额、导入校验、分钟换算和呼叫条件。</p>
+    <div class="meta">
+      <span>版本：v1.2</span>
+      <span>更新：2026-06-12</span>
+      <span>适用页面：系统管理 → 租户管理</span>
+    </div>
+    <div class="nav-row">
+      <a href="interaction.html" class="nav-btn">← 返回功能说明</a>
+      <a href="../index.html" class="nav-btn primary" data-delivery-switch="prototype">跳转演示页面 →</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TOC -->
+    <div class="card">
+      <h2>目录</h2>
+      <ul class="toc">
+        <li><a href="#s1">1. 核心原则</a></li>
+        <li><a href="#s2">2. 变量定义</a></li>
+        <li><a href="#s3">3. 充值金额入账</a></li>
+        <li><a href="#s4">4. 资金余额</a></li>
+        <li><a href="#s5">5. 手工扣减</a></li>
+        <li><a href="#s6">6. 供应商独立单价</a></li>
+        <li><a href="#s7">7. 任务冻结</a></li>
+        <li><a href="#s8">8. 可用余额</a></li>
+        <li><a href="#s9">9. 本次导入冻结校验</a></li>
+        <li><a href="#s10">10. 模型分钟数换算</a></li>
+        <li><a href="#s11">11. 实际通话结算</a></li>
+        <li><a href="#s12">12. 呼叫条件</a></li>
+        <li><a href="#s13">13. 综合公式</a></li>
+        <li><a href="#s14">14. 计算示例</a></li>
+      </ul>
+    </div>
+
+    <!-- 1. 核心原则 -->
+    <div class="card" id="s1">
+      <h2>1. 核心原则</h2>
+      <ul>
+        <li>外部充值只提供金额，不区分大模型、小模型或供应商。</li>
+        <li>租户使用统一资金账户。</li>
+        <li>大模型和小模型分钟数是同一资金余额按不同单价换算的结果，<strong>不能相加</strong>。</li>
+        <li>余额调整仅支持手工扣减，不关联充值单，不提供手工补回。</li>
+        <li>可用余额作为内部隐藏字段参与计算，页面不直接展示金额。</li>
+        <li>冻结任务使用任务创建时的单价快照，后续调价不影响已有任务。</li>
+      </ul>
+    </div>
+
+    <!-- 2. 变量定义 -->
+    <div class="card" id="s2">
+      <h2>2. 变量定义</h2>
+      <table>
+        <thead><tr><th>变量</th><th>含义</th><th>来源</th></tr></thead>
+        <tbody>
+          <tr><td>\(R\)</td><td>已生效的通话充值总额</td><td>历史充值单（已支付+已生效+含通话费）</td></tr>
+          <tr><td>\(D\)</td><td>累计手工扣减金额</td><td>余额调整流水（MANUAL_DEDUCT / OUT）</td></tr>
+          <tr><td>\(C\)</td><td>累计实际通话消费金额</td><td>租户主数据 consumedAmount</td></tr>
+          <tr><td>\(B\)</td><td>当前资金余额</td><td>\(B = R - D - C\)</td></tr>
+          <tr><td>\(F_i\)</td><td>第 \(i\) 个任务的冻结金额</td><td>\(F_i = m_i \times p_i\)</td></tr>
+          <tr><td>\(F\)</td><td>当前有效冻结总额</td><td>\(F = \sum F_i\)（仅含冻结中且未过期任务）</td></tr>
+          <tr><td>\(A\)</td><td>当前可用余额（隐藏字段）</td><td>\(A = \max(B - F, 0)\)</td></tr>
+          <tr><td>\(m_i\)</td><td>第 \(i\) 个任务的预计通话分钟数</td><td>任务创建时指定</td></tr>
+          <tr><td>\(m_{a,i}\)</td><td>第 \(i\) 个任务的实际通话分钟数</td><td>通话完成后统计</td></tr>
+          <tr><td>\(p_i\)</td><td>第 \(i\) 个任务的单价快照</td><td>任务创建时按价格优先级解析后锁定</td></tr>
+          <tr><td>\(P_L\)</td><td>大模型默认单价</td><td>MockTenantPriceRules（MODEL_DEFAULT）</td></tr>
+          <tr><td>\(P_S\)</td><td>小模型默认单价</td><td>MockTenantPriceRules（MODEL_DEFAULT）</td></tr>
+          <tr><td>\(P(t,m,v)\)</td><td>按价格优先级解析的最终单价</td><td>供应商专属价优先，模型默认价兜底</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. 充值金额入账 -->
+    <div class="card" id="s3">
+      <h2>3. 充值金额入账</h2>
+      <p>只有<strong>已支付</strong>且<strong>已生效</strong>的以下充值单计入统一资金账户：</p>
+      <ul>
+        <li><span class="tag tag-core">仅通话费</span> — 充值金额计入资金余额</li>
+        <li><span class="tag tag-core">坐席费+通话费</span> — 通话费部分计入资金余额，坐席费部分更新有效期</li>
+      </ul>
+      <p>仅坐席费充值单只更新租户有效期，<strong>不增加</strong>通话资金。</p>
+      <div class="formula-box">
+        \[ R = \sum_{j=1}^{n} R_j \]
+      </div>
+      <p style="color:#888;font-size:13px;">其中 \(R_j\) 是第 \(j\) 笔已生效通话充值金额。</p>
+    </div>
+
+    <!-- 4. 资金余额 -->
+    <div class="card" id="s4">
+      <h2>4. 资金余额 <span class="tag tag-formula">核心公式</span></h2>
+      <div class="formula-box">
+        \[ \boxed{B = R - D - C} \]
+      </div>
+      <p>即：<strong>资金余额 = 已生效通话充值总额 − 累计手工扣减 − 累计实际通话消费</strong></p>
+    </div>
+
+    <!-- 5. 手工扣减 -->
+    <div class="card" id="s5">
+      <h2>5. 手工扣减</h2>
+      <p>设本次手工扣减金额为 \(d\)，允许扣减的条件为：</p>
+      <div class="formula-box">
+        \[ \boxed{0 < d \le B} \]
+      </div>
+      <p>手工扣减只校验当前资金余额，<strong>不减去冻结金额</strong>，因此不要求 \(d \le B - F\)。</p>
+      <p>扣减完成后：</p>
+      <div class="formula-box">
+        \[ B' = B - d \qquad D' = D + d \]
+      </div>
+
+      <h4>手工扣减规则</h4>
+      <table>
+        <thead><tr><th>规则</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>不关联充值单</td><td>扣减与具体充值单无关，不校验单笔充值剩余可退金额</td></tr>
+          <tr><td>不占用冻结</td><td>扣减不修改或释放已有冻结任务，冻结任务保持不变</td></tr>
+          <tr><td>不提供补回</td><td>不支持手工补回、撤销或修改已生效的扣减流水</td></tr>
+          <tr><td>必填原因</td><td>扣减金额和扣减原因必须填写</td></tr>
+          <tr><td>流水不可删</td><td>扣减流水生效后不可删除</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 6. 供应商独立单价 -->
+    <div class="card" id="s6">
+      <h2>6. 供应商独立单价</h2>
+      <h3>6.1 价格配置层级</h3>
+      <ol>
+        <li>租户 + 模型默认价（当前版本已实现）</li>
+        <li>租户 + 模型 + 供应商专属价（未来扩展，未配置时回退模型默认价）</li>
+      </ol>
+
+      <h3>6.2 价格解析优先级</h3>
+      <p>最终单价按照<strong>供应商专属价优先、模型默认价兜底</strong>解析：</p>
+      <div class="formula-box">
+        \[
+        \boxed{
+        P(t,m,v)=
+        \begin{cases}
+        P_{\text{vendor}}(t,m,v), & \text{存在启用的供应商专属价}\\
+        P_{\text{default}}(t,m), & \text{否则}
+        \end{cases}
+        }
+        \]
+      </div>
+
+      <div class="example-block">
+        <h4>示例</h4>
+        <p>租户 A 大模型默认价 0.40 元/分钟，科大讯飞专属价 0.45 元/分钟：</p>
+        <ul>
+          <li>使用科大讯飞 → 0.45 元/分钟</li>
+          <li>使用其他供应商 → 0.40 元/分钟</li>
+        </ul>
+      </div>
+
+      <h3>6.3 单价快照</h3>
+      <p>任务创建时锁定单价快照：</p>
+      <div class="formula-box">
+        \[ \boxed{p_i = P(t_i, m_i, v_i)} \]
+      </div>
+      <p>后续调价不影响已创建任务的冻结和结算。</p>
+    </div>
+
+    <!-- 7. 任务冻结 -->
+    <div class="card" id="s7">
+      <h2>7. 任务冻结</h2>
+      <div class="formula-box">
+        \[ \boxed{F_i = m_i \times p_i} \]
+      </div>
+      <p>租户有效冻结总额：</p>
+      <div class="formula-box">
+        \[ \boxed{F = \sum_{i=1}^{n} F_i} \]
+      </div>
+
+      <h4>有效冻结条件</h4>
+      <p>第 \(i\) 个任务计入有效冻结总额，必须<strong>同时满足</strong>：</p>
+      <div class="formula-box">
+        \[
+        \boxed{
+        \text{冻结状态}_i = \text{冻结中}
+        \;\land\;
+        \text{任务状态}_i \notin \{\text{已完成}, \text{已终止}\}
+        \;\land\;
+        T_{\text{now}} - T_{\text{created},i} < 24\text{小时}
+        }
+        \]
+      </div>
+      <p>任务已完成、已终止或冻结创建满 24 小时时，<strong>立即解除冻结占用</strong>。释放记录保存释放时间和释放原因，并保证幂等。</p>
+      <p>即使后续修改模型默认价或供应商专属价，已有任务的冻结金额也不会改变。</p>
+    </div>
+
+    <!-- 8. 可用余额 -->
+    <div class="card" id="s8">
+      <h2>8. 可用余额 <span class="tag tag-formula">核心公式</span></h2>
+      <div class="formula-box">
+        \[ \boxed{A = \max(B - F,\; 0)} \]
+      </div>
+      <p>可用余额只作为<strong>内部隐藏字段</strong>，用于：</p>
+      <ul>
+        <li>换算大模型可用分钟数</li>
+        <li>换算小模型可用分钟数</li>
+        <li>校验本次导入所需冻结金额</li>
+      </ul>
+      <p style="color:#888;font-size:13px;">当 \(B < F\) 时，\(A = 0\)，最大可导入数自然为 0，不再设置独立的全局拦截状态。</p>
+    </div>
+
+    <!-- 9. 本次导入冻结校验 -->
+    <div class="card" id="s9">
+      <h2>9. 本次导入冻结校验</h2>
+      <p>设 \(N\) 为本次导入号码数，\(Q\) 为单号码预计通话分钟数：</p>
+
+      <div class="formula-box">
+        \[ \boxed{F_{\text{request}} = N \times Q \times P(t, m, v)} \]
+      </div>
+
+      <p>允许导入的条件：</p>
+      <div class="formula-box">
+        \[ \boxed{F_{\text{request}} \le A} \]
+      </div>
+
+      <p>最大可导入号码数：</p>
+      <div class="formula-box">
+        \[
+        \boxed{
+        N_{\max}
+        =
+        \left\lfloor
+        \frac{A}{Q \times P(t, m, v)}
+        \right\rfloor
+        }
+        \]
+      </div>
+
+      <h4>处理规则</h4>
+      <ul>
+        <li>仍有效的已有冻结任务保持不变。</li>
+        <li>已完成、已终止或超过 24 小时的冻结任务<strong>先自动释放</strong>，再计算可用金额。</li>
+        <li>本次导入数不超过 \(N_{\max}\) 时允许导入，并新增对应冻结记录。</li>
+        <li>本次导入数超过 \(N_{\max}\) 时<strong>拒绝导入</strong>，并提示最大可导入数。</li>
+      </ul>
+    </div>
+
+    <!-- 10. 模型分钟数 -->
+    <div class="card" id="s10">
+      <h2>10. 模型分钟数换算</h2>
+
+      <h3>10.1 通话余额分钟数</h3>
+      <div class="formula-box">
+        \[ \boxed{M_{LB} = \frac{\max(B, 0)}{P_L}} \qquad \boxed{M_{SB} = \frac{\max(B, 0)}{P_S}} \]
+      </div>
+
+      <h3>10.2 可用分钟数</h3>
+      <div class="formula-box">
+        \[ \boxed{M_{LA} = \frac{A}{P_L}} \qquad \boxed{M_{SA} = \frac{A}{P_S}} \]
+      </div>
+
+      <p style="color:#ff4d4f;">⚠ 大小模型分钟数是同一金额池的两种换算视图，\(M_{LA} + M_{SA}\) 没有业务含义，<strong>禁止相加</strong>。</p>
+
+      <h3>10.3 供应商专属价视图（未来扩展）</h3>
+      <p>启用供应商专属价后，可用分钟数按供应商单价换算：</p>
+      <div class="formula-box">
+        \[ \boxed{ M_A(t, m, v) = \frac{A}{P(t, m, v)} } \]
+      </div>
+      <p>不同模型、不同供应商的分钟数都是同一可用余额的不同换算视图，不是多个独立余额，<strong>均不可相加</strong>。</p>
+    </div>
+
+    <!-- 11. 实际通话结算 -->
+    <div class="card" id="s11">
+      <h2>11. 实际通话结算</h2>
+
+      <h3>11.1 结算计算</h3>
+      <p>第 \(i\) 个任务的实际消费金额：</p>
+      <div class="formula-box">
+        \[ \boxed{C_i = m_{a,i} \times p_i} \]
+      </div>
+      <p>未使用的冻结金额（释放回资金池）：</p>
+      <div class="formula-box">
+        \[ \boxed{U_i = \max(F_i - C_i,\; 0)} \]
+      </div>
+      <p>任务结算后：</p>
+      <div class="formula-box">
+        \[ B' = B - C_i \qquad F' = F - F_i \qquad A' = \max(B' - F',\; 0) \]
+      </div>
+
+      <h3>11.2 自动释放条件</h3>
+      <p>设冻结创建时间为 \(T_c\)，当前时间为 \(T_n\)，任务状态为 \(S\)：</p>
+      <div class="formula-box">
+        \[
+        \boxed{
+        S \in \{\text{已完成}, \text{已终止}\}
+        \quad\lor\quad
+        T_n - T_c \ge 24\text{小时}
+        }
+        \]
+      </div>
+      <p>释放后该任务不再计入有效冻结总额（\(F_i' = 0\)）。资金余额 \(B\) <strong>不因释放直接变化</strong>；实际消费由结算动作单独扣减。</p>
+
+      <h4>释放原因判定优先级</h4>
+      <table>
+        <thead><tr><th>优先级</th><th>条件</th><th>释放原因</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>taskStatus = 已完成</td><td>任务已完成</td></tr>
+          <tr><td>2</td><td>taskStatus = 已终止</td><td>任务已终止</td></tr>
+          <tr><td>3</td><td>createdAt 距今 ≥ 24h</td><td>冻结超过24小时</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 12. 呼叫条件 -->
+    <div class="card" id="s12">
+      <h2>12. 呼叫条件</h2>
+      <p>租户允许发起新呼叫任务，需要<strong>同时满足</strong>：</p>
+      <div class="formula-box">
+        \[
+        \boxed{
+        \text{租户在有效期内}
+        \;\land\;
+        A > 0
+        \;\land\;
+        \text{手动呼叫控制已启用}
+        }
+        \]
+      </div>
+      <p>创建具体任务时，还必须解析出该任务的有效单价：</p>
+      <div class="formula-box">
+        \[ \boxed{P(t, m, v) > 0} \]
+      </div>
+
+      <h4>禁止发起呼叫的情况</h4>
+      <table>
+        <thead><tr><th>条件</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>不在有效期内</td><td>租户有效期已过或未生成</td></tr>
+          <tr><td>手动已停用</td><td>管理员手动关闭了该租户的呼叫开关</td></tr>
+          <tr><td>无有效单价</td><td>模型默认价和供应商专属价均不存在或已停用</td></tr>
+          <tr><td>冻结超限</td><td>本次预计冻结金额 > 可用金额</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 13. 综合公式 -->
+    <div class="card" id="s13">
+      <h2>13. 综合公式 <span class="tag tag-formula">一图看懂</span></h2>
+      <div class="formula-box">
+        \[
+        \boxed{
+        A = \max(\; R - D - C - F,\; 0 \;)
+        }
+        \]
+      </div>
+      <p style="text-align:center;font-size:16px;margin:16px 0;">
+        <strong>可用金额 = max( 已生效通话充值 − 手工扣减 − 实际消费 − 有效冻结金额, 0 )</strong>
+      </p>
+
+      <div style="margin-top:20px;padding:16px;background:#f6f8fa;border-radius:6px;font-size:14px;">
+        <strong>数据流图：</strong>
+        <pre style="margin:8px 0 0;white-space:pre-line;line-height:2;">
+充值单(已支付) → [逐单生效] → R(充值总额)
+                                    ↘
+                              B = R − D − C  (资金余额)
+                                    ↘
+                              A = max(B − F, 0)  (可用余额，隐藏)
+                               ↙              ↘
+              M_LA = A / P_L              M_SA = A / P_S
+           (大模型可用分钟数)          (小模型可用分钟数)
+                               ↘
+                      F_request = N × Q × P(t,m,v)
+                      (导入时校验：≤ A 才允许)
+        </pre>
+      </div>
+    </div>
+
+    <!-- 14. 计算示例 -->
+    <div class="card" id="s14">
+      <h2>14. 计算示例</h2>
+
+      <h3>示例数据</h3>
+      <table>
+        <thead><tr><th>参数</th><th>值</th></tr></thead>
+        <tbody>
+          <tr><td>已生效通话充值总额 \(R\)</td><td>2000 元</td></tr>
+          <tr><td>累计手工扣减 \(D\)</td><td>100 元</td></tr>
+          <tr><td>累计实际消费 \(C\)</td><td>180 元</td></tr>
+          <tr><td>有效冻结总额 \(F\)</td><td>720 元</td></tr>
+          <tr><td>大模型单价 \(P_L\)</td><td>0.40 元/分钟</td></tr>
+          <tr><td>小模型单价 \(P_S\)</td><td>0.26 元/分钟</td></tr>
+        </tbody>
+      </table>
+
+      <div class="example-block">
+        <h4>计算结果</h4>
+        <table>
+          <tr><td>资金余额</td><td>\(B = 2000 - 100 - 180 = \mathbf{1720}\) 元</td></tr>
+          <tr><td>可用余额</td><td>\(A = \max(1720 - 720, 0) = \mathbf{1000}\) 元</td></tr>
+          <tr><td>大模型通话余额</td><td>\(M_{LB} = 1720 / 0.40 = \mathbf{4300}\) 分钟</td></tr>
+          <tr><td>大模型可用分钟</td><td>\(M_{LA} = 1000 / 0.40 = \mathbf{2500}\) 分钟</td></tr>
+          <tr><td>小模型通话余额</td><td>\(M_{SB} = 1720 / 0.26 \approx \mathbf{6615.38}\) 分钟</td></tr>
+          <tr><td>小模型可用分钟</td><td>\(M_{SA} = 1000 / 0.26 \approx \mathbf{3846.15}\) 分钟</td></tr>
+        </table>
+      </div>
+
+      <h3>场景：再扣减 1100 元</h3>
+      <p>\(B' = 1720 - 1100 = 620\)，由于 \(620 < 720\)，因此 \(A' = 0\)。</p>
+      <p>大模型和小模型可用分钟数均为 0，本次最大可导入号码数也为 0。该结果来自请求级冻结校验，不再使用独立的全局状态。</p>
+
+      <h3>场景：导入校验</h3>
+      <p>可用金额 \(A = 1000\)，大模型默认价 0.40 元/分钟，单号码预计 1 分钟：</p>
+      <div class="formula-box">
+        \[ N_{\max} = \left\lfloor \frac{1000}{1 \times 0.40} \right\rfloor = \mathbf{2500} \text{ 条} \]
+      </div>
+      <table>
+        <thead><tr><th>导入数</th><th>预计冻结</th><th>结果</th></tr></thead>
+        <tbody>
+          <tr><td>2000 条</td><td>2000 × 1 × 0.40 = 800 ≤ 1000</td><td style="color:#52c41a">✅ 允许导入</td></tr>
+          <tr><td>5000 条</td><td>5000 × 1 × 0.40 = 2000 > 1000</td><td style="color:#ff4d4f">❌ 拒绝，提示最多 2500 条</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /container -->
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<script>
+  // 回到顶部按钮显隐
+  window.addEventListener('scroll', function () {
+    var btn = document.getElementById('backTop');
+    btn.classList.toggle('show', window.scrollY > 400);
+  });
+</script>
+</body>
+</html>

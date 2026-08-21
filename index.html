@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能外呼统一中台</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/css/app.css?v=1">
+  <link rel="stylesheet" href="annotations/annotation.css?v=2">
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span class="app-name">智能外呼</span>
+  </div>
+  <div class="breadcrumb" id="breadcrumb"><span class="bc-current">首页</span></div>
+  <div class="right-area">
+    <a href="docs/功能说明文档.html" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;color:#333;text-decoration:none;cursor:pointer;" onmouseover="this.style.borderColor='#1677ff';this.style.color='#1677ff'" onmouseout="this.style.borderColor='#d9d9d9';this.style.color='#333'">📖 功能说明文档</a>
+    <a href="docs/计算逻辑.html" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;color:#333;text-decoration:none;cursor:pointer;" onmouseover="this.style.borderColor='#1677ff';this.style.color='#1677ff'" onmouseout="this.style.borderColor='#d9d9d9';this.style.color='#333'">📐 计算逻辑</a>
+    <div class="user-dropdown-wrap" id="userDropdownWrap">
+      <div class="user-role-trigger" id="userRoleTrigger" onclick="window.toggleUserMenu(event)">
+        <span class="user-icon">👤</span>
+        <span class="user-name">产品-超管</span>
+      </div>
+      <div class="user-dropdown-menu" id="userDropdownMenu">
+        <div class="user-dropdown-item" onclick="window.showAccountInfoModal()">
+          <span class="user-item-icon">🔧</span>
+          <span class="user-item-text">账号信息</span>
+        </div>
+        <div class="user-dropdown-item" onclick="window.doLogout()">
+          <span class="user-item-icon">🚪</span>
+          <span class="user-item-text">退出登录</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="20" height="20" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <path d="M64 12L116 64L64 116L12 64L64 12Z" stroke="#1677ff" stroke-width="12" fill="none"></path>
+        <path d="M64 36L92 64L64 92L36 64L64 36Z" fill="#ff4d4f"></path>
+      </svg>
+      <span class="logo-text">智能外呼</span>
+    </div>
+
+    <div class="nav-item" id="nav-home" onclick="window.Nav.setActive(this)">
+      <div class="nav-item-inner"><span class="label">首页</span></div>
+    </div>
+
+    <div class="nav-item" id="nav-scene" onclick="window.Nav.toggleMenu(this,'scene')">
+      <div class="nav-item-inner"><span class="label">外呼场景</span></div>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="nav-sub" id="sub-scene">
+      <div class="nav-sub-item" id="scene-list" onclick="window.Nav.selectSubMenu(this,'外呼列表')">外呼列表</div>
+      <div class="nav-sub-item" id="scene-block" onclick="window.Nav.selectSubMenu(this,'外呼拦截')">外呼拦截</div>
+    </div>
+
+    <div class="nav-item" id="nav-report" onclick="window.Nav.toggleMenu(this,'report')">
+      <div class="nav-item-inner"><span class="label">统计分析</span></div>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="nav-sub" id="sub-report">
+      <div class="nav-sub-item" id="report-call" onclick="window.Nav.selectSubMenu(this,'通话统计')">通话统计</div>
+      <div class="nav-sub-item" id="report-billing" onclick="window.Nav.selectSubMenu(this,'计费统计')">计费统计</div>
+      <div class="nav-sub-item" id="report-clue" onclick="window.Nav.selectSubMenu(this,'线索统计')">线索统计</div>
+    </div>
+
+    <div class="nav-item" id="nav-result" onclick="window.Nav.toggleMenu(this,'result')">
+      <div class="nav-item-inner"><span class="label">外呼结果</span></div>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="nav-sub" id="sub-result">
+      <div class="nav-sub-item" id="result-records" onclick="window.Nav.selectSubMenu(this,'通话记录')">通话记录</div>
+      <div class="nav-sub-item" id="result-clue" onclick="window.Nav.selectSubMenu(this,'线索记录')">线索记录</div>
+    </div>
+
+    <div class="nav-item" id="nav-system" onclick="window.Nav.toggleMenu(this,'system')">
+      <div class="nav-item-inner"><span class="label">系统管理</span></div>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="nav-sub" id="sub-system">
+      <div class="nav-sub-item" id="sys-account" onclick="window.Nav.selectSubMenu(this,'账号管理')">账号管理</div>
+      <div class="nav-sub-item" id="sys-tenant" onclick="window.Nav.selectSubMenu(this,'租户管理')">租户管理</div>
+      <div class="nav-sub-item" id="sys-channel" onclick="window.Nav.selectSubMenu(this,'通道管理')">通道管理</div>
+      <div class="nav-sub-item" id="sys-scene" onclick="window.Nav.selectSubMenu(this,'业务场景')">业务场景</div>
+      <div class="nav-sub-item" id="sys-tags" onclick="window.Nav.selectSubMenu(this,'标签管理')">标签管理</div>
+    </div>
+  </aside>
+
+  <div class="content-area" id="page-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;background:#f0f2f5;"></div>
+</div>
+
+<!-- 全屏登录页面（100% 对齐截图） -->
+<div class="login-page-container" id="loginOverlay" style="display:none;">
+  <div class="login-top-logo">
+    <svg class="login-top-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="46" stroke="#c00" stroke-width="8" fill="#fff"/>
+      <rect x="12" y="40" width="76" height="20" fill="#c00" rx="3"/>
+      <text x="50" y="54" font-size="11" font-weight="900" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" letter-spacing="1">NISSAN</text>
+    </svg>
+    <span class="login-top-logo-title">东风日产智能外呼</span>
+  </div>
+
+  <div class="login-network-bg">
+    <svg width="100%" height="100%" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <circle cx="150" cy="180" r="32" fill="#1677ff" fill-opacity="0.08"/>
+      <circle cx="150" cy="180" r="14" fill="#1677ff" fill-opacity="0.18"/>
+      <circle cx="150" cy="180" r="5" fill="#1677ff" fill-opacity="0.4"/>
+      <circle cx="340" cy="310" r="28" fill="#ff4d4f" fill-opacity="0.08"/>
+      <circle cx="340" cy="310" r="10" fill="#ff4d4f" fill-opacity="0.25"/>
+      <line x1="162" y1="189" x2="328" y2="302" stroke="#d9d9d9" stroke-width="1.2" stroke-dasharray="4 2"/>
+      <circle cx="80" cy="780" r="40" fill="#52c41a" fill-opacity="0.06"/>
+      <circle cx="80" cy="780" r="18" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="60" cy="850" r="14" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="140" cy="760" r="22" fill="#1677ff" fill-opacity="0.12"/>
+      <line x1="80" y1="780" x2="60" y2="850" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="80" y1="780" x2="140" y2="760" stroke="#e8e8e8" stroke-width="1.2"/>
+      <circle cx="1260" cy="120" r="16" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1210" cy="100" r="6" stroke="#1677ff" stroke-width="1" fill="none"/>
+      <circle cx="1225" cy="170" r="4" fill="#fa8c16" fill-opacity="0.5"/>
+      <line x1="1210" y1="100" x2="1260" y2="120" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1260" y1="120" x2="1225" y2="170" stroke="#e8e8e8" stroke-width="1.2"/>
+      <circle cx="1500" cy="500" r="12" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1500" cy="620" r="18" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1400" cy="680" r="10" fill="#1677ff" fill-opacity="0.15"/>
+      <circle cx="1570" cy="780" r="8" fill="#ff4d4f" fill-opacity="0.3"/>
+      <line x1="1500" y1="500" x2="1500" y2="620" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1500" y1="620" x2="1400" y2="680" stroke="#e8e8e8" stroke-width="1.2"/>
+      <line x1="1500" y1="620" x2="1570" y2="780" stroke="#e8e8e8" stroke-width="1.2"/>
+    </svg>
+  </div>
+
+  <div class="login-card-container">
+    <div class="login-tabs-header">
+      <div class="login-tab-btn active" id="loginTabPwd" onclick="window.switchLoginTab('pwd')">账号密码登录</div>
+      <div class="login-tab-btn" id="loginTabPhone" onclick="window.switchLoginTab('phone')">手机号登录</div>
+    </div>
+
+    <div id="loginFormPwd">
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">👤</span>
+          <input type="text" class="login-input-field" id="loginUsername" placeholder="请输入账号" value="super-product">
+        </div>
+      </div>
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🔒</span>
+          <input type="password" class="login-input-field" id="loginPassword" placeholder="请输入密码" value="123456Aa@">
+        </div>
+      </div>
+      <div class="login-captcha-row">
+        <div class="login-captcha-wrap">
+          <span class="login-input-icon" style="color:#8c8c8c;">✉</span>
+          <input type="text" class="login-captcha-field" id="loginCaptcha" placeholder="图形验证码" value="a8Cq">
+        </div>
+        <div class="login-captcha-box" id="loginCaptchaBox" onclick="window.drawCaptchaCanvas()" title="点击刷新验证码">
+          <canvas id="loginCaptchaCanvas" width="100" height="38"></canvas>
+        </div>
+      </div>
+      <button class="login-submit-btn" id="loginSubmitBtn" onclick="window.doLoginSubmit()">登 录</button>
+    </div>
+
+    <div id="loginFormPhone" style="display:none;">
+      <div class="login-form-item">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">📱</span>
+          <input type="text" class="login-input-field" id="loginPhoneInput" placeholder="请输入手机号码" value="15975585393">
+        </div>
+      </div>
+      <div class="login-captcha-row">
+        <div class="login-captcha-wrap">
+          <span class="login-input-icon" style="color:#8c8c8c;">🔢</span>
+          <input type="text" class="login-captcha-field" id="loginPhoneCode" placeholder="短信验证码" value="8866">
+        </div>
+        <button class="btn btn-default" style="height:40px;width:110px;font-size:13px;" onclick="showToast('验证码已发送：8866','info')">获取验证码</button>
+      </div>
+      <button class="login-submit-btn" onclick="window.doLoginSubmit()">登 录</button>
+    </div>
+  </div>
+</div>
+
+<script src="mock/data.js?v=3"></script>
+<script src="js/common.js?v=2"></script>
+<script src="js/pages/home.js?v=1"></script>
+<script src="js/pages/scene-list.js?v=2"></script>
+<script src="js/pages/scene-block.js?v=1"></script>
+<script src="js/pages/result-records.js?v=2"></script>
+<script src="js/pages/result-clue.js?v=2"></script>
+<script src="js/pages/report-call.js?v=2"></script>
+<script src="js/pages/report-billing.js?v=3"></script>
+<script src="js/pages/report-clue.js?v=1"></script>
+<script src="js/pages/sys-account.js?v=1"></script>
+<script src="js/pages/sys-scene.js?v=1"></script>
+<script src="js/pages/sys-tenant.js?v=2"></script>
+<script src="js/pages/sys-tags.js?v=1"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/nav.js?v=2"></script>
+<script>
+  window.AnnotationConfig = {
+    projectId: 'ai-call-unified-v1',
+    dataVersion: '1',
+    page: function () {
+      var activeItem = document.querySelector('.nav-sub-item.active');
+      if (activeItem && activeItem.id) return activeItem.id;
+      var activeHome = document.querySelector('.nav-item.active');
+      if (activeHome && activeHome.id) return activeHome.id;
+      return 'index';
+    }
+  };
+</script>
+<script src="annotations/annotations.js?v=3"></script>
+<script src="annotations/annotation-runtime.js?v=4"></script>
+  <script src="js/delivery-nav.js"></script>
+</body>
+</html>

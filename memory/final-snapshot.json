@@ -1,0 +1,157 @@
+{
+  "toolVersion": "2026-08-12-loop-integrity-v4",
+  "createdAt": "2026-08-19T17:23:49",
+  "gate": "final",
+  "files": [
+    {
+      "path": "annotations/annotations.js",
+      "sha256": "c84c32b0d9aa93d9aef113c54f4dbd4a01f572cd8c375b91376156b5d971ac69",
+      "mtime": "2026-08-19T17:18:36"
+    },
+    {
+      "path": "assets/css/app.css",
+      "sha256": "20ea989322a0c9e4bd1472d8b7f8f3ecbd15a501a5ecbb8635c51bcc60e2dcdb",
+      "mtime": "2026-08-19T14:16:53"
+    },
+    {
+      "path": "assets/css/global.css",
+      "sha256": "a7b1e5f265b1793d167d1263e7d69408373ae5e59099f2abe34797a3a4ac235e",
+      "mtime": "2026-08-19T15:50:33"
+    },
+    {
+      "path": "docs/interaction.html",
+      "sha256": "cf9ea897fbc2409d6266041b84795266b7bfaa2047fba7bee53a80f38cd21a46",
+      "mtime": "2026-08-19T17:23:41"
+    },
+    {
+      "path": "flowcharts/index.html",
+      "sha256": "3bc06b517b579ff4d4fc54acda434b2d935a6f8f8f96ec7ca82d44b1ee005a15",
+      "mtime": "2026-08-19T15:49:34"
+    },
+    {
+      "path": "flowcharts/processon-links.txt",
+      "sha256": "9d2fa46810760cd0026d97775f5662f554db0307428ee666e682c0c8f36daf74",
+      "mtime": "2026-08-19T15:49:34"
+    },
+    {
+      "path": "index.html",
+      "sha256": "b3da4c5ef4df15f4eb28475c9738663b040480d3dc9094ffdab3942f2a24904f",
+      "mtime": "2026-08-19T15:49:34"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "577dfa534a97ff91e8706dec896c2eb9783c8f01ec0671700d09e2ca037e6a15",
+      "mtime": "2026-08-19T14:06:50"
+    },
+    {
+      "path": "js/common.js",
+      "sha256": "a95733d7bc6aeb4d97e18875433cfded72fa76d9a1e89493001ee8124fff376c",
+      "mtime": "2026-08-19T14:06:50"
+    },
+    {
+      "path": "js/delivery-nav.js",
+      "sha256": "3a3441f7a8b0e85d16bea83ac6595f776d7661c825e06f0f41227901f8bd5c1b",
+      "mtime": "2026-08-19T15:49:34"
+    },
+    {
+      "path": "js/nav.js",
+      "sha256": "1f7497ed4d374b25237ffe342761221722936a8fb3c052cfb8f71e440e906dfc",
+      "mtime": "2026-08-19T14:21:10"
+    },
+    {
+      "path": "js/pages/home.js",
+      "sha256": "5c857333c15c6f3b06c5c54cb5824699b1a41cf36cfed2d88a470e58f419b9bc",
+      "mtime": "2026-08-19T17:17:52"
+    },
+    {
+      "path": "js/pages/report-billing.js",
+      "sha256": "2a83275501fbb0866a3ada59c14fd502b10dfefc9479ded4af0f270a3c23a7ae",
+      "mtime": "2026-08-19T17:17:18"
+    },
+    {
+      "path": "js/pages/report-call.js",
+      "sha256": "d18ac15e6a8f114e7aea2521cabfb859f326eb712d66ae525f9d28d7dbacd543",
+      "mtime": "2026-08-19T17:17:12"
+    },
+    {
+      "path": "js/pages/report-clue.js",
+      "sha256": "ac92d31cb55739dc330fce21713d53249b379ee57edcc6e779efe3282919ae92",
+      "mtime": "2026-08-19T17:17:32"
+    },
+    {
+      "path": "js/pages/result-clue.js",
+      "sha256": "5d76de245d9b64c6e8b939ba0d53868cf6f04d72246db8729419c0c579b98ac9",
+      "mtime": "2026-08-19T17:17:36"
+    },
+    {
+      "path": "js/pages/result-records.js",
+      "sha256": "4b5dbe6211d87d066116b516a4964368706fc6583ecba98ac89d6468f186181d",
+      "mtime": "2026-08-19T17:18:09"
+    },
+    {
+      "path": "js/pages/scene-block.js",
+      "sha256": "5ee9661a8cdf36d5016da46f21c5a62cbaf7499ccce837cda8e44f9cccbb40b6",
+      "mtime": "2026-08-19T17:17:06"
+    },
+    {
+      "path": "js/pages/scene-list.js",
+      "sha256": "8d42eaa5f453d7f5cd18896e5b0b6365f82d2a3cdeeb56520a1f972d33c8d388",
+      "mtime": "2026-08-19T17:17:02"
+    },
+    {
+      "path": "js/pages/sys-scene.js",
+      "sha256": "153e4a7c495c3463237676a7601cff4f597fa3db4ab4bd08bb3c0fc100ea00c0",
+      "mtime": "2026-08-19T17:16:58"
+    },
+    {
+      "path": "js/pages/sys-tags.js",
+      "sha256": "1b6bf0a00667f26750a09fa613991f3ad0618929a245b6ca957b3ebb2f4e8917",
+      "mtime": "2026-08-19T17:17:43"
+    },
+    {
+      "path": "js/pages/sys-tenant.js",
+      "sha256": "deb93995b5512930addf9c53dd6f76770fac88e3b404cbbf1546313b2047a3b6",
+      "mtime": "2026-08-19T17:17:48"
+    },
+    {
+      "path": "memory/acceptance-map.md",
+      "sha256": "2b119ef1eea76312eb1ee49a56ed664eae8d85705f26ffea2a8ab78ccbac29ef",
+      "mtime": "2026-08-19T17:11:59"
+    },
+    {
+      "path": "memory/annotation-coverage.md",
+      "sha256": "5e7c41d29db25af3993d2bbb43f7081de24894848c00140a9124c4f454e72a7b",
+      "mtime": "2026-08-19T17:21:09"
+    },
+    {
+      "path": "memory/annotation-prompt.md",
+      "sha256": "875471be08bbb1c77e9d2232f947e84984ad3fb49404d33d89ac136dbc408f56",
+      "mtime": "2026-08-19T17:23:22"
+    },
+    {
+      "path": "memory/execution-steps.md",
+      "sha256": "100d2e15c462fcb61cb0aa09db2ac31b3df89760002dc77d14267a6fbeebeb66",
+      "mtime": "2026-08-19T16:45:05"
+    },
+    {
+      "path": "memory/field-map.md",
+      "sha256": "b50c0e5f46d84a07e9f6f2b71f32e9fe9db88d37529a58b4ebac02db0648af4f",
+      "mtime": "2026-08-19T16:34:11"
+    },
+    {
+      "path": "memory/source-materials.md",
+      "sha256": "bb35f5b8ea3be98e1bf2e1947732d551982a9638dd06f0965c52c0fbfdf34b3f",
+      "mtime": "2026-08-19T16:01:47"
+    },
+    {
+      "path": "memory/verification-log.md",
+      "sha256": "eb6ceefe69a9c802956d4f2568507c546ecc807f8d516e8784e4dd9cce0423e9",
+      "mtime": "2026-08-19T17:13:40"
+    },
+    {
+      "path": "mock/data.js",
+      "sha256": "e7dd4a0a9798ac0ccfab657888bb5aff2f64b5c1e095f42eed3aabd6e250d5a4",
+      "mtime": "2026-08-19T14:08:38"
+    }
+  ]
+}

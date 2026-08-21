@@ -1,0 +1,238 @@
+# 项目变更记录
+
+## 2026-08-21（六平台线索与统计覆盖修复）
+
+### 数据层 `mock/data.js`
+
+- 线索记录从一知/冰兰扩展到六平台 12 条数据；补充中科金、电声、厚朴、大众通信记录。
+- 大众通信保留 A-高意向、E-需再次跟进、F-号码无效和未评级等平台口径；电声补充两次回访记录。
+- 通话统计补齐 `platformName` 并新增 2 条大众通信统计，合计 16 条、六平台覆盖。
+- 计费统计扩展为 8 条，增加平台、计费类型以及六平台的日明细和通话计费明细。
+
+### 页面层
+
+- `js/pages/result-clue.js`：场景、状态、意向筛选改为从六平台数据动态生成；列表新增智能平台列；筛选后的详情索引修正；客户标签和回访详情按平台数据展示。
+- `js/pages/report-call.js`：列表新增智能平台列，平台筛选改为严格匹配，外呼统计和客户统计均展示平台。
+- `js/pages/report-billing.js`：列表新增智能平台、计费类型列和平台筛选；详情弹窗展示平台。
+
+### 挂起项
+
+- 通道管理占位、线索记录移动端横向溢出按用户要求保持不动，已记录到 `memory/open-items.md`。
+
+### 验证
+
+- 4 个修改脚本 `node --check` 全部通过。
+- 浏览器验证：线索记录 12 条/六平台，电声 2 次回访，大众通信标签含 A 级与任务 UUID；通话统计 16 条/六平台，大众通信筛选 2 条；计费统计 8 条/六平台，大众通信筛选 3 条且详情含平台。
+- 控制台 0 错误，网络 0 个 404。
+
+## 2026-08-20（第三轮：业务场景创建抽屉对齐六平台参考源）
+
+### 数据层 `mock/data.js`
+
+- 新增抽屉 Mock 15 组：`MockSceneRows`(12 行业务场景列表)、`MockTenantOptions`、`MockSceneTypeOptions`、`MockImportTypeOptions`/`MockBinglanImportTypeOptions`、`MockDefaultInputFields`(一知 7 默认字段)、`MockYizhiAccounts`、`MockBinglanLines`/`MockBinglanRobots`/`MockBinglanInputDefaults`、`MockHoupuSceneFields`、`MockDianshengRobotMappings`(场景类型→机器人)、`MockDianshengAccounts`、`MockDianshengIntervals`、`MockSceneBlacklistGroups`。
+
+### 页面层 `js/pages/sys-scene.js`（1243 行重写）
+
+- 创建/编辑抽屉对齐六平台参考源：公共区（名称/编码计数、描述、租户多选、平台六选一、场景类型按平台禁用、数据导入方式默认版）。
+- 一知：场景id+提示条+模型类型→一知账号（计费提示），默认 7 传入字段。
+- 中科金：任务id+提示条+模型类型→默认账号，默认「姓名」字段。
+- 电声：匹配机器人（类型自动映射）、呼叫时段多行、排除日期（tooltip）、N天M呼（间隔分钟多选）、黑名单拦截、自动启动（关→执行时间）、模型类型/账号按模型过滤、提交按钮「确定并生成任务」。
+- 冰兰：导入方式（手动/接口）、呼叫通道双形态（联友VCP→机器人输入+优先级+策略区；冰兰通道→线路+机器人下拉）、周呼叫日+多时段（增删重编号）、自动重拨表格、黑名单/规则拦截；传入字段 4 列表头且可编辑/删除（确认弹窗）。
+- 厚朴：任务名称预填+数据列模式（单条/多条切换字段表）+提示条。
+- 大众：任务ID(uuid)+提示条+模型类型→默认账号。
+- 业务信息双 Tab+添加字段弹窗（对齐中科金参考源）；提交分平台必填校验，成功写回列表行。
+
+### 样式层 `assets/css/app.css`
+
+- 追加冰兰扩展（biz-section-title/biz-radio.disabled/biz-time-slot-row/biz-redial-table 等，源自冰兰接入_v1.0）与电声扩展（ds-call-strategy/ds-multi-select/ds-redial-table/ds-switch 等，源自电声接入_demo_v1.0）。
+
+### 验证
+
+- node --check（sys-scene.js/data.js）全过。
+- playwright 浏览器验证：六平台面板显隐联动、一知默认 7 字段+账号 5 项、电声机器人映射（冷线索→robot_ds_nissan_002）+场景类型禁用（首访/服务/回访）、冰兰通道切换（5→4 列表头、7 可编辑行）、厚朴单条/多条字段切换（1/7 行）、空表单提交拦截、完整建行（12→13 行）、字段编辑/删除确认弹窗——全部通过。
+- 控制台 0 错误、网络无 404；`python3 tools/loop_run.py check . --preflight-stage final` PASS。
+
+## 2026-08-19
+
+- 创建项目基础框架。
+
+### step-01：整合 Mock 数据
+
+- 复核 `mock/data.js` 覆盖六个接入平台（一知科技、中科金智能、电声、冰兰、厚朴、大众通信）。
+- 数据对象完整：`MockSceneList`(25)、`MockCallRecordRows`(29)、`MockCallStatsRows`(14)、`MockTenantRows`(5)、`MockLocalTagSets`(4)、`MockBlockGroups`(3)、`MockSceneRows`(12)。
+- 字段命名一致，枚举值对齐 `memory/business-rules.md`。
+
+### step-02：验证外呼列表页面
+
+- 验证 `js/pages/scene-list.js` 外呼列表卡片网格、筛选（场景名称/状态/平台）、详情抽屉三 Tab（数据概览/呼叫名单/任务详情）与大众通信任务详情渲染。
+- 确认六平台任务卡片与状态标签（进行中/用户暂停/已终止/未开始）显示正确。
+
+### step-03：验证外呼拦截页面
+
+- 验证 `js/pages/scene-block.js` 黑名单分组列表、号码表格、平台同步状态、号码详情弹窗、平台同步设置弹窗。
+
+### step-04：验证通话统计页面
+
+- 验证 `js/pages/report-call.js` 通话统计表格（拨打总次数/接通总数/未接通/接通率/触达率/累计通话时长）与筛选（呼叫时间/场景名称/智能平台）。
+
+### step-05：验证计费统计页面
+
+- 验证 `js/pages/report-billing.js` 租户计费统计表格（计费日期/租户名称/计费时长）与详情弹窗。
+
+### step-06：验证线索统计页面
+
+- 验证 `js/pages/report-clue.js` NEV/ICE 线索统计、回流统计与「查看」详情弹窗。
+
+### step-07：验证通话记录页面
+
+- 验证 `js/pages/result-records.js` 通话记录表格（用户号码/通话状态/智能平台/意向标签等）与详情弹窗。
+
+### step-08：验证线索记录页面
+
+- 验证 `js/pages/result-clue.js` 线索记录表格（回访次数/最后通话状态/意向级别/客户详细标签/场景名称）。
+
+### step-09：验证业务场景页面
+
+- 验证 `js/pages/sys-scene.js` 业务场景列表、筛选（场景名称/场景分类/所属平台）与「新建业务场景」入口。
+
+### step-10：验证标签管理页面
+
+- 验证 `js/pages/sys-tags.js` 供应商管理配置树、中台标签集（新增/编辑/删除/排序/启用状态）与供应商标签池映射。
+
+### step-11：验证租户管理页面
+
+- 验证 `js/pages/sys-tenant.js` 租户表格（有效期/话费余额/冻结金额/可用余额/呼叫控制/租户类型/状态）与分页。
+
+### step-12：验证导航功能
+
+- 验证 `js/nav.js` 左侧菜单展开/收起、子菜单选择、页面切换、面包屑与当前页高亮。
+
+### step-13：验证首页展示
+
+- 验证 `js/pages/home.js` 用量余额卡片（大/小模型可用分钟数/有效期/呼叫控制状态）与平台概览统计卡片。
+
+### S8 全局验证修正
+
+- 为 `docs/interaction.html` 补充 `link rel="icon" href="data:,"`，消除 favicon.ico 404，与 flowcharts/index.html 保持一致。
+
+### S9 前置：核心页面补 data-anno 锚点（S7 回流）
+
+- 为 11 个核心页面补齐 12 个 `data-anno` 锚点（含 data-anno-page/label/kind/fields），供 S9 标注清单引用：`scene-list-grid`、`block-table`、`report-call-table`、`report-billing-table`、`report-clue-table`、`result-records-table`、`result-clue-table`、`sys-scene-add-btn`、`sys-scene-table`、`sys-tags-table`、`sys-tenant-table`、`home-overview`。
+- 将 `annotations/annotations.js` 重置为手动回写占位 `window.AnnotationData = {};`，清除上一轮 DeepSeek 历史标注（其引用锚点与当前源码不一致）。
+
+### 逐页对照参考源修复（HANDOFF 待办 1/2/3）
+
+**数据层 `mock/data.js`：**
+
+- 大众任务条目补 `task_type: 7`（id 17/18/19）；`MockDazhongTaskEditDetail` 三条 `new_task_extra` 补 `destination_extension_list` 时段。
+- `DazhongSceneCodeByScene` 恢复参考版编码（`AI-DZ-HD-COLD`/`AI-DZ-NJ-SERVICE`/`AI-DZ-SZ-NEW`）。
+- 大众通话记录 13 条 status 从中文恢复为数字枚举（0-12），首条补 `recordingUrl`；添加 forEach 兜底补 `callid`/`submitTime`/`callbackReceivedAt`/`taskUuid`/`sceneCode`。
+- 新增 `MockDazhongCallDetailByRecordId`（3 条大众详情：recordid/detailFetchedAt/duration/billDuration/recordingDuration/componet/records/bailianSummary/bailianTagName）及二级 forEach 兜底。
+- `MockBillingCallDetail` 从 3+3 条恢复为 5+6 条完整通话计费明细。
+- 新增 `MockAssignedData`（按场景 id 17/18 索引的已分配名单）和 `MockImportHistory`（导入历史）。
+
+**页面层：**
+
+- `js/pages/result-records.js`（12 项）：恢复参考版 `DazhongStatusLabels`（数字枚举 1 呼叫成功/2 运营商拦截/4 无应答/8 占线/9 呼入限制/11 黑名单/12 用户屏蔽）；resolveStatus 仅对大众数字枚举映射；回调落库规则（大众必须 callid 存在才展示）；大众详情链路按 callid 取 `MockDazhongCallDetailByRecordId`；详细信息面板大众 13 字段/非大众中科金式 7 字段；新增「关联任务 ID」列 + 排序；筛选补关联任务 ID 与 29 项状态枚举；对话文本大众动态生成；录音播放器按 recordingDuration 实现；补 escapeHtml/cleanTranscriptText。
+- `js/pages/scene-list.js`（10 项）：DazhongStatusLabels 对齐；redial_conditions 数组/对象两形态归一化（id 19 字符串枚举正确显示中文）；任务详情补起止时间/弹性坐席/重呼总开关；呼叫时段按 work_hour 自身 wday 渲染；outboundCircleType 分支恢复；意向洞察大众数值改参考版；已分配子 Tab 动态取数；通话记录弹窗二级详情；手动导入完整实现（validatePhone/parseCSVText/downloadTemplate/exportImportResult）；补 window.Pages 注册。
+- `js/pages/report-billing.js`：分页组件恢复（renderPagination + billingPagination + updateTable 同步）；详情弹窗设置按钮补回；计费规则备注去掉大众 SaaS 后缀；aria-label 补齐；移除错误的 data-anno-fields="FLD-055" 引用。
+- `js/pages/sys-tenant.js`（P0 口径统一）：getTenantBillingSummary 重写为参考版算法（仅已激活充值单 − adjustmentOutAmount − consumedAmount + Math.max 下限）；实现 syncFrozenTaskReleases 同款函数；currentBizDate 返回真实今天；packageDays 半年 183 天；pendingRow 检测 bug（rechargeStatus→status）；isFrozenExpired 补 NaN 保护；抽屉改用 formatMinuteRange。渝兴 balance=¥3,880.00、燃油车=¥1,000,001,719.00，与 home.js 完全一致。
+- `docs/计算逻辑.html`：从充值方案 demo 拷贝（554 行），跳转按钮加 `data-delivery-switch="prototype"`，尾部加载 `../js/delivery-nav.js`。
+- `index.html`：顶栏 right-area 新增「📐 计算逻辑」入口（新窗口打开 docs/计算逻辑.html）；四个改动页面脚本版本号 v=1→v=2 防缓存。
+
+**验证：**
+
+- `node --check` 18 个 JS 文件全部通过。
+- 浏览器验证（playwright-cli @ http://127.0.0.1:8080）：通话记录大众状态正确映射（呼叫成功/拒接/占线/等待呼叫/运营商拦截）、详情弹层 13 字段完整（会话 id 2059190973162029091/场景编码 AI-DZ-HD-COLD/通话标签）；外呼列表 id 19 重呼条件显示「外呼失败、暂不方便、稍后重呼、无法接通」；租户管理渝兴 ¥3880.00/燃油车 ¥1000001719.00 与 home 分钟数换算一致；计费统计分页组件与详情弹窗设置按钮恢复；计算逻辑入口 200 可达；控制台 0 错误、无 404。
+- `python3 tools/loop_run.py check . --preflight-stage final` PASS。
+
+### 第四轮：外呼列表详情抽屉对齐六平台参考源（2026-08-20）
+
+**数据层 `mock/data.js`：**
+
+- 新增/补全六平台任务详情 Mock：`MockZkjTaskDetail`（4 条，taskCode/robotId/outbound*/recall*/aiSeats* 全字段）、`MockDazhongTaskEditDetail`（3 条，2.0 编辑接口字段 + new_task_extra）、`MockYizhiTaskDetail`（一知场景id/账号/模型类型）、`MockDianshengTaskDetail`（callTimeWindow/nDayMCallPolicy/blacklistCheck/autoStart/leadTypeRobotMapping）、`MockBinglanTaskDetail`（风控策略/重拨条件组）。
+- `MockSceneList` 电声条目补 strategyCode/robotName/batchCount，大众条目补 uuid/line/maximumcall/billingType，厚朴条目补 taskName/requestId/createdAt/connected/columnType。
+
+**页面层 `js/pages/scene-list.js`：**
+
+- 详情抽屉三 Tab（数据概览/呼叫名单/任务详情）重构，任务详情按平台分发到 renderZkj/Yizhi/Dazhong/Diansheng/Houpu/Binglan 六个渲染函数，字段与文案对齐各参考源。
+- 中科金：重呼模式分支（1=策略组 JSON 解析、2=状态+次数+间隔）、RecallStatusLabels 13 状态码中文映射、启动方式（手动/定时）、周循环+多时段。
+- 大众：redial_conditions 数组/对象两形态归一化、da_status 数字+字符串枚举中文映射、拨打时间段（周几汇总+逐条 wday+起止日期弱化色）、AI坐席数（limit/maximumcall/弹性）。
+- 电声：呼叫时段（时段N+排除日期+超出时段策略）、N天M呼（最大天数/次数/逐次间隔分钟）、黑名单/自动启动配置、机器人名称静态映射兜底。
+- 一知：一知科技场景id/模型类型/一知账号三字段补齐。
+- 冰兰：风控策略（自定义+黑名单）、多条件组重拨。
+- 厚朴：批次追踪 requestId、数据列模式、接口约束、口径说明、模拟令牌失效按钮。
+- 意向洞察环形图按平台差异化（大众 6 级/电声 4 级专属配色/一知 8 级含 H、J）；头部启/停按钮分平台显隐（中科金/大众/电声无，冰兰=终止任务）。
+
+**样式层 `assets/css/app.css`：**
+
+- 追加大众/电声/一知扩展样式：.task-detail-muted、.intent-donut-ring.diansheng（conic-gradient 4 段）、.intent-donut-label.label-g/label-h（一知 8 标签布局）。
+
+**标注层：**
+
+- `js/pages/scene-list.js`：houpu-task-detail/houpu-token-expired 锚点补全 data-anno-page/label/kind/fields；dazhong-readonly 移除不存在的 FLD-016。
+- `memory/annotation-prompt.md`：补 3 条 scene-list 锚点清单行（12→15 个）。
+
+**验证：**
+
+- `node --check` scene-list.js/data.js 全过。
+- 新增 `tools/verify_detail_drawer.js`（playwright）：六平台（id 13/1/17/20/22/24）任务详情 Tab 关键字段断言全过、控制台 0 错误、无 404。
+- `python3 tools/loop_run.py check . --preflight-stage final` PASS。
+- HANDOFF.md 增补第四轮修复记录，一句话总结同步更新。
+
+### 第六轮：数据概览残余差异收口（2026-08-20）
+
+用户复查反馈数据概览仍与参照物对不上，逐平台对照 releases_demo 六个接入原型源码与 CSS 后收口：
+
+**数据层 `mock/data.js`：**
+
+- `MockYizhiTaskStats` 任务 4 avgDuration 60秒→72秒（对齐一知参考源 NEV培育场景 stats）、任务 6 55秒→65秒（对齐参考源按 sceneName 取 stats[0] 口径）。
+
+**页面层 `js/pages/scene-list.js`：**
+
+- `renderInsightBlock` 一知画像时给 `.intent-donut-chart` 追加 `yizhi` 修饰类（配合 CSS 覆盖 a~f 标签专属坐标/配色）。
+
+**样式层 `assets/css/app.css`：**
+
+- 新增 `.intent-donut-chart.yizhi .intent-donut-label.label-a~f` 六条覆盖规则（一知 8 级环形图标签坐标与中科金 6 级版不同）。
+
+**验证层 `tools/verify_detail_drawer.js`：**
+
+- 修复意向配置断言假通过：多选下拉默认收起导致 innerText 取不到选项，改为先展开等级1下拉再断言、读完收起再保存（避免弹层遮挡按钮）。
+- 新增环形图分平台类名断言：一知 `intent-donut-chart yizhi`/`intent-donut-ring yizhi`、电声 `intent-donut-ring diansheng`。
+
+**验证：**
+
+- `node --check` 全过；六平台（id 13/1/17/20/22/24）overview/config/task/donutCls 断言全空、控制台 0 错误、无 404；临时脚本比对一知 8 标签 computed top/left/color 与参考源逐项一致；`loop_run.py check --preflight-stage final` PASS。
+
+### 第七轮：线索统计对齐参考源（2026-08-20）
+
+**数据层 `mock/data.js`：**
+
+- 补全 `MockClueStatNEV`（5 条完整聚合统计记录，含 A~E 意向客户数、导入/外呼/接通/下发量、接通率、平均时长）。
+- 补全 `MockClueStatICE`（5 条完整聚合统计记录）。
+- 补全 `MockClueDetailNEV`（5 条完整明细记录，含线索编码、呼叫场景、脱敏手机号 138****8888、门店编码/名称、呼叫时间、通话状态彩色标签、中台/业务系统双维度意向级别彩色标签、下发门店）。
+- 补全 `MockClueDetailICE`（5 条完整明细记录）。
+- 补全 `MockClueReturn`（5 条完整线索回流记录，2015-10-06 ~ 2015-10-10，含线索传入/提交外呼/线索回流数）。
+- 新增 `MockStoreHierarchy`（华东/华南/华北三级大区小区门店数据），支持级联与模糊搜索。
+
+**页面层 `js/pages/report-clue.js`：**
+
+- 重构为对齐 `releases_demo/线索报表_v1.0` 的三大主 Tab：【外呼线索统计】（#tab-manual）、【外呼线索明细】（#tab-ai）、【线索回流统计】（#tab-return）。
+- 外呼线索统计与外呼线索明细均支持【总部 NEV 线索】与【总部 ICE 线索】二级子 Tab 切换。
+- 外呼线索统计大表对齐 14 列表头，保留 `data-anno="report-clue-table"` 标注锚点。
+- 外呼线索明细大表对齐 14 列表头，支持彩色状态标签与意向标签渲染。
+- 筛选区完整实现：日期范围（过去 7 天默认初始化）、场景下拉、意向级别多选下拉（全部/A~E 互斥与多选文案回写）、业务类型下拉、门店模糊搜索。
+- 线索回流统计对齐顶部业务说明提示栏、6 列表头及绿色高亮回流数。
+- 完整实现异步导出模拟（2.5s loading 旋转图标 + 全局 Toast 提示）。
+- 完整支持分页栏（共 5 条数据、页码切换、跳页输入）。
+
+**样式层 `assets/css/app.css`：**
+
+- 补充线索报表业务提示条样式 `.clue-tip-bar`、导出按钮 loading 动画 `.btn.loading .loading-icon`、宽表格横向滚动容器 `.report-clue-scroll`、`.report-clue-detail-scroll` 及多选下拉宽度适配。
+
+**验证与测试：**
+
+- `node --check` 全过（所有 JS 文件语法合规）。
+- 新增 `tools/verify_report_clue.js`（playwright）：验证三大主 Tab、二级 NEV/ICE 子 Tab、14 列表头、数据行、意向多选下拉、回流统计 6 列表头、导出 loading 动画与 Toast 提示，控制台 0 错误、无 404 全过。
+- `python3 tools/loop_run.py check . --preflight-stage final` PASS。

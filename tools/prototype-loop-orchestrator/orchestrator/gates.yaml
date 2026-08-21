@@ -1,0 +1,62 @@
+{
+  "stage_gates": {
+    "s4": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s4",
+      "blocks_until_pass": "S5 项目结构读取"
+    },
+    "s6": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s6",
+      "blocks_until_pass": "S6 需求实现拆分"
+    },
+    "s7": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s7",
+      "blocks_until_pass": "S7 实现与单步验证循环"
+    },
+    "s8": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s8",
+      "blocks_until_pass": "S8 全局验证"
+    },
+    "s9": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s9",
+      "blocks_until_pass": "S9 标注提示词准备"
+    },
+    "final": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage final",
+      "blocks_until_pass": "S9 收尾终检"
+    }
+  },
+  "hard_gates": [
+    "PM 未确认 memory/project-startup-plan.md 中的产品目标、目标用户、范围、非范围、输入材料、迭代方式、标注策略、核心流程、主要数据对象、验收标准和交付目标，不进入 S2/S3。",
+    "S2 未通过 approve-plan 记录迭代名、确认人、确认依据和启动规划/CLAUDE.md 内容摘要，或审批后文件发生变化，不进入项目记忆初始化。",
+    "S3 未初始化 memory/project.md、memory/business-rules.md、memory/source-materials.md、memory/field-map.md 和 memory/open-items.md，不进入初始化后的拆分和实现。",
+    "输入资料未整理为 memory/source-materials.md 的 SRC-*，不进入拆分和标注提示词准备。",
+    "CLAUDE.md 未写入项目执行边界和记忆引用，不进入实现。",
+    "执行步骤缺少 Expected Change、Verification Skill 或 Annotation Impact，不进入实现。",
+    "verification-log.md 缺少结构化 step/global pass 记录，不进入后续阶段。",
+    "S9 不强制自动写入 annotations/annotations.js；必须先生成 memory/annotation-prompt.md，让 PM 手动投喂标注生成器。若 annotations/annotations.js 已被手动回写，则标注 id 必须全局唯一；每条标注必须引用 sourceRefs，并与源码锚点的 page/label/kind/fieldRefs 语义合同一致；字段说明必须按 FLD-* 独立换行解释定义、逻辑、格式和异常。"
+  ],
+  "circuit_breaker": {
+    "threshold": 3,
+    "state_file": "memory/circuit-state.json",
+    "failure_keys": ["stepId", "checkpoint", "consecutiveFailures", "lastError", "updatedAt"],
+    "on_trigger": "暂停自动重试，记录现场，并让用户选择继续修复、回到拆分、回到需求确认或终止。"
+  },
+  "annotation": {
+    "id_scope": "global",
+    "mode": "manual-prompt-first",
+    "requires_source_refs": true,
+    "requires_field_refs_when_field_map_has_rows": true,
+    "requires_anchor_semantic_contract": true,
+    "field_description_format": "one-line-per-field-with-definition-logic-format-exception",
+    "source_file": "memory/source-materials.md",
+    "field_file": "memory/field-map.md",
+    "prompt_file": "memory/annotation-prompt.md",
+    "output_file": "annotations/annotations.js"
+  },
+  "reporting": {
+    "pm_status_file": "memory/loop-status.md",
+    "writer": "tools/loop_run.py",
+    "purpose": "把 preflight 技术错误翻译成 PM 可读的当前阶段、阻塞原因、责任方和下一步建议。",
+    "not_authoritative_for_pass": true
+  }
+}

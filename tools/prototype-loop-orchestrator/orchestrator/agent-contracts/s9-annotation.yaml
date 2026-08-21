@@ -1,0 +1,44 @@
+{
+  "stage": "S9",
+  "owner": "annotation-generator",
+  "skill": "skill-library/annotation-generator/SKILL.md",
+  "role": "phase_owner",
+  "token_policy": "verified_annotation_scoped",
+  "allowed_read": [
+    "memory/acceptance-map.md",
+    "memory/execution-steps.md",
+    "memory/change-log.md",
+    "memory/verification-log.md",
+    "memory/project-startup-plan.md",
+    "memory/project.md",
+    "memory/source-materials.md",
+    "memory/field-map.md",
+    "docs/decisions.md",
+    "current source data-anno semantic contracts"
+  ],
+  "allowed_write": [
+    "memory/annotation-prompt.md",
+    "docs/interaction.html",
+    "memory/annotation-coverage.md"
+  ],
+  "forbidden_read": [
+    "annotations/annotations.js",
+    "old project annotations",
+    "browser annotation cache",
+    "old annotation prompt exports"
+  ],
+  "forbidden_write": [
+    "config/workflow.json",
+    "memory/stage-log.md",
+    "memory/final-snapshot.json",
+    "annotations/annotations.js"
+  ],
+  "support_skills": [
+    "superpowers-pm-prototype/skills/systematic-debugging"
+  ],
+  "handoff": {
+    "complete_stage": "S9",
+    "preflight_stage": "final"
+  },
+  "delegated_write": {}
+}
