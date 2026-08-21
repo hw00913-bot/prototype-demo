@@ -5,13 +5,26 @@
 ## 最新状态
 
 - Overall: S9 Annotated
-- Last verified: full documentation restoration + final gate (2026-08-21)
+- Last verified: unified full-document entry + final gate (2026-08-21)
 
 ## 机器可读记录格式
 
 每条记录必须包含以下键值行。`Step` 必须使用 `step-01`、`step-02` 等稳定 ID，且与 `memory/execution-steps.md` 对应。
 
 ## History
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8897/index.html | js/delivery-nav.js | docs/interaction.html | docs/功能说明文档.html
+Tool: browser click evidence + JavaScript syntax check + loop preflight
+Command / Check: 点击首页顶栏功能说明入口；点击交付导航说明文档入口并读取 iframe 最终 URL、标题；检查控制台、网络与 final 门禁
+Passed: 首页入口直接指向完整版；交付导航经 Loop 兼容路径最终落到 docs/功能说明文档.html；iframe 标题为“东风日产智能外呼中台 · 统一功能说明文档”；控制台 0 错误；网络 0 个 4xx/5xx；final preflight PASS
+Failed: 无
+Evidence: topHref=docs/功能说明文档.html；deliveryFrameUrl=/docs/功能说明文档.html；consoleErrorCount=0；http4xx5xxCount=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 所有可见说明文档入口统一展示完整版
 
 Date: 2026-08-21
 Step: step-13
