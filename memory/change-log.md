@@ -1,10 +1,17 @@
 # 项目变更记录
 
+## 2026-08-21（完善版说明文档误删恢复）
+
+- 纠正清理范围判断：`docs/功能说明文档.html` 与对应 Markdown 是内容更完整的产品说明，不属于可删除冗余。
+- 从清理前提交完整恢复 `docs/功能说明文档.html`、`docs/功能说明文档.md`、`tools/render_doc_html.py` 和 `tools/test_delivery_docs.js`。
+- 首页“功能说明文档”入口恢复指向完善版 HTML；`docs/interaction.html` 继续保留为 Loop/S9 交互说明，不再视为前者的完整替代品。
+- 恢复操作未回滚页面修复、55 条标注、六平台数据覆盖和其他已确认的缓存/一次性脚本清理。
+
 ## 2026-08-21（项目冗余内容清理）
 
 - 清除 `.playwright-cli/` 浏览器截图/快照缓存与 Python `__pycache__` 编译缓存。
 - 删除无运行入口且与 `index.html` 内置登录层重复的独立 `login.html`。
-- 删除已由 `docs/interaction.html` 取代的旧版 `docs/功能说明文档.md`；其中唯一新增的线上演示地址迁移至 `config/project.json`。
+- 曾误将 `docs/功能说明文档.md` 判定为可由 `docs/interaction.html` 取代；现已恢复完善版 Markdown/HTML 及其维护链路，线上演示地址同时保留在 `config/project.json`。
 - 删除 13 个依赖本机绝对路径、固定端口或旧参考项目的一次性浏览器对比/验证脚本；历史验证结论仍保留在 `memory/verification-log.md`。
 - 删除非空目录中的无意义 `.gitkeep`，并修正 `memory/project-structure.md` 中已经过期的页面数量和账号管理说明。
 - `CLAUDE.md` 属于已冻结的 PM 审批基线，未修改；其中过期的运行提示为保证审批哈希与最终门禁有效而保留。

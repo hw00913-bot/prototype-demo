@@ -5,13 +5,26 @@
 ## 最新状态
 
 - Overall: S9 Annotated
-- Last verified: project cleanup regression + final gate (2026-08-21)
+- Last verified: full documentation restoration + final gate (2026-08-21)
 
 ## 机器可读记录格式
 
 每条记录必须包含以下键值行。`Step` 必须使用 `step-01`、`step-02` 等稳定 ID，且与 `memory/execution-steps.md` 对应。
 
 ## History
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8896/index.html | docs/功能说明文档.html | docs/功能说明文档.md
+Tool: Git history recovery + browser evidence + syntax checks + loop preflight
+Command / Check: 从清理前提交恢复完善版 HTML/Markdown 与生成验证工具；恢复首页入口；检查文档目录、关键规则、资源请求、控制台、Python/JavaScript 语法与 final 门禁
+Passed: 首页入口指向 docs/功能说明文档.html；完善版文档 21 个三级目录、正文 22202 字符；25 项状态、租户资金模型、线索回流与脱敏规则均存在；控制台 0 错误；网络 0 个 4xx/5xx；final preflight PASS
+Failed: 无
+Evidence: href=docs/功能说明文档.html；tocH3=21；bodyLength=22202；keyPhraseChecks=3/3；consoleErrorCount=0；http4xx5xxCount=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 完善版说明文档已恢复；后续若再次收敛文档，必须先迁移完整内容再处理文件入口
 
 Date: 2026-08-21
 Step: step-13
