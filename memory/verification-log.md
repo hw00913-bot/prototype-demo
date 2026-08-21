@@ -5,13 +5,26 @@
 ## 最新状态
 
 - Overall: S9 Annotated
-- Last verified: unified full-document entry + final gate (2026-08-21)
+- Last verified: single-source documentation sync + final gate (2026-08-21)
 
 ## 机器可读记录格式
 
 每条记录必须包含以下键值行。`Step` 必须使用 `step-01`、`step-02` 等稳定 ID，且与 `memory/execution-steps.md` 对应。
 
 ## History
+
+Date: 2026-08-21
+Step: step-13
+Scope: global
+Local URL / File: http://127.0.0.1:8898/index.html | docs/功能说明文档.md | docs/功能说明文档.html | docs/interaction.html | tools/render_doc_html.py
+Tool: deterministic generation + sync check + browser evidence + loop preflight
+Command / Check: 从唯一 Markdown 生成两个 HTML；执行 render_doc_html.py --check；点击顶部与交付导航入口；检查最终 URL、维护规则、21 个目录、3 项关键规则、控制台、网络和 final 门禁
+Passed: Markdown 是唯一内容源；两个 HTML 均由同一脚本生成且同步检查 PASS；两个可见入口最终展示完整版；维护规则可见；21 个目录和关键规则完整；控制台 0 错误；网络 0 个 4xx/5xx；final preflight PASS
+Failed: 无
+Evidence: docSync=pass；topHref=docs/功能说明文档.html；deliveryFrameUrl=/docs/功能说明文档.html；tocH3=21；keyPhraseChecks=3/3；consoleErrorCount=0；http4xx5xxCount=0
+Result: pass
+Consecutive Failures: 0
+Next Action: 后续只编辑 docs/功能说明文档.md，并在提交前运行生成与 --check
 
 Date: 2026-08-21
 Step: step-13

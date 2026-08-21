@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import re
+import argparse
 import html
-import os
+import re
+import sys
+from pathlib import Path
 
-MD_PATH = 'docs/功能说明文档.md'
-INTERACTION_HTML_PATH = 'docs/interaction.html'
-DOC_HTML_PATH = 'docs/功能说明文档.html'
+ROOT_DIR = Path(__file__).resolve().parents[1]
+MD_PATH = ROOT_DIR / 'docs/功能说明文档.md'
+DOC_HTML_PATH = ROOT_DIR / 'docs/功能说明文档.html'
+INTERACTION_HTML_PATH = ROOT_DIR / 'docs/interaction.html'
 
 def escape(s):
     return html.escape(s)
@@ -161,54 +164,6 @@ def parse_markdown_to_html(md_text):
 
     return toc, '\n'.join(html_parts)
 
-def generate_interaction_html(content_html):
-    template = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="data:,">
-  <title>智能外呼统一中台 - 功能说明文档</title>
-  <style>
-    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; padding: 40px 20px; color: #333; line-height: 1.6; }}
-    .container {{ max-width: 1180px; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 48px; }}
-    h1 {{ font-size: 24px; font-weight: 600; margin-bottom: 32px; color: #1a1a1a; border-bottom: 2px solid #1677ff; padding-bottom: 12px; }}
-    h2 {{ font-size: 18px; font-weight: 600; margin: 32px 0 16px; color: #1a1a1a; }}
-    h3 {{ font-size: 16px; font-weight: 600; margin: 24px 0 12px; color: #333; }}
-    p {{ margin: 8px 0; font-size: 14px; color: #374151; }}
-    strong {{ color: #111827; }}
-    a {{ color: #1677ff; text-decoration: none; }}
-    a:hover {{ text-decoration: underline; }}
-    .table-wrap {{ width: 100%; overflow-x: auto; margin: 12px 0 20px 0; }}
-    table {{ width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }}
-    th, td {{ border: 1px solid #d9d9d9; padding: 10px 12px; text-align: left; vertical-align: top; }}
-    th {{ background: #fafafa; font-weight: 600; color: #333; white-space: nowrap; }}
-    tr:hover {{ background: #fafafa; }}
-    hr {{ border: none; border-top: 1px solid #e8e8e8; margin: 24px 0; }}
-    .section-divider {{ margin: 32px 0; }}
-    .jump-btn {{ display: inline-block; padding: 8px 20px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; }}
-    .jump-btn:hover {{ background: #4096ff; text-decoration: none; }}
-    blockquote {{ background: #F0F7FF; border-left: 4px solid #1677ff; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; color: #1E40AF; font-size: 13px; }}
-    code {{ background: #F3F4F6; color: #EF4444; padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }}
-    ul, ol {{ margin: 8px 0 16px 24px; color: #374151; }}
-    li {{ margin-bottom: 6px; }}
-    @media (max-width: 640px) {{ body {{ padding: 20px 12px; }} .container {{ padding: 24px 18px; }} }}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div style="text-align: right; margin-bottom: 24px;">
-      <a href="../index.html" class="jump-btn" data-delivery-switch="prototype">跳转演示页面 →</a>
-    </div>
-    {content_html}
-  </div>
-  <script src="../js/delivery-nav.js"></script>
-</body>
-</html>
-"""
-    return template
-
 def generate_doc_html(toc, content_html):
     toc_links = []
     for item in toc:
@@ -337,21 +292,90 @@ def generate_doc_html(toc, content_html):
 """
     return template
 
-def build_all():
-    with open(MD_PATH, 'r', encoding='utf-8') as f:
-        md_text = f.read()
+def generate_interaction_alias(content_html):
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0; url=功能说明文档.html">
+  <link rel="canonical" href="功能说明文档.html">
+  <link rel="icon" href="data:,">
+  <title>智能外呼统一中台 - 功能说明文档</title>
+  <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f5f5f5; padding: 40px 20px; color: #333; line-height: 1.6; }}
+    .container {{ max-width: 1180px; margin: 0 auto; background: #fff; padding: 48px; }}
+    h1 {{ font-size: 24px; margin-bottom: 32px; border-bottom: 2px solid #1677ff; padding-bottom: 12px; }}
+    h2 {{ font-size: 18px; margin: 32px 0 16px; }}
+    h3 {{ font-size: 16px; margin: 24px 0 12px; }}
+    p {{ margin: 8px 0; font-size: 14px; }}
+    .table-wrap {{ width: 100%; overflow-x: auto; margin: 12px 0 20px; }}
+    table {{ width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }}
+    th, td {{ border: 1px solid #d9d9d9; padding: 10px 12px; text-align: left; vertical-align: top; }}
+    th {{ background: #fafafa; font-weight: 600; white-space: nowrap; }}
+    hr {{ border: 0; border-top: 1px solid #e8e8e8; margin: 24px 0; }}
+    .section-divider {{ margin: 32px 0; }}
+    .jump-btn {{ display: inline-block; padding: 8px 20px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; }}
+    blockquote {{ background: #f0f7ff; border-left: 4px solid #1677ff; padding: 12px 16px; margin: 16px 0; }}
+    code {{ background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }}
+    ul, ol {{ margin: 8px 0 16px 24px; }}
+    @media (max-width: 640px) {{ body {{ padding: 20px 12px; }} .container {{ padding: 24px 18px; }} }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align:right;margin-bottom:24px">
+      <a href="../index.html" class="jump-btn" data-delivery-switch="prototype">跳转演示页面 →</a>
+    </div>
+    {content_html}
+  </div>
+  <script src="../js/delivery-nav.js"></script>
+</body>
+</html>
+"""
+
+
+def build_outputs():
+    md_text = MD_PATH.read_text(encoding='utf-8')
 
     toc, content_html = parse_markdown_to_html(md_text)
-
-    interaction_content = generate_interaction_html(content_html)
-    with open(INTERACTION_HTML_PATH, 'w', encoding='utf-8') as f:
-        f.write(interaction_content)
-    print(f"Successfully generated {INTERACTION_HTML_PATH}")
-
     doc_content = generate_doc_html(toc, content_html)
-    with open(DOC_HTML_PATH, 'w', encoding='utf-8') as f:
-        f.write(doc_content)
-    print(f"Successfully generated {DOC_HTML_PATH}")
+    return {
+        DOC_HTML_PATH: doc_content,
+        INTERACTION_HTML_PATH: generate_interaction_alias(content_html),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='从唯一 Markdown 内容源生成并校验完整版说明文档。'
+    )
+    parser.add_argument(
+        '--check',
+        action='store_true',
+        help='仅校验生成结果是否与 Markdown 同步，不写入文件。',
+    )
+    args = parser.parse_args()
+
+    outputs = build_outputs()
+    if args.check:
+        stale_paths = [
+            path.relative_to(ROOT_DIR)
+            for path, expected in outputs.items()
+            if not path.exists() or path.read_text(encoding='utf-8') != expected
+        ]
+        if stale_paths:
+            for path in stale_paths:
+                print(f'OUT OF SYNC: {path}', file=sys.stderr)
+            return 1
+        print('Documentation sync check PASS')
+        return 0
+
+    for path, content in outputs.items():
+        path.write_text(content, encoding='utf-8')
+        print(f'Successfully generated {path.relative_to(ROOT_DIR)}')
+    return 0
 
 if __name__ == '__main__':
-    build_all()
+    raise SystemExit(main())

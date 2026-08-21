@@ -1,5 +1,13 @@
 # 项目变更记录
 
+## 2026-08-21（完整版说明文档唯一事实源）
+
+- 按用户明确决策，将 `docs/功能说明文档.md` 固定为说明内容的唯一事实源。
+- 重构 `tools/render_doc_html.py`：一次读取 Markdown，同时生成完整版 `docs/功能说明文档.html` 和 Loop 兼容入口 `docs/interaction.html`。
+- 新增 `python3 tools/render_doc_html.py --check` 同步门禁；任一生成文件与 Markdown 不一致时返回失败。
+- `docs/interaction.html` 不再维护独立业务内容，只保留自动生成的 S9 固定外壳并立即跳转完整版。
+- 删除依赖本机 Playwright 绝对路径的 `tools/test_delivery_docs.js`，其同步职责由生成脚本内置检查取代。
+
 ## 2026-08-21（说明文档入口统一）
 
 - 首页顶栏直接打开完整版 `docs/功能说明文档.html`；交付导航保留 Loop 固定内部路径 `docs/interaction.html`，该路径会立即跳转至完整版。
