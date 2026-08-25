@@ -363,3 +363,29 @@ Evidence: `annotations/annotations.js` 中“通话记录和线索记录”权�
 Result: pass
 Consecutive Failures: 0
 Next Action: 租户运营线索记录权限已对齐
+
+Date: 2026-08-24
+Step: global
+Scope: documentation-and-annotations
+Local URL / File: http://127.0.0.1:8893/index.html | docs/功能说明文档.md | docs/功能说明文档.html | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | Playwright | static check
+Command / Check: 将权限矩阵收敛到“五. 其他说明”的独立章节；检查 Markdown/HTML 同步；核对 55 条标注仅引用统一出处；验证标注缓存版本、弹窗实显、控制台和资源请求；执行 S9 与 final 预检
+Passed: 权限矩阵仅保留 1 份且位于“6. 统一角色权限说明（唯一维护出处）”；功能章节、项目规则、标注提示词和覆盖说明均改为引用该章节；55 条正式标注均只展示固定出处引用；新版 HTML 目录包含权限章节；标注弹窗实际显示出处；缓存版本已更新
+Failed: 无
+Evidence: 文档权限章节 1 个、权限表 1 张、角色数据 3 行，章节前完整权限矩阵 0 份；55/55 条 `permissionScope` 等于固定出处引用，旧“超级管理员拥有全部权限”标注文案 0 条；HTML 加载 `annotations.js?v=8`，`dataVersion=6`；首页显示 1 个标注点且弹窗包含统一权限出处；控制台 0 错误、资源 0 个 4xx/5xx；`Documentation sync check PASS`；S9/final 均输出 `Loop preflight PASS`
+Result: pass
+Consecutive Failures: 0
+Next Action: 后续权限调整只维护功能说明文档的统一权限章节
+
+Date: 2026-08-24
+Step: documentation
+Scope: manual-import-precondition
+Local URL / File: http://127.0.0.1:8894/docs/功能说明文档.html | docs/功能说明文档.md
+Tool: render_doc_html.py | Playwright | loop_run.py | static check
+Command / Check: 在“呼叫名单与手动导入”章节补充入口显示前置条件；重新生成并检查 HTML；浏览器核对说明文本、隐藏分支及功能明细兜底规则；执行 final 预检
+Passed: 文档明确仅在关联业务场景的数据导入方式为“手动导入”时显示入口；“自动传入”或“接口传入”时隐藏；未读取到场景配置时按不显示处理；Markdown 与 HTML 同步
+Failed: 无
+Evidence: 生成 HTML 中章节、前置条件、两类隐藏模式和功能明细兜底规则均存在；控制台 0 错误、资源 0 个 4xx/5xx；`Documentation sync check PASS`
+Result: pass
+Consecutive Failures: 0
+Next Action: 本次仅完成说明文档规则补充；若需原型同步执行该显示条件，另行修改业务代码
