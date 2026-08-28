@@ -13,6 +13,12 @@
   var sortField = null;   // 'startTime' | 'endTime'
   var sortOrder = 'asc';  // 'asc' | 'desc'
   var audioTimer = null;
+  var DccStatusList = [
+    '已接通', '秒挂', '伪接通', '无人接听', '占线', '拒接', '空号', '关机', '停机', '欠费',
+    '无法接通', '黑名单过滤', '拦截规则', '等待呼叫', '待呼叫去重', '分机号错误',
+    '呼叫受限', '主叫欠费', '呼损客户', '外呼失败', '转人工呼损', '线路拦截',
+    '等待重呼', '号码故障', '线路故障'
+  ];
 
   function escapeHtml(value) {
     return String(value === undefined || value === null ? '' : value)
@@ -23,6 +29,11 @@
       .replace(/'/g, '&#39;');
   }
 
+  function maskPhone(value) {
+    var phone = String(value === undefined || value === null ? '' : value);
+    return /^1\d{10}$/.test(phone) ? phone.slice(0, 3) + '****' + phone.slice(-4) : phone;
+  }
+
   function cleanTranscriptText(value) {
     return String(value || '')
       .replace(/<break\b[^>]*\/?\s*>/gi, ' ')
@@ -31,25 +42,21 @@
       .trim();
   }
 
-  /* ===== 大众通信通话状态枚举（数字 0-12 + 重呼条件字符串键） ===== */
+  /* ===== 大众通信原始状态 0-12 → DCC 统一通话状态 ===== */
   var DazhongStatusLabels = {
     0: '等待呼叫',
-    1: '呼叫成功',
-    2: '运营商拦截',
+    1: '已接通',
+    2: '线路拦截',
     3: '拒接',
-    4: '无应答/无人接听',
+    4: '无人接听',
     5: '空号',
     6: '关机',
     7: '停机',
-    8: '占线/用户正忙',
-    9: '呼入限制',
+    8: '占线',
+    9: '呼叫受限',
     10: '欠费',
-    11: '黑名单',
-    12: '用户屏蔽',
-    'failed': '外呼失败',
-    'not convenient': '暂不方便',
-    'redial later': '稍后重呼',
-    'is not reachable': '无法接通'
+    11: '黑名单过滤',
+    12: '黑名单过滤'
   };
 
   function formatDazhongCallStatus(code) {
@@ -58,15 +65,48 @@
     if (Object.prototype.hasOwnProperty.call(DazhongStatusLabels, key)) {
       return DazhongStatusLabels[key];
     }
-    return code;
+    return '未映射';
   }
 
-  /* 大众记录：数字/字符串枚举 → 中文；其余平台 status 本身即中文 */
+  /* ===== 厚朴 rawStatusCode 770-790 完整本地映射 → DCC 通话状态 ===== */
+  var HoupoRawStatusMap = {
+    770: '关机',
+    771: '停机',
+    772: '无法接通',
+    773: '占线',
+    774: '空号',
+    775: '无人接听',
+    776: '无人接听',
+    777: '呼叫受限',
+    778: '无法接通',
+    779: '呼叫受限',
+    780: '占线',
+    781: '拒接',
+    782: '无法接通',
+    783: '伪接通',
+    784: '伪接通',
+    785: '已接通',
+    786: '伪接通',
+    787: '无人接听',
+    788: '无人接听',
+    789: '无人接听',
+    790: '无人接听'
+  };
+
+  /* 记录 → 中文：厚朴优先映射 rawStatusCode，大众走枚举转换，其余平台 status 本身即中文 */
   function resolveStatus(item) {
+    if (item.platform === '厚朴' && item.rawStatusCode !== undefined && item.rawStatusCode !== null && item.rawStatusCode !== '') {
+      var houpoKey = String(item.rawStatusCode);
+      if (Object.prototype.hasOwnProperty.call(HoupoRawStatusMap, houpoKey)) {
+        return HoupoRawStatusMap[houpoKey];
+      }
+      return '未映射';
+    }
     if (item.platform === '大众通信' && item.status !== undefined && item.status !== null && item.status !== '') {
       return formatDazhongCallStatus(item.status);
     }
-    return item.status || '-';
+    if (item.status === undefined || item.status === null || item.status === '') return '-';
+    return DccStatusList.indexOf(item.status) >= 0 ? item.status : '未映射';
   }
 
   /* ===== 大众详情：records → 对话文本 ===== */
@@ -190,7 +230,7 @@
     var summaryHtml = item.summary ? escapeHtml(item.summary) : '';
     return '<tr>' +
       '<td>' + (index + 1) + '</td>' +
-      '<td>' + item.phone + '</td>' +
+      '<td>' + escapeHtml(maskPhone(item.phone)) + '</td>' +
       '<td>' + item.startTime + '</td>' +
       '<td>' + item.endTime + '</td>' +
       '<td>' + durationText + '</td>' +
@@ -336,10 +376,37 @@
   function renderDetailInfo(item, context) {
     var isDazhong = Boolean(context && context.isDazhong);
     var fields;
-    if (isDazhong) {
+    if (item.platform === '厚朴') {
+      fields = [
+        ['用户号码', maskPhone(item.phone) || '-'],
+        ['场景名称', item.sceneName || '-'],
+        ['通话时长', item.duration || '-'],
+        ['通话开始时间', item.startTime || '-'],
+        ['通话结束时间', item.endTime || '-'],
+        ['原始状态码', item.rawStatusCode],
+        ['原始状态描述', item.rawStatusName || '-'],
+        ['DCC通话状态', resolveStatus(item)],
+        ['会话 id', item.sessionId || item.callid || '-'],
+        ['主叫号码归属', item.callerLocation || '-'],
+        ['被叫号码省份城市', item.calleeLocation || '-']
+      ];
+      var houpoOptional = [
+        ['任务ID', item.taskId],
+        ['批次号', item.batchId],
+        ['通话ID', item.callId],
+        ['意向', item.intention],
+        ['标签', item.tags]
+      ];
+      houpoOptional.forEach(function (pair) {
+        var hasValue = Array.isArray(pair[1])
+          ? pair[1].length > 0
+          : pair[1] !== undefined && pair[1] !== null && pair[1] !== '';
+        if (hasValue) fields.push(pair);
+      });
+    } else if (isDazhong) {
       fields = [
         ['会话 id', context.callid || '-'],
-        ['用户号码', item.phone || '-'],
+        ['用户号码', maskPhone(item.phone) || '-'],
         ['场景编码', item.sceneCode || '-'],
         ['场景名称', item.sceneName || '-'],
         ['对话时长', item.duration || '-'],
@@ -354,7 +421,7 @@
       ];
     } else {
       fields = [
-        ['用户号码', item.phone || '-'],
+        ['用户号码', maskPhone(item.phone) || '-'],
         ['号码提交时间', item.submitTime || '-'],
         ['已拨打次数', item.dialCount !== undefined ? item.dialCount : 0],
         ['外呼通道', item.channel || '-'],
@@ -393,7 +460,7 @@
         '</div>';
     }
     return '<div class="record-detail-backdrop" id="recordDetailBackdrop" onclick="window.Pages[\'result-records\'].closeDetail(event)">' +
-      '<div class="record-detail-modal" data-anno="result-records-detail" data-anno-page="result-records" data-anno-label="通话详情" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036" onclick="event.stopPropagation()">' +
+      '<div class="record-detail-modal" data-anno="result-records-detail" data-anno-page="result-records" data-anno-label="通话详情" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036,FLD-037,FLD-038,FLD-039" onclick="event.stopPropagation()">' +
         '<div class="record-detail-header">' +
           '<button class="record-detail-close" onclick="window.Pages[\'result-records\'].closeDetail()">&#215;</button>' +
           '<span class="record-detail-title">会话 id：' + escapeHtml(titleId) + '</span>' +
@@ -553,10 +620,7 @@
 
   /* ===== 页面渲染（100% 对齐截图） ===== */
   function render() {
-    var statusOptions = [
-      '占线', '无法接通', '已接通', '无人接听', '拒接', '空号', '关机', '停机',
-      '等待呼叫', '呼叫成功', '运营商拦截', '呼入限制', '欠费', '黑名单', '用户屏蔽'
-    ];
+    var statusOptions = DccStatusList;
     var statusSelectHtml = '<option value="">请选择</option>' + statusOptions.map(function (s) {
       return '<option value="' + s + '">' + s + '</option>';
     }).join('');

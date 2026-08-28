@@ -389,3 +389,94 @@ Evidence: 生成 HTML 中章节、前置条件、两类隐藏模式和功能明�
 Result: pass
 Consecutive Failures: 0
 Next Action: 本次仅完成说明文档规则补充；若需原型同步执行该显示条件，另行修改业务代码
+
+Date: 2026-08-26
+Step: bridge-implementation
+Scope: houpu-openapi-v2
+Local URL / File: js/pages/scene-list.js | js/pages/sys-scene.js | js/pages/result-records.js | mock/data.js
+Tool: coding-mcp-bridge | TRAE
+Command / Check: 白名单隔离执行、变更范围审查与合规回写
+Passed: 任务列表、业务场景、通话记录和 Mock 数据的限定文件变更已回写；项目外文件和未授权能力未进入产物
+Failed: 无
+Evidence: 最终工作区仅包含项目白名单文件变更；桥接配置只新增当前项目允许根目录；执行中断、完成标记缺失或越过单文件范围的隔离产物均未提升，后续按单文件范围重试并由上游补充精确修正
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行静态门禁与真实页面验收
+
+Date: 2026-08-26
+Step: global
+Scope: houpu-openapi-v2-and-unified-status
+Local URL / File: http://127.0.0.1:8895/index.html | docs/功能说明文档.md | docs/功能说明文档.html | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | Browser | static check
+Command / Check: JavaScript 语法；Markdown/HTML 同步；S9/final 门禁；六平台任务映射、厚朴 770–790、DCC 25 项与 55 条标注静态断言；浏览器检查厚朴任务详情、业务场景配置、通话记录详情和完整版说明文档
+Passed: 13 项任务状态、六平台映射、21 项厚朴原始通话码、25 项 DCC 状态均完整；厚朴任务详情展示 task_id/bot/模板/批次/有效号码/原始及中台状态；场景配置回填 streaming、09:00–18:00、bot_id 和模板；通话详情展示 785→已接通及完整追溯字段；列表和详情手机号均脱敏；Markdown/HTML、55 条连续标注和覆盖表一致；桌面端核心路径可用，390×844 移动端首页无横向溢出且标注运行时正常；控制台 0 warning/error，资源请求无 4xx/5xx
+Failed: 无
+Evidence: `Documentation sync check PASS`；S9/final 均为 `Loop preflight PASS`；静态断言 taskStatusCount=13、houpuCallCount=21、dccCount=25、annotation count=55 且 ID 1–55 连续；浏览器显示 `HP-TASK-20260714-001`、`bot_hp_nissan_001`、`TPL-HP-XXS-001`、`785 / 自然人摘机 / 已接通`、`137****7788`；移动端 viewport=390×844、bodyScrollWidth=390、标注按钮与标记均存在；首轮覆盖表字段前缀与手机号展示问题均已在最终复验前修正
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成前验证门禁复核后交付
+
+Date: 2026-08-26
+Step: global
+Scope: restore-cross-platform-call-status-map
+Local URL / File: http://127.0.0.1:8895/index.html | docs/功能说明文档.md | docs/功能说明文档.html | js/pages/result-records.js | annotations/annotations.js
+Tool: render_doc_html.py | loop_run.py | Browser | static check
+Command / Check: 恢复 DCC 25 项与外部平台统一映射主表；核对主表行列、冰兰/厚朴附表、页面筛选枚举、大众 0–12 原始码归并、标注引用、控制台与资源加载
+Passed: 完整版说明文档主表包含 25 行，列覆盖一知、科大、中科金、电声、大众通信、厚朴及映射说明；冰兰 20 项原因与厚朴 770–790 明细均保留；通话记录筛选展示同一 25 项 DCC 状态；大众 1/2/9/11/12 分别归并为已接通/线路拦截/呼叫受限/黑名单过滤/黑名单过滤；手机号继续脱敏；标注仅引用统一出处
+Failed: 无
+Evidence: HTML 主表 headers=8、rowCount=25、首行为已接通且厚朴列为 785-自然人摘机识别、末行为线路故障；页面 optionCount=25；“线路拦截”筛选命中 1 条、“黑名单过滤”筛选命中 2 条；控制台 0 warning/error；`Documentation sync check PASS`、S9/final 均为 `Loop preflight PASS`
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成前门禁复核后交付
+
+Date: 2026-08-27
+Step: step-14
+Scope: step
+Local URL / File: http://127.0.0.1:5178/index.html?verify=houpu-task-link-v3 | js/pages/sys-scene.js | js/pages/scene-list.js | docs/功能说明文档.md
+Tool: prototype-verifier | playwright-cli | render_doc_html.py | static check
+Command / Check: 厚朴场景编辑态自动恢复任务关联；任务 ID 变更失效；不存在任务查询失败；未查询关联禁止保存；成功关联保存；场景 ID 与租户数据保持；旧创建字段不存在；console 与静态资源请求检查
+Passed: 已有任务 ID 自动查询并反显任务名称、机器人、任务类型、执行时段、并发、重呼、未呼优先、号码模板和服务端回调；旧任务名称、机器人、并发和模板编辑控件为 0；任务 ID 变更后只读资料隐藏且保存抽屉保持打开；不存在任务显示错误状态；成功保存后保留 HP-SCENE-002 与“东风日产-燃油车”；说明 Markdown 已生成同步 HTML；资源无 4xx/5xx
+Failed: 无
+Evidence: 编辑场景 13 自动显示“已查询并关联任务 HP-TASK-20260713-001”，任务类型“当日（same_day）”、机器人“东风日产保客回访机器人（bot_hp_nissan_002）”、模板字段 4 行；无效 ID 显示“未查询到该任务”且关联面板隐藏；保存后列表 sceneId=HP-SCENE-002、tenant=东风日产-燃油车；console Errors=0、Warnings=0，23 个静态请求均为 200/304
+Result: pass
+Consecutive Failures: 0
+Next Action: 单步验证通过，更新厚朴标注口径并执行完成前门禁
+
+Date: 2026-08-27
+Step: global
+Scope: global
+Local URL / File: http://127.0.0.1:5178/index.html?verify=houpu-task-link-final | http://127.0.0.1:5178/index.html?verify=houpu-task-link-mobile-v2 | docs/功能说明文档.html | annotations/annotations.js
+Tool: verification-before-completion | prototype-verifier | playwright-cli | loop_run.py | render_doc_html.py | static check
+Command / Check: 桌面与 390×844 移动端核心厚朴关联路径；运行时标注 ID 5/43；完整版说明文档 v2.4；JavaScript 语法；文档同步；55 条标注连续性；S9/final 门禁；console 与全部静态资源
+Passed: 桌面端已有任务查询、只读反显、ID 变更失效、无效任务失败、未关联保存拦截和成功保存均可用；移动端输入框与按钮上下排列、输入宽 149px、按钮宽 149px、页面无横向溢出；运行时标注 dataVersion=10 且 ID 43 命中真实锚点并使用 SRC-011；完整版说明文档为 v2.4 且包含厚朴任务 ID 关联规则；55 条标注 ID 连续；S9/final 门禁通过
+Failed: 无
+Evidence: 桌面关联状态“已查询并关联任务 HP-TASK-20260713-001”，保存后 sceneId=HP-SCENE-002、tenant=东风日产-燃油车；移动 viewport=390×844、bodyScrollWidth=390，最终截图显示完整输入与查询按钮；浏览器 AnnotationConfig.dataVersion=10、targetExists=true；文档 hasV24/hasTaskLink/hasNoCreateRule 均为 true；console Errors=0、Warnings=0；23 个静态请求均为 200/304；`Documentation sync check PASS`；S9/final 均为 `Loop preflight PASS`
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成前门禁通过，可交付当前修改
+
+Date: 2026-08-28
+Step: step-15
+Scope: step
+Local URL / File: http://127.0.0.1:5178/index.html | js/pages/sys-scene.js | js/pages/scene-list.js | mock/data.js | docs/功能说明文档.md
+Tool: prototype-verifier | playwright-cli | render_doc_html.py | loop_run.py | static check
+Command / Check: 厚朴默认账号反显；编辑已关联场景时自动刷新状态；重复 task_id 查询与保存双层拦截；未关联 task_id 查询、保存和重新打开；外呼任务列表与详情实时状态；移动端宽度；控制台与静态资源
+Passed: 厚朴配置区显示“厚朴默认账号（HP-DEFAULT-001）”；编辑场景 13 自动读取 `4-任务异常 → 中台 8 系统挂起`及读取时间；关联到场景 12 的 ID 显示具体场景名并阻止保存；未关联 `HP-TASK-20260828-004` 可查询、保存并重新打开；任务列表卡片展示系统挂起，详情展示默认账号、原始/中台状态、实时获取方式和时间；390×844 下 bodyScrollWidth=390、drawerScrollWidth=312；console error=0，46 个静态请求均为 200/304
+Failed: 无
+Evidence: 编辑态 account=`厚朴默认账号（HP-DEFAULT-001）`、status=`4-任务异常 → 中台 8 系统挂起`；重复 ID 提示=`该任务 ID 已关联业务场景「厚朴-新线索首访」`；未关联 ID 返回=`0-未开始 → 中台 1 未启动`并在重新打开时刷新读取时间；任务详情 taskStatus=4 映射 SYSTEM_HANG_UP；`Documentation sync check PASS`；S7 预检 PASS
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行 S8/final 全局门禁与完成前复核，本轮不交接知识库、不提交 GitHub
+
+Date: 2026-08-28
+Step: global
+Scope: global
+Local URL / File: http://127.0.0.1:5178/index.html | docs/功能说明文档.html | annotations/annotations.js | memory/annotation-coverage.md
+Tool: verification-before-completion | prototype-verifier | playwright-cli | loop_run.py | render_doc_html.py | node --check | git diff --check
+Command / Check: 厚朴补充规则全局回归；入口与核心导航；桌面与 390×844 移动端；标注 SRC-012 追溯；JavaScript 语法；Markdown/HTML 同步；S7/S8/S9/final 门禁；静态资源与控制台
+Passed: 首页、业务场景和外呼列表可正常加载；厚朴默认账号、唯一关联、实时状态与中台本地通话状态映射在页面、唯一说明文档、项目记忆和现有标注中保持一致；所有修改 JS 语法通过；说明 Markdown/HTML 同步；标注覆盖完整引用 SRC-012；S7、S8、S9与 final 门禁通过；无静态资源失败、无 console error、移动端无新增横向溢出
+Failed: 无
+Evidence: `Loop preflight PASS` for s7/s8/s9/final；`Documentation sync check PASS`；`node --check` 通过；`git diff --check` 通过；46 个静态请求为 200/304；console Errors=0/Warnings=0；移动端 bodyScrollWidth=390、drawerScrollWidth=312；浏览器实测重复 ID 拦截、未关联 ID 保存和任务状态刷新均符合验收
+Result: pass
+Consecutive Failures: 0
+Next Action: 原型规则已完善；等用户另行确认后再交接知识库，GitHub 由用户手动提交

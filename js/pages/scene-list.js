@@ -5,13 +5,84 @@
 (function () {
   'use strict';
 
-  var StatusMap = {
-    not_started: { text: '未开始', color: '#999999', dot: '#999999' },
-    running:     { text: '进行中', color: '#52c41a', dot: '#52c41a' },
-    completed:   { text: '已完成', color: '#52c41a', dot: '#52c41a' },
-    paused:      { text: '用户暂停', color: '#faad14', dot: '#faad14' },
-    terminated:  { text: '已终止', color: '#ff4d4f', dot: '#ff4d4f' }
+  /* 中台统一任务状态字典（13 状态） */
+  var TaskStatusMap = {
+    1:  { code: 'NOT_START',          label: '未启动',   color: '#999999', dot: '#999999' },
+    2:  { code: 'IN_PROGRESS',        label: '进行中',   color: '#52c41a', dot: '#52c41a' },
+    3:  { code: 'PAUSED',             label: '已暂停',   color: '#faad14', dot: '#faad14' },
+    4:  { code: 'STOPPED',            label: '已终止',   color: '#ff4d4f', dot: '#ff4d4f' },
+    5:  { code: 'FINISHED',           label: '已完成',   color: '#52c41a', dot: '#52c41a' },
+    6:  { code: 'RUNNABLE',           label: '可运行',   color: '#1677ff', dot: '#1677ff' },
+    7:  { code: 'IN_QUEUE',           label: '排队中',   color: '#722ed1', dot: '#722ed1' },
+    8:  { code: 'SYSTEM_HANG_UP',     label: '系统挂起', color: '#fa8c16', dot: '#fa8c16' },
+    9:  { code: 'WAITING_FOR_REDIAL', label: '等待重呼', color: '#13c2c2', dot: '#13c2c2' },
+    10: { code: 'EXPIRED',            label: '任务超时', color: '#f5222d', dot: '#f5222d' },
+    11: { code: 'NOT_GENERATED',      label: '未生成',   color: '#bfbfbf', dot: '#bfbfbf' },
+    12: { code: 'ARCHIVED',           label: '已归档',   color: '#8c8c8c', dot: '#8c8c8c' },
+    14: { code: 'SYSTEM_SUSPENDED',   label: '系统暂停', color: '#fa8c16', dot: '#fa8c16' }
   };
+  var TaskStatusCodeList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14];
+  var UNMAPPED_STATUS = { code: '', label: '未映射', color: '#bbb', dot: '#bbb' };
+
+  /* 旧 status 字符串仅兼容；新数据优先 taskStatusCode，其次平台原始状态 */
+  var LegacyStatusMap = { not_started: 1, running: 2, completed: 5, paused: 3, terminated: 4 };
+
+  /* 六平台原始状态 → 中台任务状态码 */
+  var DazhongRemoteStatusMap = { 1: 3, 2: 2, 3: 7 };
+  var ZkjTaskStatusMap = { 1: 1, 2: 2, 3: 5, 4: 4, 5: 7, 6: 3, 7: 14, 8: 10 };
+  var BinglanTaskStatusMap = { 1: 2, 2: 5, 3: 4 };
+  var YizhiTaskStatusMap = { NOT_STARTED: 1, IN_PROCESS: 2, USER_PAUSE: 3, TERMINATE: 4, COMPLETED: 5, RUNNABLE: 6, IN_QUEUE: 7, SYSTEM_HANG_UP: 8, WAITING_FOR_REDIAL: 9, EXPIRED: 10, NOT_GENERATED: 11, ARCHIVED: 12, SYSTEM_SUSPENDED: 14 };
+  var DianshengStatusTypeMap = { 1: 6, 0: 14 };
+  var HoupuTaskStatusMap = { 0: 1, 1: 2, 2: 5, 3: 4, 4: 8, 5: 3, 6: 14 };
+
+  /* 六平台原始状态字段定义：field 缺失时走旧 status 兼容；存在但未命中映射时显示未映射 */
+  var PlatformRawStatusFields = {
+    '大众通信': { field: 'remoteStatus', map: DazhongRemoteStatusMap },
+    '中科金智能': { field: 'taskStatus', map: ZkjTaskStatusMap },
+    '冰兰': { field: 'taskStatus', map: BinglanTaskStatusMap },
+    '一知科技': { field: 'taskStatus', map: YizhiTaskStatusMap },
+    '电声': { field: 'statusType', map: DianshengStatusTypeMap },
+    '厚朴': { field: 'taskStatus', map: HoupuTaskStatusMap }
+  };
+
+  /* 解析中台任务状态码：优先 taskStatusCode，其次平台原始状态，旧 status 字符串兜底兼容 */
+  function resolveTaskStatusCode(item) {
+    if (!item) return null;
+    if (item.taskStatusCode !== undefined && item.taskStatusCode !== null && item.taskStatusCode !== '') {
+      return Number(item.taskStatusCode);
+    }
+    var def = PlatformRawStatusFields[item.platform];
+    if (def) {
+      var raw = item[def.field];
+      if (raw === undefined || raw === null || raw === '') return LegacyStatusMap[item.status];
+      var mapped = def.map[raw];
+      if (mapped !== undefined) return mapped;
+      return null; /* 平台原始状态存在但无法识别 → 显示未映射，不回退旧 status */
+    }
+    return LegacyStatusMap[item.status];
+  }
+
+  /* 未知状态一律显示「未映射」，禁止回退未启动 */
+  function getTaskStatusInfo(item) {
+    var code = resolveTaskStatusCode(item);
+    var info = TaskStatusMap[code];
+    return { code: info ? code : null, info: info ? info : UNMAPPED_STATUS };
+  }
+
+  function refreshHoupuTaskStatuses() {
+    var account = (window.MockHoupuAccounts || []).find(function (item) { return item.isDefault && item.enabled !== false; });
+    (window.MockSceneList || []).forEach(function (item) {
+      if (item.platform !== '厚朴') return;
+      var taskId = item.task_id || item.taskId;
+      var remoteTask = (window.MockHoupuRemoteTasks || []).find(function (task) {
+        return task.taskId === taskId && (!account || task.accountId === account.id);
+      });
+      if (!remoteTask) return;
+      item.taskStatus = remoteTask.taskStatus;
+      item.taskStatusName = remoteTask.taskStatusName;
+      item.taskStatusReadAt = new Date().toISOString();
+    });
+  }
 
   var PlatformTag = {
     '一知科技': { bg: '#e6f4ff', color: '#1677ff', border: '#91caff' },
@@ -37,7 +108,7 @@
   }
 
   function renderCard(item) {
-    var s = StatusMap[item.status] || StatusMap.not_started;
+    var s = getTaskStatusInfo(item).info;
     var tag = SourceTag[item.source] || SourceTag['手动导入'];
     var pt = getPlatform(item.platform);
     var platformName = item.platform || '一知科技';
@@ -45,7 +116,7 @@
       '<div class="scene-card" data-id="' + item.id + '">' +
         '<div class="card-header">' +
           '<div class="card-title">' + escapeHtml(item.name) + '</div>' +
-          '<div class="card-status"><span class="status-dot" style="background:' + s.dot + '"></span><span class="status-text" style="color:' + s.color + '">' + s.text + '</span></div>' +
+          '<div class="card-status"><span class="status-dot" style="background:' + s.dot + '"></span><span class="status-text" style="color:' + s.color + '">' + s.label + '</span></div>' +
         '</div>' +
         '<div class="card-tag" style="background:' + pt.bg + ';color:' + pt.color + ';border:1px solid ' + pt.border + '">' + platformName + '</div>' +
         '<div class="card-tag" style="background:' + tag.bg + ';color:' + tag.color + ';border:1px solid ' + tag.border + '">' + item.source + '</div>' +
@@ -63,6 +134,7 @@
   }
 
   function render() {
+    refreshHoupuTaskStatuses();
     var cards = (window.MockSceneList || []).map(renderCard).join('');
     var platformOptions = '<option value="">全部</option>' + (window.MockPlatforms || []).map(function (p) {
       return '<option value="' + p.name + '">' + p.name + '</option>';
@@ -78,7 +150,7 @@
         '<div class="filter-bar" data-anno="scene-list-filters" data-anno-page="scene-list" data-anno-label="外呼任务筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-006">' +
           '<div class="filter-item"><label>场景名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:200px;"></div>' +
           '<div class="filter-item"><label>状态：</label><select class="filter-select" style="width:140px;">' +
-            '<option value="">请选择</option><option value="not_started">未开始</option><option value="running">进行中</option><option value="completed">已完成</option><option value="paused">用户暂停</option><option value="terminated">已终止</option>' +
+            '<option value="">请选择</option>' + TaskStatusCodeList.map(function (code) { return '<option value="' + code + '">' + TaskStatusMap[code].label + '</option>'; }).join('') +
           '</select></div>' +
           '<div class="filter-item"><label>所属平台：</label><select class="filter-select" style="width:140px;">' + platformOptions + '</select></div>' +
           '<div class="btn-group">' +
@@ -98,7 +170,7 @@
     var platform = page.querySelectorAll('select')[1];
     var list = (window.MockSceneList || []).filter(function (item) {
       if (name && name.value && item.name.indexOf(name.value) < 0) return false;
-      if (status && status.value && item.status !== status.value) return false;
+      if (status && status.value && getTaskStatusInfo(item).code !== Number(status.value)) return false;
       if (platform && platform.value && item.platform !== platform.value) return false;
       return true;
     });
@@ -304,24 +376,54 @@
   }
 
   function renderHoupuTaskDetail(item) {
-    var progress = item.assigned ? Math.round((item.called / item.assigned) * 100) : 0;
+    var d = window.MockHoupuTaskDetail && window.MockHoupuTaskDetail[item.id];
+    if (!d) return '<div class="task-detail-section"><div style="padding:32px;color:#bbb;text-align:center;">暂无任务详情数据</div></div>';
     function row(label, value) {
       return '<div class="task-detail-row"><div class="task-detail-label">' + label + '</div><div class="task-detail-value">' + (value || '-') + '</div></div>';
     }
-    return '<div class="task-detail-section" data-anno="houpu-task-detail" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-013,FLD-014">' +
-      row('厚朴任务名称', escapeHtml(item.taskName)) +
-      row('批次追踪 requestId', escapeHtml(item.requestId)) +
-      row('数据列模式', item.columnType === 'multiple' ? '多条 multiple' : '单条 single') +
-      row('创建时间', escapeHtml(item.createdAt)) +
-      row('外呼进度', item.called + ' / ' + item.assigned + '（' + progress + '%），接通 ' + item.connected) +
-      row('接口约束', '/job/appendBatchData；单批最多 1000 条；任务名称须与厚朴预创建任务完全一致') +
-      row('口径说明', '<span style="color:#d46b08">任务查询与状态字段为首版参考模型，待联调确认</span>') +
-      row('鉴权异常演示', '<button class="btn btn-default" data-anno="houpu-token-expired" data-anno-page="scene-list" data-anno-label="模拟令牌失效按钮" data-anno-kind="action" onclick="window.Pages[\'scene-list\'].simulateTokenExpiry()">模拟令牌失效</button><span style="margin-left:10px;color:#999">JWT 有效期 1 天，失效后需重新登录获取</span>') +
+    var defaultAccount = (window.MockHoupuAccounts || []).find(function (account) { return account.isDefault && account.enabled !== false; });
+    var remoteTask = (window.MockHoupuRemoteTasks || []).find(function (task) {
+      return task.taskId === d.task_id && (!defaultAccount || task.accountId === defaultAccount.id);
+    });
+    var statusSource = remoteTask || (d.rawStatus || {});
+    var statusInfo = getTaskStatusInfo(Object.assign({}, item, { taskStatus: statusSource.taskStatus }));
+    var rawStatus = {
+      taskStatus: statusSource.taskStatus,
+      taskStatusName: statusSource.taskStatusName || (d.rawStatus && d.rawStatus.taskStatusName)
+    };
+    var readAt = new Date();
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    var statusReadAt = readAt.getFullYear() + '-' + pad(readAt.getMonth() + 1) + '-' + pad(readAt.getDate()) + ' ' + pad(readAt.getHours()) + ':' + pad(readAt.getMinutes()) + ':' + pad(readAt.getSeconds());
+    var rawText = rawStatus.taskStatus !== undefined
+      ? 'taskStatus=' + rawStatus.taskStatus + (rawStatus.taskStatusName ? '（' + rawStatus.taskStatusName + '）' : '')
+      : '-';
+    var middleText = statusInfo.code === null
+      ? '中台：未映射'
+      : '中台：' + statusInfo.info.label + '（' + statusInfo.code + ' ' + statusInfo.info.code + '）';
+    var botText = d.botName ? d.botName + '（' + d.botId + '）' : (d.botId || '-');
+    var templateText = d.templateName ? d.templateName + '（' + d.templateId + '）' : (d.templateId || '-');
+    var taskTypeText = d.taskType === 'streaming' ? '流式' : (d.taskType === 'same_day' ? '当日' : d.taskType);
+    return '<div class="task-detail-section" data-anno="houpu-task-detail" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-013,FLD-014,FLD-016,FLD-017,FLD-018,FLD-019">' +
+      row('任务ID', escapeHtml(d.task_id)) +
+      row('关联方式', '按已有任务 ID 关联（中台不创建任务）') +
+      row('厚朴账号', defaultAccount ? escapeHtml(defaultAccount.name + '（' + defaultAccount.id + '）') : '未配置') +
+      row('任务名称', escapeHtml(d.taskName)) +
+      row('任务类型', escapeHtml(taskTypeText)) +
+      row('机器人', botText) +
+      row('执行时段', escapeHtml(d.callPeriod)) +
+      row('并发', d.concurrency) +
+      row('重呼', escapeHtml(d.recall)) +
+      row('未呼优先', d.unCalledPriority ? '是' : '否') +
+      row('服务端回调', escapeHtml(d.serverCallback)) +
+      row('模板', templateText) +
+      row('批次号', escapeHtml(d.batchId)) +
+      row('平台有效号码数', d.validNumberCount) +
+      row('任务状态', escapeHtml(rawText) + ' → ' + middleText) +
+      row('状态获取方式', '打开详情时调用厚朴任务查询接口实时读取') +
+      row('状态读取时间', statusReadAt) +
+      row('创建时间', escapeHtml(d.createdAt)) +
+      row('外呼进度', escapeHtml(d.progress)) +
     '</div>';
-  }
-
-  function simulateTokenExpiry() {
-    showToast('登录令牌已失效（1 天），请重新获取 token 后重试', 'warning');
   }
 
   function renderYizhiTaskDetail(item) {
@@ -883,7 +985,7 @@
     var item = (window.MockSceneList || []).find(function (d) { return d.id === id; });
     if (!item) return;
     currentDetailItem = item;
-    var s = StatusMap[item.status] || StatusMap.not_started;
+    var s = getTaskStatusInfo(item).info;
     var pt = getPlatform(item.platform);
     var platformName = item.platform || '一知科技';
     /* 启/停按钮：中科金/大众/电声平台不显示（对齐各参考源），冰兰文案为「终止任务」 */
@@ -908,7 +1010,7 @@
             '<div class="scene-detail-meta">' +
               '<div class="scene-detail-meta-row">' +
                 '<div class="scene-detail-name"><label>场景名称：</label>' + escapeHtml(item.name) + '</div>' +
-                '<div class="scene-detail-status"><label>状态：</label><span class="status-dot" style="background:' + s.dot + '"></span><span style="color:' + s.color + '">' + s.text + '</span>' + toggleBtnHtml + '</div>' +
+                '<div class="scene-detail-status"><label>状态：</label><span class="status-dot" style="background:' + s.dot + '"></span><span style="color:' + s.color + '">' + s.label + '</span>' + toggleBtnHtml + '</div>' +
               '</div>' +
               '<div class="scene-detail-tags">' +
                 '<span class="scene-detail-tag" style="background:' + pt.bg + ';color:' + pt.color + ';border:1px solid ' + pt.border + '">' + platformName + '</span>' +
@@ -1046,6 +1148,9 @@
     /* 添加导入历史 */
     if (!window.MockImportHistory) window.MockImportHistory = [];
     var nextId = window.MockImportHistory.reduce(function (max, r) { return r.id > max ? r.id : max; }, 0) + 1;
+    /* 模拟平台返回的批次号与有效号码数（OpenAPI v2：appendBatch 返回 batchId 与有效号码数） */
+    var batchId = 'HP-BATCH-' + timeStr.slice(0, 10).replace(/-/g, '') + '-' + (1000 + nextId);
+    results.validNumberCount = results.success.length;
     window.MockImportHistory.unshift({
       id: nextId,
       sceneId: sceneId,
@@ -1053,6 +1158,8 @@
       total: results.total,
       success: results.success.length,
       fail: results.fail.length,
+      batchId: batchId,
+      validNumberCount: results.validNumberCount,
       status: '已完成',
       time: timeStr,
       op: '超管'
@@ -1083,9 +1190,12 @@
 
   function renderImportUploadContent() {
     var isDazhong = currentDetailItem && currentDetailItem.platform === '大众通信';
-    var maxHint = isDazhong ? '大众通信单次最多导入 100 条号码' : '号码数量不大于 2,000';
+    var isHoupu = currentDetailItem && currentDetailItem.platform === '厚朴';
+    var maxHint = isDazhong
+      ? '大众通信单次最多导入 100 条号码'
+      : (isHoupu ? '单文件最多 150,000 条；单任务最多 50,000 批次；建议每批至少 200 条' : '号码数量不大于 2,000');
     return '' +
-      '<div class="import-upload-area" id="importUploadZone"' +
+      '<div class="import-upload-area" id="importUploadZone" data-anno="scene-import-rules" data-anno-page="scene-list" data-anno-label="手动导入规则" data-anno-kind="region" data-anno-fields="FLD-018,FLD-019"' +
         ' onclick="document.getElementById(\'importFileInput\').click()"' +
         ' ondragover="event.preventDefault();this.classList.add(\'dragover\')"' +
         ' ondragleave="this.classList.remove(\'dragover\')"' +
@@ -1093,7 +1203,7 @@
         '<input type="file" id="importFileInput" accept=".csv,.txt,.xls,.xlsx" style="display:none;" onchange="window.Pages[\'scene-list\'].handleFileSelect(this)">' +
         '<div class="upload-icon">&#128228;</div>' +
         '<div class="upload-text" id="uploadStatusText">点击或将文件拖拽到此处上传</div>' +
-        '<div class="upload-hint">支持文件：csv 、 xls 、 xlsx 文件，' + maxHint + '<br>您可以选择重新上传，但重新上传会覆盖原有上传的号码</div>' +
+        '<div class="upload-hint">支持文件：csv 、 txt 、 xls 、 xlsx 文件，' + maxHint + '<br>首行须为表头，首列为号码，其余列为动态属性（厚朴批次追加）<br>您可以选择重新上传，但重新上传会覆盖原有上传的号码</div>' +
         '<div id="uploadPreview" style="display:none;margin-top:12px;padding:10px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:13px;color:#333;"></div>' +
       '</div>';
   }
@@ -1106,15 +1216,17 @@
     if (!records.length) {
       return '<div class="import-record-summary">暂无导入记录</div>' +
         '<div class="scene-detail-table-wrap" style="margin-top:12px;">' +
-        '<table class="scene-detail-table"><thead><tr><th>文件名</th><th>导入总数</th><th>成功数</th><th>失败数</th><th>状态</th><th>导入时间</th><th>操作人</th><th>操作</th></tr></thead>' +
-        '<tbody><tr><td colspan="8"><div style="text-align:center;padding:32px;color:#bbb;">暂无数据</div></td></tr></tbody></table></div>';
+        '<table class="scene-detail-table"><thead><tr><th>文件名</th><th>导入总数</th><th>有效号码数</th><th>成功数</th><th>失败数</th><th>批次号</th><th>状态</th><th>导入时间</th><th>操作人</th><th>操作</th></tr></thead>' +
+        '<tbody><tr><td colspan="10"><div style="text-align:center;padding:32px;color:#bbb;">暂无数据</div></td></tr></tbody></table></div>';
     }
     var rows = records.map(function (r) {
       return '<tr>' +
         '<td>' + escapeHtml(r.name) + '</td>' +
         '<td>' + r.total.toLocaleString() + '</td>' +
+        '<td>' + (r.validNumberCount !== undefined ? r.validNumberCount.toLocaleString() : '-') + '</td>' +
         '<td>' + r.success.toLocaleString() + '</td>' +
         '<td>' + r.fail.toLocaleString() + '</td>' +
+        '<td>' + escapeHtml(r.batchId || '-') + '</td>' +
         '<td><span class="tag ' + (r.status === '已完成' ? 'tag-green' : 'tag-orange') + '">' + r.status + '</span></td>' +
         '<td>' + escapeHtml(r.time) + '</td>' +
         '<td>' + escapeHtml(r.op) + '</td>' +
@@ -1123,7 +1235,7 @@
     }).join('');
     return '<div class="import-record-summary">共 ' + records.length + ' 条导入记录</div>' +
       '<div class="scene-detail-table-wrap" style="margin-top:12px;">' +
-      '<table class="scene-detail-table"><thead><tr><th>文件名</th><th>导入总数</th><th>成功数</th><th>失败数</th><th>状态</th><th>导入时间</th><th>操作人</th><th>操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      '<table class="scene-detail-table"><thead><tr><th>文件名</th><th>导入总数</th><th>有效号码数</th><th>成功数</th><th>失败数</th><th>批次号</th><th>状态</th><th>导入时间</th><th>操作人</th><th>操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
   function switchImportTab(el, tabName) {
@@ -1197,6 +1309,7 @@
     processUploadFile(pendingUploadFile, function (results) {
       /* 大众通信批量添加号码接口单次最多 100 条 */
       var isDazhong = currentDetailItem && currentDetailItem.platform === '大众通信';
+      var isHoupu = currentDetailItem && currentDetailItem.platform === '厚朴';
       if (isDazhong && results.total > 100) {
         if (btn) {
           btn.disabled = false;
@@ -1205,9 +1318,36 @@
         showToast('大众通信单次最多导入 100 条号码，当前文件包含 ' + results.total + ' 条，请拆分后重新上传', 'error');
         return;
       }
+      /* 厚朴 OpenAPI v2：单文件最多 150,000 条；单任务最多 50,000 批次 */
+      if (isHoupu && results.total > 150000) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '开始上传';
+        }
+        showToast('厚朴单文件最多导入 150,000 条号码，当前文件包含 ' + results.total + ' 条，请拆分后重新上传', 'error');
+        return;
+      }
+      if (isHoupu) {
+        var batchCount = (window.MockImportHistory || []).filter(function (r) { return r.sceneId === sceneId; }).length;
+        if (batchCount >= 50000) {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = '开始上传';
+          }
+          showToast('厚朴单任务最多支持 50,000 个批次，已达上限', 'error');
+          return;
+        }
+      }
+      /* 厚朴建议每批至少 200 条，仅提示不硬拦截 */
+      if (isHoupu && results.total < 200) {
+        showToast('厚朴建议每批至少 200 条号码，当前批次仅 ' + results.total + ' 条，可继续导入', 'warning');
+      }
       applyImportResults(sceneId, results, fileName);
       closeImportModal();
-      if (results.fail.length > 0) {
+      if (isHoupu) {
+        var latestRecord = window.MockImportHistory && window.MockImportHistory[0];
+        showToast('导入成功：有效号码数 ' + results.validNumberCount + '，批次号 ' + (latestRecord ? latestRecord.batchId : '-'), 'success');
+      } else if (results.fail.length > 0) {
         showToast('导入完成：成功 ' + results.success.length + ' 条，失败 ' + results.fail.length + ' 条', 'warning');
       } else {
         showToast('导入成功：共 ' + results.success.length + ' 条号码', 'success');
@@ -1263,11 +1403,21 @@
     showToast('导出成功', 'success');
   }
 
+  /* 厚朴通话原始状态码 → 中台展示中文（785 自然人摘机/790 摘机后未识别/779 呼出限制/782 呼叫转移） */
+  var HoupuRawStatusLabels = {
+    785: '已接通', 790: '无人接听', 779: '呼叫受限', 782: '无法接通'
+  };
+
   /* ===== 通话记录列表（抽屉弹窗）→ 点击详情进入二级详情 ===== */
   /* 大众通信数字状态码格式化为中文，其余平台原样返回 */
   function formatRecordStatus(r) {
     if (r.platform === '大众通信' && r.status !== undefined && r.status !== null && r.status !== '') {
       return formatDazhongCallStatus(r.status);
+    }
+    if (r.platform === '厚朴' && r.rawStatusCode !== undefined && r.rawStatusCode !== null && r.rawStatusCode !== '') {
+      var mapped = HoupuRawStatusLabels[r.rawStatusCode];
+      if (mapped !== undefined) return mapped;
+      return r.rawStatusName || String(r.rawStatusCode);
     }
     return r.status || '-';
   }
@@ -1392,6 +1542,14 @@
       ['通话时长', row.duration || '-'],
       ['最后通话节点', row.lastNode || '-']
     ];
+    if (row.platform === '厚朴') {
+      infoFields.push(['任务ID', row.taskId || '-']);
+      infoFields.push(['批次号', row.batchId || '-']);
+      infoFields.push(['通话ID', row.callId || '-']);
+      infoFields.push(['意向', row.intention || '-']);
+      infoFields.push(['标签', (Array.isArray(row.tags) && row.tags.length) ? row.tags.join('、') : '-']);
+      infoFields.push(['平台原始状态', row.rawStatusName ? row.rawStatusName + '（' + row.rawStatusCode + '）' : '-']);
+    }
     var infoHtml = infoFields.map(function (f) {
       return '<div class="record-info-row"><span class="record-info-label">' + f[0] + ':</span><span class="record-info-value">' + escapeHtml(f[1]) + '</span></div>';
     }).join('');
@@ -1504,7 +1662,6 @@
     switchMainTab: switchMainTab,
     switchSubTab: switchSubTab,
     removeAssigned: removeAssigned,
-    simulateTokenExpiry: simulateTokenExpiry,
     toggleMoreMenu: toggleMoreMenu,
     onMenuAction: onMenuAction,
     showImportModal: showImportModal,

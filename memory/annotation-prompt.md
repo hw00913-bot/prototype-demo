@@ -1,11 +1,11 @@
 # 手动标注提示词（S9 重生成版）
 
-> 生成日期：2026-08-21。本文是本轮标注的生成依据；经用户明确要求，55 条新标注已回写至 `annotations/annotations.js`。禁止引用历史标注。
+> 更新日期：2026-08-28。本文是当前 55 条有效标注的生成依据；厚朴按 SRC-011/SRC-012 使用已有 task_id、模拟默认账号、唯一场景关联与实时任务状态，禁止继续引用中台创建厚朴任务的旧说明。
 
 ## 目标与颗粒度
 
 - 面向产品、研发、测试联合评审，解释当前静态原型中已实现的业务规则、数据口径、平台差异、关键交互和异常处理。
-- 本轮按“筛选/页签 → 核心数据区 → 关键动作 → 详情或配置层”拆分，共 55 个唯一锚点。每个锚点生成且只生成 1 条标注，不得把同页多个锚点合并成一条大而泛的页面说明。
+- 本轮按“筛选/页签 → 核心数据区 → 关键动作 → 详情或配置层”拆分，共 55 个唯一锚点。每个锚点生成且只生成 1 条标注，ID 从 1 开始连续编号。
 - 普通标题、装饰文本、分页按钮、刷新图标等无独立业务含义的元素不生成标注。
 - 动态弹窗或抽屉锚点在相应操作触发后出现；标注运行时会在 DOM 变化后重新定位。
 
@@ -15,8 +15,8 @@
 - 功能说明唯一事实源：`docs/功能说明文档.md`；`docs/功能说明文档.html` 仅由该 Markdown 生成，不作为独立输入。
 - 当前验收：`memory/acceptance-map.md`；执行与变更：`memory/execution-steps.md`、`memory/change-log.md`、`memory/verification-log.md`。
 - 资料来源：`memory/source-materials.md`；字段事实：`memory/field-map.md`。
-- 来源编号：SRC-001 一知科技、SRC-002 中科金、SRC-003 电声、SRC-004 冰兰、SRC-005 厚朴、SRC-006 大众通信、SRC-007 意向标签管理、SRC-008 智能外呼中台底座、SRC-009 充值方案、SRC-010 线索报表。
-- 仅允许使用下方源码锚点及其声明的 `fieldRefs`。权限范围的唯一维护出处为 `docs/功能说明文档.md` 的“五. 其他说明 → 6. 统一角色权限说明（唯一维护出处）”；标注只引用该章节，不重复写角色矩阵。资料不足时写入缺口说明，不得编造接口、权限、字段或业务规则。
+- 来源编号：SRC-001 一知科技、SRC-002 中科金、SRC-003 电声、SRC-004 冰兰、SRC-005 厚朴 OpenAPI 与状态、SRC-006 大众通信、SRC-007 意向标签管理、SRC-008 智能外呼中台底座、SRC-009 充值方案、SRC-010 线索报表、SRC-011 厚朴任务 ID 关联方式变更、SRC-012 厚朴默认账号/唯一关联/实时状态规则。口径冲突时以 SRC-011、SRC-012 为准。
+- 仅允许使用下方源码锚点及其声明的 `fieldRefs`。权限范围的唯一维护出处为 `docs/功能说明文档.md` 的“五. 其他说明 → 7. 统一角色权限说明（唯一维护出处）”；标注只引用该章节，不重复写角色矩阵。资料不足时写入缺口说明，不得编造接口、权限、字段或业务规则。
 
 ## 可用 data-anno 锚点清单
 
@@ -26,8 +26,8 @@
 - page: scene-list | data-anno: scene-list-filters | selector: [data-anno="scene-list-filters"] | label: 外呼任务筛选 | kind: region | fieldRefs: FLD-003,FLD-004,FLD-006 | file: js/pages/scene-list.js
 - page: scene-list | data-anno: scene-list-grid | selector: [data-anno="scene-list-grid"] | label: 外呼任务列表 | kind: region | fieldRefs: FLD-001,FLD-003,FLD-004,FLD-006,FLD-007,FLD-008,FLD-009 | file: js/pages/scene-list.js
 - page: scene-list | data-anno: scene-list-dazhong-readonly | selector: [data-anno="scene-list-dazhong-readonly"] | label: 大众通信任务详情（只读） | kind: region | fieldRefs: FLD-014,FLD-015 | file: js/pages/scene-list.js
-- page: scene-list | data-anno: houpu-task-detail | selector: [data-anno="houpu-task-detail"] | label: 厚朴任务详情（只读） | kind: region | fieldRefs: FLD-013,FLD-014 | file: js/pages/scene-list.js
-- page: scene-list | data-anno: houpu-token-expired | selector: [data-anno="houpu-token-expired"] | label: 模拟令牌失效按钮 | kind: action | fieldRefs: none | file: js/pages/scene-list.js
+- page: scene-list | data-anno: houpu-task-detail | selector: [data-anno="houpu-task-detail"] | label: 厚朴任务详情（只读） | kind: region | fieldRefs: FLD-013,FLD-014,FLD-016,FLD-017,FLD-018,FLD-019 | file: js/pages/scene-list.js
+- page: scene-list | data-anno: scene-import-rules | selector: [data-anno="scene-import-rules"] | label: 手动导入规则 | kind: region | fieldRefs: FLD-018,FLD-019 | file: js/pages/scene-list.js
 - page: scene-list | data-anno: scene-task-detail | selector: [data-anno="scene-task-detail"] | label: 外呼任务详情 | kind: region | fieldRefs: FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011,FLD-012,FLD-013,FLD-014,FLD-015 | file: js/pages/scene-list.js
 - page: scene-block | data-anno: block-group-list | selector: [data-anno="block-group-list"] | label: 黑名单分组 | kind: region | fieldRefs: FLD-070 | file: js/pages/scene-block.js
 - page: scene-block | data-anno: block-filters | selector: [data-anno="block-filters"] | label: 黑名单筛选 | kind: region | fieldRefs: FLD-071,FLD-073,FLD-074 | file: js/pages/scene-block.js
@@ -48,7 +48,7 @@
 - page: report-clue | data-anno: report-clue-return-filters | selector: [data-anno="report-clue-return-filters"] | label: 线索回流筛选 | kind: region | fieldRefs: FLD-024,FLD-040 | file: js/pages/report-clue.js
 - page: report-clue | data-anno: report-clue-return-table | selector: [data-anno="report-clue-return-table"] | label: 线索回流统计 | kind: table | fieldRefs: FLD-024,FLD-040 | file: js/pages/report-clue.js
 - page: report-clue | data-anno: report-clue-main-tabs | selector: [data-anno="report-clue-main-tabs"] | label: 线索报表类型切换 | kind: region | fieldRefs: none | file: js/pages/report-clue.js
-- page: result-records | data-anno: result-records-detail | selector: [data-anno="result-records-detail"] | label: 通话详情 | kind: region | fieldRefs: FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036 | file: js/pages/result-records.js
+- page: result-records | data-anno: result-records-detail | selector: [data-anno="result-records-detail"] | label: 通话详情 | kind: region | fieldRefs: FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036,FLD-037,FLD-038,FLD-039 | file: js/pages/result-records.js
 - page: result-records | data-anno: result-records-filters | selector: [data-anno="result-records-filters"] | label: 通话记录筛选 | kind: region | fieldRefs: FLD-020,FLD-021,FLD-022,FLD-024,FLD-025,FLD-027 | file: js/pages/result-records.js
 - page: result-records | data-anno: result-records-table | selector: [data-anno="result-records-table"] | label: 通话记录列表 | kind: table | fieldRefs: FLD-020,FLD-021,FLD-022,FLD-023,FLD-024,FLD-025,FLD-027 | file: js/pages/result-records.js
 - page: result-clue | data-anno: result-clue-customer-tags | selector: [data-anno="result-clue-customer-tags"] | label: 客户详细标签 | kind: region | fieldRefs: FLD-031,FLD-036 | file: js/pages/result-clue.js
@@ -64,7 +64,7 @@
 - page: sys-scene | data-anno: sys-scene-zhongkejin-config | selector: [data-anno="sys-scene-zhongkejin-config"] | label: 中科金平台配置 | kind: region | fieldRefs: FLD-006,FLD-013 | file: js/pages/sys-scene.js
 - page: sys-scene | data-anno: sys-scene-diansheng-config | selector: [data-anno="sys-scene-diansheng-config"] | label: 电声平台配置 | kind: region | fieldRefs: FLD-006,FLD-015 | file: js/pages/sys-scene.js
 - page: sys-scene | data-anno: sys-scene-binglan-config | selector: [data-anno="sys-scene-binglan-config"] | label: 冰兰平台配置 | kind: region | fieldRefs: FLD-006,FLD-014,FLD-015 | file: js/pages/sys-scene.js
-- page: sys-scene | data-anno: sys-scene-houpu-config | selector: [data-anno="sys-scene-houpu-config"] | label: 厚朴平台配置 | kind: region | fieldRefs: FLD-006,FLD-013 | file: js/pages/sys-scene.js
+- page: sys-scene | data-anno: sys-scene-houpu-config | selector: [data-anno="sys-scene-houpu-config"] | label: 厚朴平台配置 | kind: region | fieldRefs: FLD-006,FLD-013,FLD-014,FLD-016,FLD-017 | file: js/pages/sys-scene.js
 - page: sys-scene | data-anno: sys-scene-dazhong-config | selector: [data-anno="sys-scene-dazhong-config"] | label: 大众通信平台配置 | kind: region | fieldRefs: FLD-002,FLD-006,FLD-012 | file: js/pages/sys-scene.js
 - page: sys-tags | data-anno: sys-tags-scene-management | selector: [data-anno="sys-tags-scene-management"] | label: 标签场景配置 | kind: action | fieldRefs: none | file: js/pages/sys-tags.js
 - page: sys-tags | data-anno: sys-tags-supplier-management | selector: [data-anno="sys-tags-supplier-management"] | label: 标签供应商管理 | kind: action | fieldRefs: none | file: js/pages/sys-tags.js
@@ -83,14 +83,14 @@
 | 页面 | Requirement | Source Refs | 标注重点 |
 | --- | --- | --- | --- |
 | home | R-013 | SRC-009 | 说明大/小模型余额、有效期、呼叫控制的展示目的；不要虚构实时接口。 |
-| scene-list | R-002 | SRC-001~SRC-006 | 分开说明筛选条件、卡片数量口径、统一详情字段、厚朴令牌异常和大众只读差异。 |
+| scene-list | R-002 | SRC-001~SRC-006、SRC-011 | 分开说明筛选条件、13 项中台任务状态、统一详情字段、厚朴已关联任务的只读追溯和大众只读差异；完整映射仅引用《功能说明文档》。 |
 | scene-block | R-003 | SRC-003 | 分开说明分组、筛选、增删导入动作、电声平台同步设置、号码级字段与同步状态；当前不得扩展为冰兰、一知或科大讯飞黑名单同步。 |
 | report-call | R-004 | SRC-001、SRC-002、SRC-003、SRC-005、SRC-006 | 明确外呼/客户统计口径切换、平台筛选严格匹配、接通率和触达率计算。 |
 | report-billing | R-005 | SRC-003、SRC-005、SRC-006、SRC-009 | 单独标注“接通才计费、向上取整到分钟”，再说明筛选、汇总与明细。 |
 | report-clue | R-006 | SRC-010 | 主 Tab、NEV/ICE 子 Tab、汇总、明细、回流三类数据分别解释，强调 A~E 意向分级。 |
-| result-records | R-007 | SRC-001、SRC-002、SRC-003、SRC-005、SRC-006 | 筛选、列表、详情分开；详情解释录音/转写/摘要和大众查询未返回状态。 |
+| result-records | R-007 | SRC-001、SRC-002、SRC-003、SRC-004、SRC-005、SRC-006 | 筛选、列表、详情分开；仅说明平台原始状态先归并为 DCC 状态、厚朴保留原始码与映射值，完整全平台主表及厚朴 770–790 附表引用《功能说明文档》。 |
 | result-clue | R-008 | SRC-003、SRC-004、SRC-006 | 筛选、列表、客户标签、回访详情分开；说明多平台、回访次数和意向标签。 |
-| sys-scene | R-009 | SRC-001、SRC-002、SRC-003、SRC-005、SRC-006 | 通用表单与六个平台配置必须各自独立标注，突出平台互斥和字段差异。 |
+| sys-scene | R-009 | SRC-001、SRC-002、SRC-003、SRC-005、SRC-006、SRC-011、SRC-012 | 通用表单与六个平台配置必须各自独立标注；厚朴仅说明已有 task_id、默认账号、唯一场景关联、实时状态与保存拦截，禁止描述中台创建任务；完整边界引用《功能说明文档》。 |
 | sys-tags | R-010 | SRC-007、SRC-003、SRC-006 | 说明配置树层级、中台标签、供应商标签映射、排序和启停的联动限制。 |
 | sys-tenant | R-011 | SRC-002、SRC-009 | 筛选、新建、列表、计费配置、充值/余额、租户表单分别说明。 |
 
@@ -115,7 +115,7 @@
 
 - `functionName`：必须与锚点 `label` 完全一致。
 - `functionDesc`：说明该元素在具体业务流程中的目的，至少包含对象、场景和结果。
-- `permissionScope`：固定写“权限范围见《功能说明文档》‘五. 其他说明 → 6. 统一角色权限说明（唯一维护出处）’；本标注不重复维护权限口径。”，不得展开或改写角色矩阵。
+- `permissionScope`：固定写“权限范围见《功能说明文档》‘五. 其他说明 → 7. 统一角色权限说明（唯一维护出处）’；本标注不重复维护权限口径。”，不得展开或改写角色矩阵。
 - `dataSource`：写明 SRC-*、当前 Mock 数据对象或用户输入来源；不能写不存在的真实接口名。
 - `valueLogic`：写输入 → 过滤/映射/聚合/计算 → 展示结果；规则型标注明确公式或取整方式。
 - `fieldDesc`：每个 FLD-* 单独一行，固定格式为 `FLD-* 字段名｜定义：...｜逻辑：...｜格式：...｜异常：...`；无字段时写“该锚点不直接承载字段，原因：...”。

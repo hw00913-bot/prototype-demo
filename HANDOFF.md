@@ -20,7 +20,7 @@
 ├── 中科金接入_demo_v1.0/
 ├── 电声接入_demo_v1.0/
 ├── 冰兰接入_v1.0/
-├── 厚朴接入_demo_v1.0/
+├── 厚朴任务 ID 关联（2026-08-27 用户确认；中台不再调用创建接口）
 ├── 大众通信接入_demo_v1.1/
 ├── 意向标签管理_demo_v1.0/
 ├── 智能外呼中台_demo_v1.0/
@@ -116,7 +116,7 @@ tools/prototype-loop-orchestrator/  # 总控工具包，【禁止修改】，不
 - `MockBillingCallDetail` 恢复 5+6 条；新增 `MockAssignedData`、`MockImportHistory`。
 
 **页面层：**
-- `result-records.js`（12 项）：参考版 DazhongStatusLabels、回调落库规则（callid 必须存在）、大众详情按 callid 下钻、详细信息面板大众 13 字段、新增「关联任务 ID」列、五维筛选、大众对话文本动态生成、录音播放器按 recordingDuration。
+- `result-records.js`（12 项）：大众 0–12 原始码按统一主表归并为 DCC 25 项状态、回调落库规则（callid 必须存在）、大众详情按 callid 下钻、详细信息面板大众 13 字段、新增「关联任务 ID」列、五维筛选、大众对话文本动态生成、录音播放器按 recordingDuration。
 - `scene-list.js`（10 项）：redial_conditions 两形态归一化（id 19 正确显示中文枚举）、任务详情补字段、呼叫时段按 wday 渲染、已分配子 Tab 动态取数、手动导入完整实现。
 - `report-billing.js`：分页组件恢复、详情弹窗设置按钮补回、计费规则备注去掉大众 SaaS 后缀。
 - `sys-tenant.js`（P0 口径）：getTenantBillingSummary 重写为参考版算法（仅已激活充值单 − adjustmentOutAmount − consumedAmount + Math.max 下限）+ syncFrozenTaskReleases + 多个 bug 修复。**渝兴 ¥3,880.00 / 燃油车 ¥1,000,001,719.00，与 home.js 完全一致**。
@@ -133,11 +133,11 @@ tools/prototype-loop-orchestrator/  # 总控工具包，【禁止修改】，不
 - **中科金智能**：任务id + 提示条 + 模型类型 → 账号（默认）；传入信息默认「姓名」字段。
 - **电声**：匹配机器人（场景类型自动映射 robotCode）+ 呼叫时段多行（周几+起止时间，可增删）+ 排除日期（含 tooltip）+ N天M呼（间隔分钟多选下拉）+ 黑名单拦截 + 自动启动开关（关→执行时间）+ 模型类型/电声账号（按模型过滤）；提交按钮变「确定并生成任务」。
 - **冰兰**：数据导入方式（手动导入/接口传入）+ 呼叫通道（联友 VCP → 机器人id 输入+优先级+呼叫策略；冰兰外呼通道 → 线路+机器人id 下拉）；策略区：周呼叫日、多时段（可增删重编号）、自动重拨开关+重拨表格、黑名单/规则拦截；传入字段表格切 4 列（无序号）且可编辑/删除（含确认弹窗）。
-- **厚朴**：任务名称（预填）+ 数据列模式（单条→仅 calleeNo；多条→全量字段）+ 提示条。
+- **厚朴**：输入平台已有 `task_id` 并“查询并关联”；原型使用模拟的服务端默认账号，同一 `task_id` 全局只允许关联一个业务场景。成功后只读反显任务名称、`bot_id`、`streaming/same_day`、执行时段、并发、重呼、未呼优先、号码模板、实时原始任务状态和中台映射状态。中台不调用厚朴任务创建接口；OAuth2 与真实回调地址仅在服务端维护。
 - **大众通信**：任务ID(uuid) + 提示条 + 模型类型 → 默认账号。
 - **业务信息**：场景传入/提取信息双 Tab + 添加字段弹窗（对齐中科金参考源）；提交含分平台必填校验，成功后写回列表。
 
-配套：`mock/data.js` 新增抽屉 Mock（MockSceneRows/MockSceneTypeOptions/MockDefaultInputFields/MockYizhiAccounts/MockBinglan*/MockHoupuSceneFields/MockDiansheng* 等 15 组）；`assets/css/app.css` 追加冰兰/电声扩展样式。
+配套：`mock/data.js` 提供抽屉 Mock（MockSceneRows/MockSceneTypeOptions/MockDefaultInputFields/MockYizhiAccounts/MockBinglan*/MockHoupuBots/MockHoupuTemplates/MockDiansheng* 等）；厚朴机器人和模板仅作为任务查询结果的只读快照，模板字段只维护一份。
 
 **验证**：node --check 全过；playwright 逐平台切换联动（面板显隐/账号过滤/机器人映射/通道切换/字段联动/提交校验与建行）全过；控制台 0 错误无 404；`loop_run.py check --preflight-stage final` PASS。
 
@@ -150,11 +150,13 @@ tools/prototype-loop-orchestrator/  # 总控工具包，【禁止修改】，不
 - **大众通信**（2.0 编辑接口字段）：任务名称、话术名称、任务 ID(uuid)、任务描述、拨打时间段（周几汇总+每条 work_hour 自身 wday+起止日期弱化色）、AI坐席数（limit/maximumcall/弹性坐席）、自动重拨设置（开关/首次外呼优先/间隔/次数/挂断原因+对话状态双维条件，da_status 数字与字符串枚举归一化中文映射）。
 - **电声**：任务编码、任务名称、机器人名称（映射表兜底）、场景类型、呼叫时段（时段N：周几+起止、排除日期、超出时段跳过/顺延）、自动重呼配置（N天M呼：最大天数/次数/逐次间隔）、黑名单校验配置（分组编码）、自动启动配置、备注、创建/更新时间。
 - **冰兰**：创建日期、话术名称、任务id、任务描述、启动方式、拨打时间段、风控策略（自定义策略+账号黑名单）、自动重拨设置（多条件组：间隔/次数/条件）。
-- **厚朴**：厚朴任务名称、批次追踪 requestId、数据列模式（single/multiple）、创建时间、外呼进度（含接通数）、接口约束、口径说明、鉴权异常演示（模拟令牌失效按钮）。
+- **厚朴**：展示 `task_id`、默认账号、按已有任务 ID 关联方式、任务类型、机器人、执行时段、并发、重呼、未呼优先、服务端回调配置状态、模板、`batch_id`、有效号码数、平台原始任务状态、中台 13 项状态映射和读取时间；打开详情时重新读取状态，已删除浏览器端令牌演示。
 - **数据概览 Tab 意向洞察环形图按平台差异化**：大众通信 6 级（A-高意向~F-号码无效）、电声 4 级（A高/B中/C低/D无意向，专属配色）、一知科技 8 级（含 H 已买车/J 语音助手）、默认 6 级。
 - **头部启/停按钮**：中科金/大众/电声不显示（对齐参考源），冰兰显示「终止任务」，其余显示「启/停任务」。
 
-配套：`mock/data.js` 新增 MockZkjTaskDetail/MockDazhongTaskEditDetail/MockYizhiTaskDetail/MockDianshengTaskDetail/MockBinglanTaskDetail（六平台任务详情数据）；`assets/css/app.css` 追加大众/电声/一知扩展样式（.task-detail-muted、.intent-donut-ring.diansheng、label-g/label-h 等）；`memory/annotation-prompt.md` 补 3 条 scene-list 锚点（dazhong-readonly/houpu-task-detail/houpu-token-expired，移除不存在的 FLD-016）。
+配套：`mock/data.js` 维护六平台任务详情数据；`memory/annotation-prompt.md` 保留大众只读与厚朴 v2 详情锚点，历史 `houpu-token-expired` 已移除；厚朴字段使用 FLD-016~019，通话原始追溯使用 FLD-037~039。
+
+通话状态唯一事实位于 `docs/功能说明文档.md`“五. 其他说明 → 2”：DCC 25 项主表同时覆盖一知、科大、中科金、电声、大众通信和厚朴；厚朴 770–790 归并为项目确认的中台本地业务映射，冰兰 20 项未接通原因作为平台补充事实，不在页面标注中重复维护。
 
 **验证**：`node --check` 全过；`tools/verify_detail_drawer.js`（playwright）六平台任务详情 Tab 关键字段断言全过、控制台 0 错误、无 404；`loop_run.py check --preflight-stage final` PASS。
 

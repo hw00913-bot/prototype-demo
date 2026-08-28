@@ -1,6 +1,6 @@
 # 标注准备覆盖清单（S9 重生成版）
 
-> 本轮从 15 个粗粒度锚点扩展到 55 个唯一业务锚点，并已按用户要求完整回写至 `annotations/annotations.js`。
+> 当前保留 55 个唯一业务锚点，并已回写至 `annotations/annotations.js`。厚朴相关标注引用任务 ID 关联、默认账号、唯一关联和实时状态出处，完整接口、状态和权限规则仍只维护在《功能说明文档》。
 
 ## 页面与锚点覆盖
 
@@ -10,8 +10,8 @@
 | 2 | scene-list | `[data-anno="scene-list-filters"]` | R-002 | SRC-001~SRC-006 | FLD-003,004,006 | 名称、状态、平台筛选 |
 | 3 | scene-list | `[data-anno="scene-list-grid"]` | R-002 | SRC-001~SRC-006 | FLD-001,003,004,006,007,008,009 | 六平台任务卡片与数量口径 |
 | 4 | scene-list | `[data-anno="scene-list-dazhong-readonly"]` | R-002 | SRC-006 | FLD-014,015 | 大众任务只读差异 |
-| 5 | scene-list | `[data-anno="houpu-task-detail"]` | R-002 | SRC-005 | FLD-013,014 | 厚朴任务只读差异 |
-| 6 | scene-list | `[data-anno="houpu-token-expired"]` | R-002 | SRC-005 | none | 厚朴令牌失效演示 |
+| 5 | scene-list | `[data-anno="houpu-task-detail"]` | R-002 | SRC-005, SRC-011, SRC-012 | FLD-013, FLD-014, FLD-016, FLD-017, FLD-018, FLD-019 | 厚朴已关联任务、默认账号、批次及实时原始/中台状态；完整规则见《功能说明文档》 |
+| 6 | scene-list | `[data-anno="scene-import-rules"]` | R-002 | SRC-001~006 | FLD-018,019 | 平台导入限制入口；完整规则见《功能说明文档》 |
 | 7 | scene-list | `[data-anno="scene-task-detail"]` | R-002 | SRC-001~SRC-006 | FLD-001~015 | 统一任务详情抽屉与平台字段 |
 | 8 | scene-block | `[data-anno="block-group-list"]` | R-003 | SRC-003 | FLD-070 | 黑名单分组选择 |
 | 9 | scene-block | `[data-anno="block-filters"]` | R-003 | SRC-003 | FLD-071,073,074 | 号码记录筛选 |
@@ -32,9 +32,9 @@
 | 24 | report-clue | `[data-anno="report-clue-return-filters"]` | R-006 | SRC-010 | FLD-024,040 | 回流日期与场景筛选 |
 | 25 | report-clue | `[data-anno="report-clue-return-table"]` | R-006 | SRC-010 | FLD-024,040 | 传入、提交外呼、回流统计 |
 | 26 | report-clue | `[data-anno="report-clue-main-tabs"]` | R-006 | SRC-010 | none | 汇总、明细、回流主类切换 |
-| 27 | result-records | `[data-anno="result-records-detail"]` | R-007 | SRC-001,002,003,005,006 | FLD-020~036 | 录音、转写、摘要、平台扩展字段 |
-| 28 | result-records | `[data-anno="result-records-filters"]` | R-007 | SRC-001,002,003,005,006 | FLD-020,021,022,024,025,027 | 电话、时间、场景、状态、平台筛选 |
-| 29 | result-records | `[data-anno="result-records-table"]` | R-007 | SRC-001,002,003,005,006 | FLD-020~025,027 | 通话记录主列表 |
+| 27 | result-records | `[data-anno="result-records-detail"]` | R-007 | SRC-001,002,003,004,005,006 | FLD-020, FLD-021, FLD-022, FLD-023, FLD-024, FLD-025, FLD-026, FLD-027, FLD-028, FLD-029, FLD-030, FLD-031, FLD-032, FLD-033, FLD-034, FLD-035, FLD-036, FLD-037, FLD-038, FLD-039 | 录音、转写、统一 DCC 状态、厚朴原始码及平台追溯字段 |
+| 28 | result-records | `[data-anno="result-records-filters"]` | R-007 | SRC-001,002,003,004,005,006 | FLD-020,021,022,024,025,027 | 电话、时间、场景、全平台统一状态筛选 |
+| 29 | result-records | `[data-anno="result-records-table"]` | R-007 | SRC-001,002,003,004,005,006 | FLD-020~025,027 | 展示全平台归并后的 DCC 通话状态 |
 | 30 | result-clue | `[data-anno="result-clue-customer-tags"]` | R-008 | SRC-003,004,006 | FLD-031,036 | AI/百炼客户标签详情 |
 | 31 | result-clue | `[data-anno="result-clue-revisit-detail"]` | R-008 | SRC-003,004,006 | FLD-020,021,025,026,031 | 多次回访时间线与结果 |
 | 32 | result-clue | `[data-anno="result-clue-filters"]` | R-008 | SRC-003,004,006 | FLD-020,024,025,027,031 | 电话、状态、场景、意向筛选 |
@@ -48,7 +48,7 @@
 | 40 | sys-scene | `[data-anno="sys-scene-zhongkejin-config"]` | R-009 | SRC-002 | FLD-006,013 | 中科金任务 ID 与模型配置 |
 | 41 | sys-scene | `[data-anno="sys-scene-diansheng-config"]` | R-009 | SRC-003 | FLD-006,015 | 电声呼叫时段、重呼、黑名单与启动策略 |
 | 42 | sys-scene | `[data-anno="sys-scene-binglan-config"]` | R-009 | SRC-004 | FLD-006,014,015 | 冰兰通道、机器人、时段与拦截策略 |
-| 43 | sys-scene | `[data-anno="sys-scene-houpu-config"]` | R-009 | SRC-005 | FLD-006,013 | 厚朴任务名称、数据列模式与批量限制 |
+| 43 | sys-scene | `[data-anno="sys-scene-houpu-config"]` | R-009 | SRC-011, SRC-012 | FLD-006,013,014,016,017 | 默认账号查询已有 task_id；同一 ID 不得关联多场景；任务状态实时读取，未确认关联禁止保存 |
 | 44 | sys-scene | `[data-anno="sys-scene-dazhong-config"]` | R-009 | SRC-006 | FLD-002,006,012 | 大众 UUID 关联与 SaaS 侧策略边界 |
 | 45 | sys-tags | `[data-anno="sys-tags-scene-management"]` | R-010 | SRC-007 | none | 标签适用场景维护入口 |
 | 46 | sys-tags | `[data-anno="sys-tags-supplier-management"]` | R-010 | SRC-007,003,006 | none | 标签供应商维护入口 |
@@ -77,5 +77,5 @@
 ## Gaps
 
 - `flowcharts/processon-links.txt` 没有有效链接，因此交互文档明确写“本期未提供”，不伪造 ProcessOn 地址。
-- 权限范围统一引用 `docs/功能说明文档.md` 的“五. 其他说明 → 6. 统一角色权限说明（唯一维护出处）”；55 条标注不再重复维护角色矩阵。
-- 55 条标注已回写并完成逐页定位验证；动态弹层标注需先打开对应弹窗或抽屉后显示。
+- 权限范围统一引用 `docs/功能说明文档.md` 的“五. 其他说明 → 7. 统一角色权限说明（唯一维护出处）”；55 条标注不再重复维护角色矩阵。
+- 55 条标注已回写；动态弹层标注需先打开对应弹窗或抽屉后显示，厚朴完整状态和接口规则只引用《功能说明文档》。

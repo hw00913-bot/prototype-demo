@@ -4028,6 +4028,28 @@ p { margin-bottom: 8px; }
 .biz-inline-field .biz-radio-group { flex: 0 1 auto; }
 .biz-inline-field .biz-help-icon { margin-left: 0; flex-shrink: 0; }
 .biz-inline-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+.houpu-task-link-control { display: flex; align-items: center; gap: 10px; }
+.houpu-task-link-control .biz-form-input { flex: 1; padding-right: 10px; }
+.houpu-task-link-control .btn { flex-shrink: 0; height: 34px; white-space: nowrap; }
+.houpu-link-status { margin-top: 7px; font-size: 12px; line-height: 1.5; color: #8c8c8c; }
+.houpu-link-status.success { color: #389e0d; }
+.houpu-link-status.error { color: #cf1322; }
+.houpu-linked-task-panel { border: 1px solid #d9e7ff; border-radius: 8px; overflow: hidden; background: #fff; }
+.houpu-linked-title { padding: 10px 14px; background: #f0f6ff; color: #1d5fbf; font-size: 13px; font-weight: 600; }
+.houpu-linked-task-panel .biz-inner-table th { width: 92px; color: #595959; white-space: nowrap; }
+.houpu-linked-task-panel .biz-inner-table td { color: #262626; }
+.houpu-template-fields { margin-top: 12px; border: 1px solid #f0f0f0; border-radius: 8px; overflow: hidden; }
+@media (max-width: 600px) {
+  .houpu-task-link-control { flex-direction: column; align-items: stretch; }
+  .houpu-task-link-control .btn { width: 100%; }
+  .houpu-linked-task-panel .biz-inner-table tr { display: grid; grid-template-columns: 76px minmax(0, 1fr); }
+  .houpu-linked-task-panel .biz-inner-table th,
+  .houpu-linked-task-panel .biz-inner-table td { width: auto; min-width: 0; padding: 8px 10px; overflow-wrap: anywhere; }
+  .houpu-linked-task-panel .biz-inner-table td[colspan] { grid-column: auto; }
+  .houpu-template-fields { display: block; overflow-x: auto; }
+  .houpu-template-fields thead,
+  .houpu-template-fields tbody { min-width: 420px; display: table; width: 100%; table-layout: fixed; }
+}
 .biz-inline-error { margin-top: 0; font-size: 12px; color: #ff4d4f; line-height: 1.4; white-space: nowrap; }
 .biz-week-group { gap: 12px; }
 .biz-week-group .biz-checkbox { min-width: 56px; }
@@ -4845,8 +4867,6 @@ p { margin-bottom: 8px; }
 .account-radio-label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #1f1f1f; cursor: pointer; user-select: none; }
 .account-radio-label input[type="radio"] { margin: 0; width: 16px; height: 16px; accent-color: #1677ff; cursor: pointer; }
 .account-form-error { color: #ff4d4f; font-size: 12px; margin-top: 4px; }
-
-
 
 
 

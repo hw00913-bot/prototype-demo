@@ -13,33 +13,34 @@ var MockPlatforms = [
   { code: 'DZ', name: '大众通信' }
 ];
 
-/* ===== 外呼列表 Mock 数据（六平台） ===== */
+/* ===== 外呼列表 Mock 数据（六平台，raw 状态字段与中台 13 状态映射一致） ===== */
 var MockSceneList = [
-  { id: 13, name: '华北店-新线索-中科金', status: 'running', source: '手动导入', platform: '中科金智能', assigned: 80, pending: 30, called: 50 },
-  { id: 14, name: '华东店-保客回访-中科金', status: 'running', source: '接口传入', platform: '中科金智能', assigned: 300, pending: 60, called: 240 },
-  { id: 15, name: '华南店-试驾邀约-中科金', status: 'not_started', source: '手动导入', platform: '中科金智能', assigned: 0, pending: 0, called: 0 },
-  { id: 16, name: '西南店-流失预警-中科金', status: 'terminated', source: '接口传入', platform: '中科金智能', assigned: 0, pending: 0, called: 980 },
-  { id: 1, name: '渝兴店售后-临保邀约', status: 'running', source: '手动导入', platform: '一知科技', assigned: 200, pending: 80, called: 120 },
-  { id: 2, name: '渝兴店售后-流失招揽', status: 'running', source: '自动传入', platform: '一知科技', assigned: 500, pending: 180, called: 320 },
-  { id: 3, name: '渝发店售前-冷线索激活', status: 'completed', source: '手动导入', platform: '一知科技', assigned: 1500, pending: 0, called: 1500 },
-  { id: 4, name: '渝兴店售前-冷线索激活', status: 'paused', source: '自动传入', platform: '一知科技', assigned: 300, pending: 150, called: 150 },
-  { id: 5, name: 'NEV-留资未满-N6推荐', status: 'not_started', source: '自动传入', platform: '一知科技', assigned: 100, pending: 100, called: 0 },
-  { id: 6, name: 'NEV-留资未满-NX8推荐', status: 'terminated', source: '手动导入', platform: '一知科技', assigned: 180, pending: 0, called: 180 },
-  { id: 7, name: 'NEV-留资未满-天籁推荐', status: 'not_started', source: '接口传入', platform: '一知科技', assigned: 10, pending: 2, called: 8 },
-  { id: 8, name: 'NEV-留资未满-N7推荐', status: 'terminated', source: '接口传入', platform: '一知科技', assigned: 1200, pending: 119, called: 1081 },
-  { id: 9, name: '华北店-新线索跟进', status: 'running', source: '手动导入', platform: '一知科技', assigned: 120, pending: 45, called: 75 },
-  { id: 10, name: '华东店-保客回访', status: 'running', source: '接口传入', platform: '一知科技', assigned: 500, pending: 80, called: 420 },
-  { id: 11, name: '华南店-试驾邀约', status: 'paused', source: '手动导入', platform: '一知科技', assigned: 200, pending: 0, called: 200 },
-  { id: 12, name: '西南店-流失预警', status: 'terminated', source: '接口传入', platform: '一知科技', assigned: 1560, pending: 0, called: 1560 },
+  { id: 13, name: '华北店-新线索-中科金', status: 'running', taskStatus: 2, source: '手动导入', platform: '中科金智能', assigned: 80, pending: 30, called: 50 },
+  { id: 14, name: '华东店-保客回访-中科金', status: 'running', taskStatus: 2, source: '接口传入', platform: '中科金智能', assigned: 300, pending: 60, called: 240 },
+  { id: 15, name: '华南店-试驾邀约-中科金', status: 'not_started', taskStatus: 1, source: '手动导入', platform: '中科金智能', assigned: 0, pending: 0, called: 0 },
+  { id: 16, name: '西南店-流失预警-中科金', status: 'terminated', taskStatus: 4, source: '接口传入', platform: '中科金智能', assigned: 0, pending: 0, called: 980 },
+  { id: 1, name: '渝兴店售后-临保邀约', status: 'running', taskStatus: 'IN_PROCESS', source: '手动导入', platform: '一知科技', assigned: 200, pending: 80, called: 120 },
+  { id: 2, name: '渝兴店售后-流失招揽', status: 'running', taskStatus: 'IN_PROCESS', source: '自动传入', platform: '一知科技', assigned: 500, pending: 180, called: 320 },
+  { id: 3, name: '渝发店售前-冷线索激活', status: 'completed', taskStatus: 'COMPLETED', source: '手动导入', platform: '一知科技', assigned: 1500, pending: 0, called: 1500 },
+  { id: 4, name: '渝兴店售前-冷线索激活', status: 'paused', taskStatus: 'USER_PAUSE', source: '自动传入', platform: '一知科技', assigned: 300, pending: 150, called: 150 },
+  { id: 5, name: 'NEV-留资未满-N6推荐', status: 'not_started', taskStatus: 'NOT_STARTED', source: '自动传入', platform: '一知科技', assigned: 100, pending: 100, called: 0 },
+  { id: 6, name: 'NEV-留资未满-NX8推荐', status: 'terminated', taskStatus: 'TERMINATE', source: '手动导入', platform: '一知科技', assigned: 180, pending: 0, called: 180 },
+  { id: 7, name: 'NEV-留资未满-天籁推荐', status: 'not_started', taskStatus: 'NOT_STARTED', source: '接口传入', platform: '一知科技', assigned: 10, pending: 2, called: 8 },
+  { id: 8, name: 'NEV-留资未满-N7推荐', status: 'terminated', taskStatus: 'TERMINATE', source: '接口传入', platform: '一知科技', assigned: 1200, pending: 119, called: 1081 },
+  { id: 9, name: '华北店-新线索跟进', status: 'running', taskStatus: 'IN_PROCESS', source: '手动导入', platform: '一知科技', assigned: 120, pending: 45, called: 75 },
+  { id: 10, name: '华东店-保客回访', status: 'running', taskStatus: 'IN_PROCESS', source: '接口传入', platform: '一知科技', assigned: 500, pending: 80, called: 420 },
+  { id: 11, name: '华南店-试驾邀约', status: 'paused', taskStatus: 'USER_PAUSE', source: '手动导入', platform: '一知科技', assigned: 200, pending: 0, called: 200 },
+  { id: 12, name: '西南店-流失预警', status: 'terminated', taskStatus: 'TERMINATE', source: '接口传入', platform: '一知科技', assigned: 1560, pending: 0, called: 1560 },
   { id: 17, uuid: '9f6d9a40-2fb3-4c56-8b21-202607140017', name: '华东店-冷线索跟进-大众通信', status: 'running', remoteStatus: 2, source: '接口传入', platform: '大众通信', line: 'DT-SH-001', maximumcall: 20, billingType: '按通话时长', assigned: 150, pending: 30, called: 120 },
   { id: 18, uuid: '04d5eb55-6bce-43a5-962a-202607140018', name: '南京售后回访-大众通信', status: 'paused', remoteStatus: 1, source: '接口传入', platform: '大众通信', line: 'DT-NJ-001', maximumcall: 10, billingType: '按通话时长', assigned: 80, pending: 20, called: 60 },
   { id: 19, uuid: '7b6e87a1-5101-4380-8822-202607140019', name: '深圳新线索-大众通信', status: 'not_started', remoteStatus: 3, source: '接口传入', platform: '大众通信', line: 'DT-SZ-001', maximumcall: 20, billingType: '按通话时长', assigned: 0, pending: 0, called: 0 },
-  { id: 20, strategyCode: 'NISSAN_NEW_LEAD_001', name: '东风日产-新线索-电声', status: 'running', source: '接口传入', platform: '电声', assigned: 120, pending: 40, called: 80, robotName: '东风日产新线索机器人', batchCount: 3 },
-  { id: 21, strategyCode: 'NISSAN_COLD_LEAD_002', name: '东风日产-冷线索-电声', status: 'paused', source: '接口传入', platform: '电声', assigned: 200, pending: 90, called: 110, robotName: '东风日产冷线索机器人', batchCount: 2 },
-  { id: 22, name: '燃油车新线索-冰兰', status: 'running', source: '手动导入', platform: '冰兰', assigned: 80, pending: 20, called: 60, taskType: '新线索' },
-  { id: 23, name: '燃油车保客回访-冰兰', status: 'terminated', source: '接口传入', platform: '冰兰', assigned: 0, pending: 0, called: 320, taskType: '回访' },
-  { id: 24, taskName: 'HP-DEMO-新线索首访', name: '厚朴-新线索首访', status: 'running', source: '手动导入', platform: '厚朴', assigned: 1000, pending: 600, called: 400, connected: 165, columnType: 'multiple', requestId: 'HP-REQ-20260714-001', createdAt: '2026-07-14 09:20:00' },
-  { id: 25, taskName: 'HP-DEMO-保客回访', name: '厚朴-保客回访', status: 'not_started', source: '手动导入', platform: '厚朴', assigned: 0, pending: 0, called: 0, connected: 0, columnType: 'single', requestId: 'HP-REQ-20260713-003', createdAt: '2026-07-13 14:05:00' }
+  { id: 20, strategyCode: 'NISSAN_NEW_LEAD_001', name: '东风日产-新线索-电声', status: 'running', statusType: 1, source: '接口传入', platform: '电声', assigned: 120, pending: 40, called: 80, robotName: '东风日产新线索机器人', batchCount: 3 },
+  { id: 21, strategyCode: 'NISSAN_COLD_LEAD_002', name: '东风日产-冷线索-电声', status: 'paused', statusType: 0, source: '接口传入', platform: '电声', assigned: 200, pending: 90, called: 110, robotName: '东风日产冷线索机器人', batchCount: 2 },
+  { id: 22, name: '燃油车新线索-冰兰', status: 'running', taskStatus: 1, source: '手动导入', platform: '冰兰', assigned: 80, pending: 20, called: 60, taskType: '新线索' },
+  { id: 23, name: '燃油车保客回访-冰兰', status: 'terminated', taskStatus: 3, source: '接口传入', platform: '冰兰', assigned: 0, pending: 0, called: 320, taskType: '回访' },
+  { id: 24, task_id: 'HP-TASK-20260714-001', taskName: 'HP-DEMO-新线索首访', name: '厚朴-新线索首访', status: 'running', taskStatus: 1, source: '手动导入', platform: '厚朴', assigned: 1000, pending: 600, called: 400, connected: 165, batchId: 'HP-BATCH-20260714-0001', validNumberCount: 998, createdAt: '2026-07-14 09:20:00' },
+  { id: 25, task_id: 'HP-TASK-20260713-001', taskName: 'HP-DEMO-保客回访', name: '厚朴-保客回访', status: 'running', taskStatus: 4, source: '手动导入', platform: '厚朴', assigned: 800, pending: 300, called: 500, connected: 210, batchId: 'HP-BATCH-20260713-0003', validNumberCount: 796, createdAt: '2026-07-13 14:05:00' },
+  { id: 26, task_id: 'HP-TASK-20260715-001', taskName: 'HP-DEMO-流失预警', name: '厚朴-流失预警', status: 'paused', taskStatus: 6, source: '接口传入', platform: '厚朴', assigned: 2000, pending: 1200, called: 800, connected: 330, batchId: 'HP-BATCH-20260715-0002', validNumberCount: 1995, createdAt: '2026-07-15 10:00:00' }
 ];
 
 /* ===== 中科金 外呼任务详情 Mock ===== */
@@ -83,6 +84,74 @@ var MockZkjTaskDetail = {
     dialogTaskId: 'flow_xn_ls_001', dialogTaskName: '流失预警标准流程', didStrategy: 1
   }
 };
+
+/* ===== 厚朴 已关联任务详情 Mock（按平台已有 task_id 关联；中台不创建任务） ===== */
+var MockHoupuTaskDetail = {
+  24: {
+    task_id: 'HP-TASK-20260714-001', taskName: '厚朴-新线索首访', taskType: 'streaming',
+    botId: 'bot_hp_nissan_001', botName: '东风日产新线索首访机器人',
+    callPeriod: '每天 09:00-11:30、13:30-17:30', concurrency: 50,
+    recall: '未接通间隔 30 分钟重呼，最多 2 次；已接通不重呼', unCalledPriority: true,
+    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
+    templateId: 'TPL-HP-XXS-001', templateName: '新线索首访话术模板',
+    batchId: 'HP-BATCH-20260714-0001', validNumberCount: 998,
+    rawStatus: { taskStatus: 1, taskStatusName: '执行中' },
+    createdAt: '2026-07-14 09:20:00', progress: '400 / 1000'
+  },
+  25: {
+    task_id: 'HP-TASK-20260713-001', taskName: '厚朴-保客回访', taskType: 'same_day',
+    botId: 'bot_hp_nissan_002', botName: '东风日产保客回访机器人',
+    callPeriod: '每天 09:30-12:00、14:00-18:00', concurrency: 30,
+    recall: '未接通间隔 60 分钟重呼，最多 1 次', unCalledPriority: false,
+    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
+    templateId: 'TPL-HP-BKHF-002', templateName: '保客回访话术模板',
+    batchId: 'HP-BATCH-20260713-0003', validNumberCount: 796,
+    rawStatus: { taskStatus: 4, taskStatusName: '系统挂起' },
+    createdAt: '2026-07-13 14:05:00', progress: '500 / 800'
+  },
+  26: {
+    task_id: 'HP-TASK-20260715-001', taskName: '厚朴-流失预警', taskType: 'streaming',
+    botId: 'bot_hp_nissan_003', botName: '东风日产流失预警机器人',
+    callPeriod: '每天 09:00-12:00、14:00-19:00', concurrency: 60,
+    recall: '不重呼', unCalledPriority: true,
+    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
+    templateId: 'TPL-HP-LSYJ-003', templateName: '流失预警话术模板',
+    batchId: 'HP-BATCH-20260715-0002', validNumberCount: 1995,
+    rawStatus: { taskStatus: 6, taskStatusName: '系统暂停' },
+    createdAt: '2026-07-15 10:00:00', progress: '800 / 2000'
+  }
+};
+
+/* ===== 厚朴任务查询结果中的机器人 / 号码模板快照（只读，模板含动态字段明细） ===== */
+var MockHoupuBots = [
+  { botId: 'bot_hp_nissan_001', name: '东风日产新线索首访机器人', modelType: '大模型' },
+  { botId: 'bot_hp_nissan_002', name: '东风日产保客回访机器人', modelType: '大模型' },
+  { botId: 'bot_hp_nissan_003', name: '东风日产流失预警机器人', modelType: '大模型' }
+];
+
+var MockHoupuTemplates = [
+  { templateId: 'TPL-HP-XXS-001', name: '新线索首访话术模板', fields: [
+    { field: 'calleeNo', label: '被叫号码', required: true },
+    { field: 'name', label: '客户名称', required: false },
+    { field: 'company', label: '公司名称', required: false },
+    { field: 'address', label: '地址', required: false },
+    { field: 'remark', label: '备注', required: false },
+    { field: 'ext1', label: '扩展字段1', required: false },
+    { field: 'ext2', label: '扩展字段2', required: false }
+  ]},
+  { templateId: 'TPL-HP-BKHF-002', name: '保客回访话术模板', fields: [
+    { field: 'calleeNo', label: '被叫号码', required: true },
+    { field: 'name', label: '客户名称', required: false },
+    { field: 'remark', label: '备注', required: false },
+    { field: 'ext1', label: '扩展字段1', required: false }
+  ]},
+  { templateId: 'TPL-HP-LSYJ-003', name: '流失预警话术模板', fields: [
+    { field: 'calleeNo', label: '被叫号码', required: true },
+    { field: 'name', label: '客户名称', required: false },
+    { field: 'company', label: '公司名称', required: false },
+    { field: 'ext1', label: '扩展字段1', required: false }
+  ]}
+];
 
 /* ===== 大众通信任务详情 Mock（2.0 编辑接口字段） ===== */
 var MockDazhongTaskEditDetail = {
@@ -181,8 +250,10 @@ var MockCallRecordRows = [
   { phone: '13522334455', startTime: '2026-07-15 09:30:00', endTime: '2026-07-15 09:30:00', duration: '-', sceneName: '东风日产-冷线索-电声', status: '无人接听', summary: '', platform: '电声', lastNode: '-', sessionId: 'DS-20260715-002', callerNumber: '0755-88223344', aiTagName: '-', callerLocation: '广东深圳', calleeLocation: '中国-广东-广州' },
   { phone: '13633445566', startTime: '2026-07-16 09:20:00', endTime: '2026-07-16 09:20:45', duration: '45秒', sceneName: '燃油车新线索-冰兰', status: '已接通', summary: '客户愿意到店试驾，计划本周末到店。', platform: '冰兰', lastNode: '意向确认', sessionId: 'BL-20260716-001', callerNumber: '010-88990011', aiTagName: 'A', callerLocation: '北京', calleeLocation: '中国-北京-朝阳' },
   { phone: '13644556677', startTime: '2026-07-16 11:00:00', endTime: '2026-07-16 11:00:00', duration: '-', sceneName: '燃油车保客回访-冰兰', status: '拒接', summary: '', platform: '冰兰', lastNode: '-', sessionId: 'BL-20260716-002', callerNumber: '010-88990011', aiTagName: '-', callerLocation: '北京', calleeLocation: '中国-北京-海淀' },
-  { phone: '13755667788', startTime: '2026-07-17 09:40:00', endTime: '2026-07-17 09:40:30', duration: '30秒', sceneName: '厚朴-新线索首访', status: '已接通', summary: '客户有购车意向，愿意接受后续跟进。', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260717-001', callerNumber: '023-55667788', aiTagName: '高意向', callerLocation: '重庆', calleeLocation: '中国-重庆-南岸' },
-  { phone: '13766778899', startTime: '2026-07-17 10:10:00', endTime: '2026-07-17 10:10:00', duration: '-', sceneName: '厚朴-保客回访', status: '无人接听', summary: '', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260717-002', callerNumber: '023-55667788', aiTagName: '-', callerLocation: '重庆', calleeLocation: '中国-重庆-渝北' }
+  { phone: '13755667788', startTime: '2026-07-17 09:40:00', endTime: '2026-07-17 09:40:30', duration: '30秒', sceneName: '厚朴-新线索首访', status: '已接通', rawStatusCode: 785, rawStatusName: '自然人摘机', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', callId: 'HP-CALL-20260717-001', intention: 'A(高意向)', tags: ['高意向', '同意销售联系'], summary: '客户有购车意向，愿意接受后续跟进。', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260717-001', callerNumber: '023-55667788', aiTagName: '高意向', callerLocation: '重庆', calleeLocation: '中国-重庆-南岸' },
+  { phone: '13766778899', startTime: '2026-07-17 10:10:00', endTime: '2026-07-17 10:10:00', duration: '-', sceneName: '厚朴-保客回访', status: '无人接听', rawStatusCode: 790, rawStatusName: '摘机后未识别', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', callId: 'HP-CALL-20260717-002', intention: '-', tags: [], summary: '', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260717-002', callerNumber: '023-55667788', aiTagName: '-', callerLocation: '重庆', calleeLocation: '中国-重庆-渝北' },
+  { phone: '13777889900', startTime: '2026-07-16 15:30:00', endTime: '2026-07-16 15:30:00', duration: '-', sceneName: '厚朴-新线索首访', status: '呼叫受限', rawStatusCode: 779, rawStatusName: '呼出限制', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', callId: 'HP-CALL-20260716-001', intention: '-', tags: [], summary: '', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260716-001', callerNumber: '023-55667788', aiTagName: '-', callerLocation: '重庆', calleeLocation: '中国-重庆-江北' },
+  { phone: '13788990011', startTime: '2026-07-16 16:20:00', endTime: '2026-07-16 16:20:00', duration: '-', sceneName: '厚朴-保客回访', status: '无法接通', rawStatusCode: 782, rawStatusName: '呼叫转移', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', callId: 'HP-CALL-20260716-002', intention: '-', tags: [], summary: '号码已呼转，未能接通客户。', platform: '厚朴', lastNode: '-', sessionId: 'HP-20260716-002', callerNumber: '023-55667788', aiTagName: '-', callerLocation: '重庆', calleeLocation: '中国-重庆-渝中' }
 ];
 
 /* 大众通信记录通过已关联任务 uuid 归集，中台不维护远端任务策略 */
@@ -392,11 +463,12 @@ var MockAssignedData = {
   ]
 };
 
-/* ===== 导入历史记录 ===== */
+/* ===== 导入历史记录（含平台返回批次号与有效号码数） ===== */
 var MockImportHistory = [
-  { id: 1, sceneId: 17, name: '华东冷线索_0724.csv', total: 150, success: 148, fail: 2, status: '已完成', time: '2026-07-24 09:20:00', op: '超管' },
-  { id: 2, sceneId: 14, name: '保客回访名单.xlsx', total: 300, success: 298, fail: 2, status: '已完成', time: '2026-07-20 14:30:00', op: '张三' },
-  { id: 3, sceneId: 17, name: '补充名单_0725.csv', total: 80, success: 80, fail: 0, status: '导入中', time: '2026-07-25 08:00:00', op: '超管' }
+  { id: 1, sceneId: 17, name: '华东冷线索_0724.csv', total: 150, success: 148, fail: 2, batchId: 'DZ-BATCH-20260724-001', validNumberCount: 148, status: '已完成', time: '2026-07-24 09:20:00', op: '超管' },
+  { id: 2, sceneId: 14, name: '保客回访名单.xlsx', total: 300, success: 298, fail: 2, batchId: 'ZKJ-BATCH-20260720-001', validNumberCount: 298, status: '已完成', time: '2026-07-20 14:30:00', op: '张三' },
+  { id: 3, sceneId: 17, name: '补充名单_0725.csv', total: 80, success: 80, fail: 0, batchId: 'DZ-BATCH-20260725-001', validNumberCount: 80, status: '导入中', time: '2026-07-25 08:00:00', op: '超管' },
+  { id: 4, sceneId: 24, name: '厚朴新线索首访_0714.csv', total: 1000, success: 998, fail: 2, batchId: 'HP-BATCH-20260714-0001', validNumberCount: 998, status: '已完成', time: '2026-07-14 09:25:00', op: '超管' }
 ];
 
 /* ===== 线索统计 Mock 数据 ===== */
@@ -466,7 +538,7 @@ var MockClueRecordRows = [
   ] },
   { phone: '135****4455', platform: '电声', lastVisitTime: '2026-08-20 12:35:10', visitCount: 1, lastCallStatus: '拒接', lastRecord: '客户拒接，本轮未形成有效对话。', sceneName: '东风日产-冷线索-电声', intention: 'D（无意向）', hasTags: true, firstVisitTime: '2026-08-20 12:35:10', secondVisitTime: '-', thirdVisitTime: '-', detailTags: { '意向标签': 'D（无意向）', '通话状态映射': '205 → 拒接' } },
   { phone: '13641248326', platform: '冰兰', lastVisitTime: '2026-08-20 13:26:20', visitCount: 1, lastCallStatus: '黑名单过滤', lastRecord: '呼叫未接通：命中黑名单。', sceneName: '燃油车新线索-冰兰', intention: '-', hasTags: true, firstVisitTime: '2026-08-20 13:26:20', secondVisitTime: '-', thirdVisitTime: '-', detailTags: { '过滤结果': '黑名单过滤', '风险策略': '默认分组' } },
-  { phone: '137****7788', platform: '厚朴', lastVisitTime: '2026-08-20 11:55:30', visitCount: 1, lastCallStatus: '已接通', lastRecord: '客户有购车意向，愿意接受后续跟进。', sceneName: '厚朴-新线索首访', intention: 'A(高意向)', hasTags: true, firstVisitTime: '2026-08-20 11:55:30', secondVisitTime: '-', thirdVisitTime: '-', detailTags: { '意向标签': 'A(高意向)', '批次 requestId': 'HP-REQ-20260714-001', '数据列模式': '多条模式' } },
+  { phone: '137****7788', platform: '厚朴', lastVisitTime: '2026-08-20 11:55:30', visitCount: 1, lastCallStatus: '已接通', lastRecord: '客户有购车意向，愿意接受后续跟进。', sceneName: '厚朴-新线索首访', intention: 'A(高意向)', hasTags: true, firstVisitTime: '2026-08-20 11:55:30', secondVisitTime: '-', thirdVisitTime: '-', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', rawStatusCode: 785, rawStatusName: '自然人摘机', detailTags: { '意向标签': 'A(高意向)', '任务ID': 'HP-TASK-20260714-001', '批次号': 'HP-BATCH-20260714-0001', '原始状态': '785 自然人摘机' } },
   { phone: '135****0006', platform: '大众通信', lastVisitTime: '2026-07-14 14:15:00', visitCount: 1, lastCallStatus: '呼叫成功', lastRecord: '百炼智能体识别客户有明确兴趣，建议销售尽快联系。', sceneName: '华东店-冷线索跟进-大众通信', intention: 'A-高意向', hasTags: true, firstVisitTime: '2026-07-14 14:15:00', secondVisitTime: '-', thirdVisitTime: '-', callid: '2059190973162029091', detailTags: { '大众意向等级': 'A-高意向', '百炼标签': 'A-高意向', '关联任务 UUID': '9f6d9a40-2fb3-4c56-8b21-202607140017' } },
   { phone: '135****0007', platform: '大众通信', lastVisitTime: '2026-07-14 15:20:00', visitCount: 1, lastCallStatus: '占线', lastRecord: '用户正忙，建议稍后再次触达。', sceneName: '华东店-冷线索跟进-大众通信', intention: 'E-需再次跟进', hasTags: true, firstVisitTime: '2026-07-14 15:20:00', secondVisitTime: '-', thirdVisitTime: '-', callid: '2059190973162029093', detailTags: { '大众意向等级': 'E-需再次跟进', '百炼标签': 'E-需再次跟进', '通话状态码': '8' } },
   { phone: '135****0008', platform: '大众通信', lastVisitTime: '2026-07-14 16:10:00', visitCount: 1, lastCallStatus: '拒接', lastRecord: '客户拒接，本次未生成对话。', sceneName: '华东店-冷线索跟进-大众通信', intention: 'F-号码无效', hasTags: true, firstVisitTime: '2026-07-14 16:10:00', secondVisitTime: '-', thirdVisitTime: '-', callid: '2059190973162029092', detailTags: { '大众意向等级': 'F-号码无效', '通话状态码': '3', '结果': '未下发' } },
@@ -849,11 +921,28 @@ var MockSceneRows = [
   { id: 9, name: '东风日产-新线索-电声', sceneId: 'DS-SCENE-001', code: 'DS-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '电声', updater: '-', updateTime: '2026-07-15 09:00:00', strategyCode: 'NISSAN_NEW_LEAD_001', robotName: '东风日产新线索机器人' },
   { id: 10, name: '华东店-冷线索跟进-大众通信', sceneId: 'DZ-SCENE-001', code: 'DZ-LXS', category: '冷线索', tenant: '东风日产-燃油车', platform: '大众通信', updater: '-', updateTime: '2026-07-14 08:30:00', taskUuid: '9f6d9a40-2fb3-4c56-8b21-202607140017' },
   { id: 11, name: '燃油车新线索-冰兰', sceneId: 'BL-SCENE-001', code: 'BL-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '冰兰', updater: '-', updateTime: '2026-07-16 09:00:00' },
-  { id: 12, name: '厚朴-新线索首访', sceneId: 'HP-SCENE-001', code: 'HP-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-17 09:00:00', taskName: 'HP-DEMO-新线索首访' }
+  { id: 12, name: '厚朴-新线索首访', sceneId: 'HP-SCENE-001', code: 'HP-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-17 09:00:00', taskName: 'HP-DEMO-新线索首访', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', taskStatus: 1, botId: 'bot_hp_nissan_001', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '18:00' }, concurrency: 50, redial: true, uncalledFirst: true, templateId: 'TPL-HP-XXS-001', callbackConfigured: true },
+  { id: 13, name: '厚朴-保客回访', sceneId: 'HP-SCENE-002', code: 'HP-BKHF', category: '回访', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-13 14:05:00', taskName: 'HP-DEMO-保客回访', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', taskStatus: 4, botId: 'bot_hp_nissan_002', taskType: 'same_day', schedule: null, concurrency: 30, redial: true, uncalledFirst: false, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true },
+  { id: 14, name: '厚朴-流失预警', sceneId: 'HP-SCENE-003', code: 'HP-LSYJ', category: '流失预警', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-15 10:00:00', taskName: 'HP-DEMO-流失预警', taskId: 'HP-TASK-20260715-001', batchId: 'HP-BATCH-20260715-0002', taskStatus: 6, botId: 'bot_hp_nissan_003', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '19:00' }, concurrency: 60, redial: false, uncalledFirst: true, templateId: 'TPL-HP-LSYJ-003', callbackConfigured: true }
 ];
 
 var MockTenantOptions = ['东风日产-燃油车', '东风日产-点检', '重庆东风南方渝兴', '重庆东风南方渝发', '超级管理组'];
 var MockModelTypes = ['大模型', '小模型'];
+
+/* ===== 厚朴服务端默认账号与任务查询 Mock =====
+ * 演示环境使用服务端默认账号；凭据与令牌不进入浏览器。
+ * MockHoupuRemoteTasks 模拟每次打开页面或主动查询时的厚朴 tasklist 接口返回。
+ */
+var MockHoupuAccounts = [
+  { id: 'HP-DEFAULT-001', name: '厚朴默认账号', scope: '当前演示环境', isDefault: true, enabled: true }
+];
+
+var MockHoupuRemoteTasks = [
+  { taskId: 'HP-TASK-20260714-001', accountId: 'HP-DEFAULT-001', taskName: 'HP-DEMO-新线索首访', taskType: 'streaming', botId: 'bot_hp_nissan_001', schedule: { startTime: '09:00', endTime: '18:00' }, concurrency: 50, redial: true, redialText: '未接通间隔 30 分钟重呼，最多 2 次；已接通不重呼', uncalledFirst: true, templateId: 'TPL-HP-XXS-001', callbackConfigured: true, taskStatus: 1, taskStatusName: '执行中' },
+  { taskId: 'HP-TASK-20260713-001', accountId: 'HP-DEFAULT-001', taskName: 'HP-DEMO-保客回访', taskType: 'same_day', botId: 'bot_hp_nissan_002', schedule: null, concurrency: 30, redial: true, redialText: '未接通间隔 60 分钟重呼，最多 1 次', uncalledFirst: false, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true, taskStatus: 4, taskStatusName: '任务异常' },
+  { taskId: 'HP-TASK-20260715-001', accountId: 'HP-DEFAULT-001', taskName: 'HP-DEMO-流失预警', taskType: 'streaming', botId: 'bot_hp_nissan_003', schedule: { startTime: '09:00', endTime: '19:00' }, concurrency: 60, redial: false, redialText: '不重呼', uncalledFirst: true, templateId: 'TPL-HP-LSYJ-003', callbackConfigured: true, taskStatus: 6, taskStatusName: '禁呼中' },
+  { taskId: 'HP-TASK-20260828-004', accountId: 'HP-DEFAULT-001', taskName: 'HP-DEMO-售后满意度回访', taskType: 'streaming', botId: 'bot_hp_nissan_002', schedule: { startTime: '10:00', endTime: '18:30' }, concurrency: 20, redial: true, redialText: '未接通间隔 60 分钟重呼，最多 1 次', uncalledFirst: true, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true, taskStatus: 0, taskStatusName: '未开始' }
+];
 
 /* ===== 业务场景创建抽屉 Mock（对齐各平台参考源） ===== */
 
@@ -902,17 +991,6 @@ var MockBinglanInputDefaults = [
   { fieldName: '来源渠道', paramName: 'channel', required: true },
   { fieldName: '创建时间', paramName: 'createTime', required: true },
   { fieldName: '截止时间', paramName: 'deadline', required: true }
-];
-
-/* 厚朴：平台字段定义（数据列模式联动渲染，partial = 待确认） */
-var MockHoupuSceneFields = [
-  { field: 'calleeNo', label: '被叫号码', required: true, status: 'confirmed' },
-  { field: 'name', label: '客户名称', required: false, status: 'confirmed' },
-  { field: 'company', label: '公司名称', required: false, status: 'confirmed' },
-  { field: 'address', label: '地址', required: false, status: 'confirmed' },
-  { field: 'remark', label: '备注', required: false, status: 'confirmed' },
-  { field: 'ext1', label: '扩展字段 1', required: false, status: 'partial' },
-  { field: 'ext2', label: '扩展字段 2', required: false, status: 'partial' }
 ];
 
 /* 电声：场景类型 → 机器人映射 */

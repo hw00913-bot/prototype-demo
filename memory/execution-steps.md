@@ -655,3 +655,126 @@
 
 ### 失败处理
 - 如果数据不显示，检查mock/data.js
+
+## 步骤 14：厚朴改为按已有任务 ID 关联
+
+### 需求来源
+- SRC-011：2026-08-27 用户确认的厚朴任务关联方式变更
+- 验收项：R-009 业务场景
+
+### 目标
+移除中台创建厚朴任务的交互，改为输入平台已有 `task_id`、查询校验并保存关联关系。
+
+### 文件
+- js/pages/sys-scene.js
+- js/pages/scene-list.js
+- assets/css/app.css
+- index.html
+- mock/data.js
+- docs/功能说明文档.md
+- docs/功能说明文档.html
+- memory/business-rules.md
+- memory/field-map.md
+- memory/source-materials.md
+- memory/acceptance-map.md
+- memory/change-log.md
+
+### 预期变更类型
+- update
+
+### 输入
+- memory/business-rules.md
+- memory/field-map.md
+- memory/source-materials.md
+- 用户确认的厚朴任务关联规则
+
+### 工作
+1. 厚朴场景配置仅保留已有任务 ID 输入与“查询并关联”动作。
+2. 查询成功后只读反显任务资料，移除中台任务创建参数。
+3. 任务 ID 为空、未查询、查询失败或变更后未重新查询时阻止保存。
+4. 保存关联时保留业务场景 ID 与租户数据。
+5. 任务详情与完整版说明文档同步展示新的关联方式。
+
+### 验收
+- 中台不展示或调用厚朴任务创建配置。
+- 已有任务 ID 查询成功后完整只读反显任务资料。
+- 无效或未确认的任务 ID 不能保存。
+- 编辑保存不丢失场景 ID 与租户。
+
+### 验证
+- 浏览器验证成功关联、任务 ID 变更、查询失败与保存拦截路径。
+- 检查旧创建字段不存在、控制台无错误、静态资源无 4xx/5xx。
+- 检查 Markdown 与生成 HTML 同步。
+
+### 验证技能
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli`
+
+### 标注影响
+- affected-pages: sys-scene, scene-list
+- annotation-required: yes
+- annotation-targets: 厚朴平台配置 | 厚朴任务详情（只读） | region | FLD-006, FLD-013, FLD-014, FLD-016, FLD-017, FLD-018, FLD-019
+
+### 依赖
+- 步骤 01（数据整合）
+
+### 失败处理
+- 查询或回显失败时回到 sys-scene 关联逻辑修复。
+- 资料口径冲突时以 SRC-011 为准并同步唯一说明文档。
+
+## 步骤 15：厚朴开发评审规则补齐
+
+### 需求来源
+- SRC-012：2026-08-28 用户确认的厚朴开发评审补充规则
+- 验收项：R-002 外呼列表、R-009 业务场景
+
+### 目标
+在已有 `task_id` 关联流程上补齐默认账号、唯一关联与任务状态实时读取，并明确 770–790 继续按已确认的本地映射执行。
+
+### 文件
+- mock/data.js
+- js/pages/sys-scene.js
+- js/pages/scene-list.js
+- docs/功能说明文档.md
+- docs/功能说明文档.html
+- memory/business-rules.md
+- memory/source-materials.md
+- memory/field-map.md
+- memory/acceptance-map.md
+- memory/change-log.md
+
+### 预期变更类型
+- update
+
+### 工作
+1. 新增模拟的服务端默认厚朴账号与独立任务查询 Mock。
+2. 查询和保存时校验同一 `task_id` 不得关联多个业务场景。
+3. 打开外呼任务详情、打开已关联场景编辑页或主动查询时，重新读取并展示厚朴原始任务状态、中台映射状态与读取时间。
+4. 唯一说明文档明确完整通话状态映射为中台本地业务规则。
+
+### 验收
+- 厚朴配置区显示只读的模拟默认账号。
+- 未关联的有效 `task_id` 可查询并保存；已被其他场景使用的 `task_id` 被拦截。
+- 编辑当前厚朴场景时可保留自身关联，并自动刷新任务状态。
+- 任务详情与场景编辑均展示状态读取时间。
+- Markdown 与 HTML 保持同步，不修改知识库或 GitHub。
+
+### 验证
+- JavaScript 语法、唯一说明文档同步和 final 门禁。
+- 浏览器验证编辑态自动刷新、重复 ID 拦截、未关联 ID 查询与保存、任务详情实时状态。
+
+### 验证技能
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli`
+
+### 标注影响
+- affected-pages: sys-scene, scene-list
+- annotation-required: yes
+- annotation-targets: 厚朴平台配置 | 厚朴任务详情（只读） | region | FLD-006, FLD-013, FLD-014, FLD-016, FLD-017, FLD-018, FLD-019
+
+### 依赖
+- 步骤 14（厚朴按已有任务 ID 关联）
+
+### 失败处理
+- 重复 ID 未拦截或编辑自身被误拦截时，回到 sys-scene 唯一性校验逻辑修复。
+- 任务状态未重新读取时，回到任务查询 Mock 与页面初始化逻辑修复。

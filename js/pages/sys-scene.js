@@ -6,7 +6,7 @@
  *  - 中科金智能：任务id + 模型类型 + 中科金账号 + 默认姓名字段
  *  - 电声：匹配机器人 + 呼叫时段/排除日期 + N天M呼 + 黑名单 + 自动启动 + 模型类型/账号
  *  - 冰兰：数据导入方式(接口传入) + 呼叫通道/线路 + 呼叫策略(机器人/优先级/时段/重拨/拦截)
- *  - 厚朴：任务名称 + 数据列模式(单条/多条) + 平台字段预填
+ *  - 厚朴：输入平台已有任务 ID，查询任务资料后建立只读关联
  *  - 大众通信：任务ID(uuid) + 模型类型 + 默认账号
  */
 (function () {
@@ -21,6 +21,8 @@
   var customExtractFields = []; /* 用户添加的提取字段 */
   var dsWindowIndex = 1;        /* 电声呼叫时段行序号 */
   var dsExcludeIndex = 1;       /* 电声排除日期行序号 */
+  var currentHoupuLinkedTask = null; /* 厚朴按任务 ID 查询成功后的关联快照 */
+  var currentHoupuStatusReadAt = ''; /* 打开页面或主动查询时的任务状态读取时间 */
 
   /* ===== 列表渲染 ===== */
   function renderSceneRowsHtml() {
@@ -113,6 +115,18 @@
   }
 
   /* ===== 抽屉表单辅助 ===== */
+  function escapeHtmlAttr(value) {
+    return String(value == null ? '' : value).replace(/[&"<>']/g, function (c) {
+      return { '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;', "'": '&#39;' }[c];
+    });
+  }
+
+  function escapeHtmlText(value) {
+    return String(value == null ? '' : value).replace(/[&<>]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+    });
+  }
+
   function getCurrentPlatform() {
     var el = document.querySelector('#bizAddSceneDrawer input[name="platform"]:checked');
     return el ? el.value : '';
@@ -157,15 +171,77 @@
       platformInputRows = (window.MockBinglanInputDefaults || []).map(function (f) {
         return { fieldName: f.fieldName, paramName: f.paramName, required: !!f.required, canDelete: true, editable: true };
       });
-    } else if (platform === '厚朴') {
-      var fields = window.MockHoupuSceneFields || [];
-      var colTypeEl = document.querySelector('input[name="houpuColumnType"]:checked');
-      var colType = colTypeEl ? colTypeEl.value : 'multiple';
-      if (colType === 'single') fields = fields.filter(function (f) { return f.field === 'calleeNo'; });
-      platformInputRows = fields.map(function (f) {
-        return { fieldName: f.label + (f.status === 'partial' ? '（待确认）' : ''), paramName: f.field, required: !!f.required, canDelete: false, actionText: '平台字段' };
-      });
     }
+    /* 厚朴：号码模板字段随已关联任务只读反显，不在中台编辑 */
+  }
+
+  function getDefaultHoupuAccount() {
+    return (window.MockHoupuAccounts || []).find(function (account) {
+      return account.isDefault && account.enabled !== false;
+    }) || null;
+  }
+
+  function renderHoupuDefaultAccount() {
+    var input = document.getElementById('houpuAccountDisplay');
+    if (!input) return;
+    var account = getDefaultHoupuAccount();
+    input.value = account ? account.name + '（' + account.id + '）' : '未配置默认账号';
+  }
+
+  function findHoupuTaskById(taskId, accountId) {
+    var normalizedId = String(taskId || '').trim();
+    if (!normalizedId) return null;
+    var task = (window.MockHoupuRemoteTasks || []).find(function (row) {
+      return row.taskId === normalizedId && (!accountId || row.accountId === accountId);
+    });
+    if (!task) return null;
+    var bot = (window.MockHoupuBots || []).find(function (item) { return item.botId === task.botId; });
+    var template = (window.MockHoupuTemplates || []).find(function (item) { return item.templateId === task.templateId; });
+    return Object.assign({}, task, {
+      botName: bot ? bot.name : '',
+      templateName: template ? template.name : ''
+    });
+  }
+
+  function findHoupuLinkedScene(taskId) {
+    var normalizedId = String(taskId || '').trim();
+    if (!normalizedId) return null;
+    return SceneRows.find(function (row) {
+      return row.platform === '厚朴' && row.taskId === normalizedId && row.id !== currentEditingId;
+    }) || null;
+  }
+
+  function houpuTaskStatusText(task) {
+    var middleMap = {
+      0: '1 未启动',
+      1: '2 进行中',
+      2: '5 已结束',
+      3: '4 已终止',
+      4: '8 系统挂起',
+      5: '3 已暂停',
+      6: '14 系统暂停'
+    };
+    if (!task || task.taskStatus === undefined || task.taskStatus === null) return '未映射';
+    var raw = task.taskStatus + (task.taskStatusName ? '-'+ task.taskStatusName : '');
+    return raw + ' → 中台 ' + (middleMap[task.taskStatus] || '未映射');
+  }
+
+  function formatStatusReadAt() {
+    var d = new Date();
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+
+  function houpuTaskTypeText(type) {
+    if (type === 'streaming') return '流式（streaming）';
+    if (type === 'same_day') return '当日（same_day）';
+    return type || '-';
+  }
+
+  function houpuScheduleText(task) {
+    if (!task || task.taskType !== 'streaming') return '由厚朴任务配置';
+    var schedule = task.schedule || {};
+    return schedule.startTime && schedule.endTime ? schedule.startTime + ' - ' + schedule.endTime : '-';
   }
 
   function renderInputFieldRows() {
@@ -453,7 +529,6 @@
     var yizhiSceneId = platform === '一知科技' ? (data.sceneId || '') : '';
     var zkjTaskId = platform === '中科金智能' ? (data.sceneId || '') : '';
     var dazhongTaskId = platform === '大众通信' ? (data.sceneId || '') : '';
-    var houpuTaskName = data.taskName || 'HP-DEMO-新线索首访';
 
     var yizhiAccountOptions = (window.MockYizhiAccounts || []).map(function (acc) {
       return '<option value="' + acc.name + '">' + acc.name + ' (' + acc.id + ')</option>';
@@ -489,7 +564,7 @@
               '<div class="biz-form-row"><label class="biz-form-label required">场景名称</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="sceneNameInput" placeholder="给场景起个名字" maxlength="20" value="' + sceneName + '" oninput="window.Pages[\'sys-scene\'].updateCharCount(this,\'nameCount\',20)"><span class="biz-char-count" id="nameCount">' + sceneName.length + ' / 20</span></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">场景编码</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="sceneCodeInput" placeholder="请输入字母、数字、符号" maxlength="20" value="' + sceneCode + '" oninput="window.Pages[\'sys-scene\'].updateCharCount(this,\'codeCount\',20)"><span class="biz-char-count" id="codeCount">' + sceneCode.length + ' / 20</span></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label">场景描述</label><div class="biz-form-field"><textarea class="biz-form-textarea" id="sceneDescTextarea" placeholder="请输入场景简要描述" rows="3">' + description + '</textarea></div></div>' +
-              '<div class="biz-form-row"><label class="biz-form-label required">可用租户</label><div class="biz-form-field"><div class="biz-checkbox-group">' + tenantCheckboxesHtml(tenants) + '</div></div></div>' +
+              '<div class="biz-form-row"><label class="biz-form-label required">可用租户</label><div class="biz-form-field"><div class="biz-checkbox-group" id="tenantCheckboxGroup">' + tenantCheckboxesHtml(tenants) + '</div></div></div>' +
               '<div class="biz-form-row" data-anno="sys-scene-platform-selector" data-anno-page="sys-scene" data-anno-label="智能平台选择" data-anno-kind="region" data-anno-fields="FLD-006"><label class="biz-form-label required">智能平台</label><div class="biz-form-field"><div class="biz-radio-group">' + platformRadiosHtml(platform) + '</div></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">场景类型</label><div class="biz-form-field"><div class="biz-radio-group" id="sceneTypeGroup">' + sceneTypeRadiosHtml(sceneType) + '</div></div></div>' +
 
@@ -624,14 +699,25 @@
                 '<div class="biz-form-row binglan-channel-hidden-row"><label class="biz-form-label"></label><div class="biz-form-field"><select class="biz-form-select"><option value="">选择拦截分组</option><option value="rule_default">默认规则组</option><option value="rule_custom">自定义规则组</option></select></div></div>' +
               '</div>' +
 
-              /* ===== 厚朴面板 ===== */
-              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013">' +
-                '<div class="biz-form-row"><label class="biz-form-label required">厚朴任务名称</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="houpuTaskName" value="' + houpuTaskName + '" placeholder="需与厚朴平台已创建的任务名称完全一致"></div></div>' +
-                '<div class="biz-form-row"><label class="biz-form-label required">数据列模式</label><div class="biz-form-field"><div class="biz-radio-group">' +
-                  '<label class="biz-radio"><input type="radio" name="houpuColumnType" value="single" onchange="window.Pages[\'sys-scene\'].onHoupuColumnTypeChange()"><span>单条</span></label>' +
-                  '<label class="biz-radio"><input type="radio" name="houpuColumnType" value="multiple" checked onchange="window.Pages[\'sys-scene\'].onHoupuColumnTypeChange()"><span>多条</span></label>' +
-                '</div></div></div>' +
-                '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">需先在厚朴平台创建任务，任务名称必须完全一致；单次批量追加最多 1000 条。登录令牌有效期 1 天。任务结果字段为首版参考口径，待联调确认。</div></div></div></div>' +
+              /* ===== 厚朴面板：按已有任务 ID 关联 ===== */
+              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013,FLD-014,FLD-016,FLD-017">' +
+                '<div class="biz-form-row"><label class="biz-form-label">厚朴账号</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="houpuAccountDisplay" value="" readonly><div class="biz-form-tip">原型使用模拟的服务端默认账号；OAuth2 凭据和令牌不进入浏览器。</div></div></div>' +
+                '<div class="biz-form-row" style="align-items:flex-start;"><label class="biz-form-label required">厚朴任务ID</label><div class="biz-form-field">' +
+                  '<div class="houpu-task-link-control"><input type="text" class="biz-form-input" id="houpuTaskId" value="' + escapeHtmlAttr(data.taskId || '') + '" placeholder="请输入厚朴平台已有 task_id" oninput="window.Pages[\'sys-scene\'].onHoupuTaskIdInput()"><button type="button" class="btn btn-default" onclick="window.Pages[\'sys-scene\'].queryHoupuTask()">查询并关联</button></div>' +
+                  '<div class="houpu-link-status" id="houpuLinkStatus">输入厚朴平台已有任务 ID，查询成功后才能保存场景。</div>' +
+                '</div></div>' +
+                '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">厚朴任务需提前在厚朴平台创建。中台不再调用任务创建接口，仅通过 task_id 查询并保存关联关系；同一 task_id 不能关联多个场景。打开编辑页或主动查询时实时读取任务状态。</div></div></div></div>' +
+                '<div class="biz-form-row hidden" id="houpuLinkedTaskPanel" style="align-items:flex-start;"><label class="biz-form-label">已关联任务</label><div class="biz-form-field">' +
+                  '<div class="houpu-linked-task-panel"><div class="houpu-linked-title">任务资料（只读）</div><table class="biz-inner-table"><tbody>' +
+                    '<tr><th>任务名称</th><td id="houpuLinkedTaskName">-</td><th>任务类型</th><td id="houpuLinkedTaskType">-</td></tr>' +
+                    '<tr><th>机器人</th><td id="houpuLinkedBot">-</td><th>执行时段</th><td id="houpuLinkedSchedule">-</td></tr>' +
+                    '<tr><th>并发</th><td id="houpuLinkedConcurrency">-</td><th>重呼</th><td id="houpuLinkedRedial">-</td></tr>' +
+                    '<tr><th>未呼优先</th><td id="houpuLinkedUncalled">-</td><th>号码模板</th><td id="houpuLinkedTemplate">-</td></tr>' +
+                    '<tr><th>实时任务状态</th><td id="houpuLinkedTaskStatus">-</td><th>状态读取时间</th><td id="houpuLinkedStatusReadAt">-</td></tr>' +
+                    '<tr><th>服务端回调</th><td colspan="3" id="houpuLinkedCallback">-</td></tr>' +
+                  '</tbody></table></div>' +
+                  '<table class="biz-inner-table houpu-template-fields" id="houpuTemplateFieldTable"><thead><tr><th>序号</th><th>导入字段</th><th>参数名</th><th>是否必填</th></tr></thead><tbody id="houpuTemplateFieldBody"></tbody></table>' +
+                '</div></div>' +
               '</div>' +
 
               /* ===== 大众通信面板 ===== */
@@ -688,6 +774,8 @@
     customExtractFields = [];
     dsWindowIndex = 1;
     dsExcludeIndex = 1;
+    currentHoupuLinkedTask = null;
+    currentHoupuStatusReadAt = '';
     document.body.insertAdjacentHTML('beforeend', renderDrawerHtml(modalTitle, {}));
     document.body.style.overflow = 'hidden';
     document.addEventListener('click', closeDianshengIntervalMenus);
@@ -712,6 +800,8 @@
     customExtractFields = [];
     dsWindowIndex = 1;
     dsExcludeIndex = 1;
+    currentHoupuLinkedTask = null;
+    currentHoupuStatusReadAt = '';
     var data = Object.assign({}, row, { tenants: row.tenant ? [row.tenant] : [] });
     document.body.insertAdjacentHTML('beforeend', renderDrawerHtml('编辑业务场景', data));
     document.body.style.overflow = 'hidden';
@@ -723,6 +813,13 @@
       if (drawer) drawer.classList.add('open');
     });
     onPlatformChange();
+    applyHoupuEditPrefill(data);
+  }
+
+  /* ===== 厚朴：编辑态按已保存任务 ID 恢复关联快照 ===== */
+  function applyHoupuEditPrefill(data) {
+    if (!data || getCurrentPlatform() !== '厚朴') return;
+    if (data.taskId) queryHoupuTask(true);
   }
 
   function closeAddModal(e) {
@@ -841,7 +938,7 @@
       ensureTimeSlotsInit();
     } else if (platform === '厚朴') {
       showEl('platformPanelHoupu');
-      onHoupuColumnTypeChange();
+      renderHoupuDefaultAccount();
     } else if (platform === '大众通信') {
       showEl('platformPanelDazhong');
       showEl('dzModelTypeRow');
@@ -930,11 +1027,114 @@
     refreshInputTable();
   }
 
-  /* ===== 厚朴：数据列模式切换 ===== */
-  function onHoupuColumnTypeChange() {
-    if (getCurrentPlatform() !== '厚朴') return;
-    resetInputFieldsForPlatform('厚朴');
-    refreshInputTable();
+  /* ===== 厚朴：按平台已有任务 ID 查询并建立关联 ===== */
+  function renderHoupuTemplateFields(templateId) {
+    var tbody = document.getElementById('houpuTemplateFieldBody');
+    if (!tbody) return;
+    var template = (window.MockHoupuTemplates || []).filter(function (tpl) { return tpl.templateId === templateId; })[0];
+    var fields = (template && template.fields) || [];
+    if (!fields.length) {
+      tbody.innerHTML = '<tr><td colspan="4"><div class="biz-empty-mini"><div class="biz-empty-icon">&#128230;</div><div class="biz-empty-text">该任务未返回号码模板字段</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = fields.map(function (field, index) {
+      var required = field.required ? '<span class="biz-required-tag">* 是</span>' : '否';
+      return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtmlText(field.label) + '</td><td>' + escapeHtmlText(field.field) + '</td><td>' + required + '</td></tr>';
+    }).join('');
+  }
+
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value == null || value === '' ? '-' : String(value);
+  }
+
+  function onHoupuTaskIdInput() {
+    var input = document.getElementById('houpuTaskId');
+    var currentId = input ? input.value.trim() : '';
+    if (currentHoupuLinkedTask && currentHoupuLinkedTask.taskId === currentId) return;
+    currentHoupuLinkedTask = null;
+    currentHoupuStatusReadAt = '';
+    var panel = document.getElementById('houpuLinkedTaskPanel');
+    if (panel) panel.classList.add('hidden');
+    var status = document.getElementById('houpuLinkStatus');
+    if (status) {
+      status.className = 'houpu-link-status';
+      status.textContent = currentId ? '任务 ID 已变更，请重新查询并关联。' : '输入厚朴平台已有任务 ID，查询成功后才能保存场景。';
+    }
+  }
+
+  function queryHoupuTask(silent) {
+    var input = document.getElementById('houpuTaskId');
+    var taskId = input ? input.value.trim() : '';
+    var status = document.getElementById('houpuLinkStatus');
+    var panel = document.getElementById('houpuLinkedTaskPanel');
+    if (!taskId) {
+      currentHoupuLinkedTask = null;
+      currentHoupuStatusReadAt = '';
+      if (status) {
+        status.className = 'houpu-link-status error';
+        status.textContent = '请输入厚朴任务 ID。';
+      }
+      if (!silent) showToast('请输入厚朴任务 ID', 'warning');
+      return false;
+    }
+    var account = getDefaultHoupuAccount();
+    if (!account) {
+      currentHoupuLinkedTask = null;
+      currentHoupuStatusReadAt = '';
+      if (panel) panel.classList.add('hidden');
+      if (status) {
+        status.className = 'houpu-link-status error';
+        status.textContent = '未配置可用的厚朴默认账号。';
+      }
+      if (!silent) showToast('未配置可用的厚朴默认账号', 'error');
+      return false;
+    }
+    var linkedScene = findHoupuLinkedScene(taskId);
+    if (linkedScene) {
+      currentHoupuLinkedTask = null;
+      currentHoupuStatusReadAt = '';
+      if (panel) panel.classList.add('hidden');
+      if (status) {
+        status.className = 'houpu-link-status error';
+        status.textContent = '该任务 ID 已关联业务场景「' + linkedScene.name + '」，不能重复关联。';
+      }
+      if (!silent) showToast('同一厚朴任务 ID 不能关联多个场景', 'error');
+      return false;
+    }
+    var task = findHoupuTaskById(taskId, account.id);
+    if (!task) {
+      currentHoupuLinkedTask = null;
+      currentHoupuStatusReadAt = '';
+      if (panel) panel.classList.add('hidden');
+      if (status) {
+        status.className = 'houpu-link-status error';
+        status.textContent = '未查询到该任务，请确认任务 ID 或厚朴平台任务状态。';
+      }
+      if (!silent) showToast('未查询到厚朴任务，请确认任务 ID', 'error');
+      return false;
+    }
+    currentHoupuLinkedTask = task;
+    currentHoupuStatusReadAt = formatStatusReadAt();
+    setText('houpuLinkedTaskName', task.taskName || task.name);
+    setText('houpuLinkedTaskType', houpuTaskTypeText(task.taskType));
+    setText('houpuLinkedBot', (task.botName ? task.botName + '（' + task.botId + '）' : task.botId));
+    setText('houpuLinkedSchedule', houpuScheduleText(task));
+    setText('houpuLinkedConcurrency', task.concurrency);
+    setText('houpuLinkedRedial', task.redialText || (task.redial ? '开启' : '关闭'));
+    setText('houpuLinkedUncalled', task.uncalledFirst ? '是' : '否');
+    setText('houpuLinkedTemplate', (task.templateName ? task.templateName + '（' + task.templateId + '）' : task.templateId));
+    setText('houpuLinkedTaskStatus', houpuTaskStatusText(task));
+    setText('houpuLinkedStatusReadAt', currentHoupuStatusReadAt);
+    setText('houpuLinkedCallback', task.callbackConfigured === false ? '服务端未配置' : '服务端已配置（真实地址不在浏览器展示）');
+    renderHoupuTemplateFields(task.templateId);
+    if (panel) panel.classList.remove('hidden');
+    if (status) {
+      status.className = 'houpu-link-status success';
+      status.textContent = '已通过默认账号查询并关联任务 ' + taskId + '；任务状态读取于 ' + currentHoupuStatusReadAt + '。';
+    }
+    if (!silent) showToast('厚朴任务关联成功', 'success');
+    return true;
   }
 
   /* ===== 冰兰：平台默认字段编辑/删除 ===== */
@@ -1102,12 +1302,19 @@
   function collectFormSceneRow() {
     var platform = getCurrentPlatform();
     var sceneTypeEl = document.querySelector('#bizAddSceneDrawer input[name="sceneType"]:checked');
-    var tenants = getCheckedValues('#bizAddSceneDrawer input[type="checkbox"]:checked');
+    var tenants = getCheckedValues('#tenantCheckboxGroup input[type="checkbox"]:checked');
     var sceneIdVal = '';
     if (platform === '一知科技') sceneIdVal = getTrimmedValue('yizhiSceneIdInput');
     else if (platform === '中科金智能') sceneIdVal = getTrimmedValue('zkjTaskIdInput');
     else if (platform === '大众通信') sceneIdVal = getTrimmedValue('dazhongTaskId');
-    return {
+    else if (platform === '厚朴') {
+      var currentScene = currentEditingId ? SceneRows.find(function (item) { return item.id === currentEditingId; }) : null;
+      var houpuSceneCount = SceneRows.filter(function (item) { return item.platform === '厚朴'; }).length + 1;
+      sceneIdVal = currentScene && currentScene.sceneId
+        ? currentScene.sceneId
+        : 'HP-SCENE-' + String(houpuSceneCount).padStart(3, '0');
+    }
+    var row = {
       name: getTrimmedValue('sceneNameInput'),
       code: getTrimmedValue('sceneCodeInput'),
       desc: getTrimmedValue('sceneDescTextarea'),
@@ -1115,9 +1322,29 @@
       category: sceneTypeEl ? sceneTypeEl.value : '',
       tenant: tenants.join('、'),
       sceneId: sceneIdVal,
-      taskName: platform === '厚朴' ? getTrimmedValue('houpuTaskName') : '',
       updateTime: formatNowDateTime()
     };
+    if (platform === '厚朴') {
+      row.taskId = getTrimmedValue('houpuTaskId');
+      if (currentHoupuLinkedTask && currentHoupuLinkedTask.taskId === row.taskId) {
+        var houpuAccount = getDefaultHoupuAccount();
+        row.houpuAccountId = houpuAccount ? houpuAccount.id : '';
+        row.houpuAccountName = houpuAccount ? houpuAccount.name : '';
+        row.taskName = currentHoupuLinkedTask.taskName || currentHoupuLinkedTask.name;
+        row.botId = currentHoupuLinkedTask.botId;
+        row.taskType = currentHoupuLinkedTask.taskType;
+        row.schedule = currentHoupuLinkedTask.schedule || null;
+        row.concurrency = currentHoupuLinkedTask.concurrency;
+        row.redial = !!currentHoupuLinkedTask.redial;
+        row.uncalledFirst = !!currentHoupuLinkedTask.uncalledFirst;
+        row.callbackConfigured = currentHoupuLinkedTask.callbackConfigured !== false;
+        row.templateId = currentHoupuLinkedTask.templateId;
+        row.taskStatus = currentHoupuLinkedTask.taskStatus;
+        row.taskStatusName = currentHoupuLinkedTask.taskStatusName;
+        row.taskStatusReadAt = currentHoupuStatusReadAt;
+      }
+    }
+    return row;
   }
 
   function validateDrawerForm() {
@@ -1127,7 +1354,7 @@
     var accountEl;
     if (!data.name) return '请输入场景名称';
     if (!data.code) return '请输入场景编码';
-    if (!getCheckedValues('#bizAddSceneDrawer input[type="checkbox"]:checked').length) return '请选择可用租户';
+    if (!getCheckedValues('#tenantCheckboxGroup input[type="checkbox"]:checked').length) return '请选择可用租户';
     if (!platform) return '请选择智能平台';
     if (!data.category) return '请选择场景类型';
 
@@ -1169,7 +1396,10 @@
         if (!priorityEl || !priorityEl.value) return '请选择优先级';
       }
     } else if (platform === '厚朴') {
-      if (!data.taskName) return '请输入厚朴任务名称';
+      if (!data.taskId) return '请输入厚朴任务 ID';
+      if (!getDefaultHoupuAccount()) return '未配置可用的厚朴默认账号';
+      if (findHoupuLinkedScene(data.taskId)) return '同一厚朴任务 ID 不能关联多个场景';
+      if (!currentHoupuLinkedTask || currentHoupuLinkedTask.taskId !== data.taskId) return '请先查询并确认厚朴任务关联';
     } else if (platform === '大众通信') {
       if (!data.sceneId) return '请输入大众通信任务ID';
       modelTypeEl = document.querySelector('input[name="dzModelType"]:checked');
@@ -1223,7 +1453,8 @@
     onDsModelTypeChange: onDsModelTypeChange,
     onDzModelTypeChange: onDzModelTypeChange,
     onBinglanCallChannelChange: onBinglanCallChannelChange,
-    onHoupuColumnTypeChange: onHoupuColumnTypeChange,
+    onHoupuTaskIdInput: onHoupuTaskIdInput,
+    queryHoupuTask: queryHoupuTask,
     onDianshengAutoStartChange: onDianshengAutoStartChange,
     addDianshengCallWindow: addDianshengCallWindow,
     removeDianshengCallWindow: removeDianshengCallWindow,
