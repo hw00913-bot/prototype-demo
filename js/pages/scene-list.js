@@ -382,45 +382,18 @@
       return '<div class="task-detail-row"><div class="task-detail-label">' + label + '</div><div class="task-detail-value">' + (value || '-') + '</div></div>';
     }
     var defaultAccount = (window.MockHoupuAccounts || []).find(function (account) { return account.isDefault && account.enabled !== false; });
-    var remoteTask = (window.MockHoupuRemoteTasks || []).find(function (task) {
-      return task.taskId === d.task_id && (!defaultAccount || task.accountId === defaultAccount.id);
-    });
-    var statusSource = remoteTask || (d.rawStatus || {});
-    var statusInfo = getTaskStatusInfo(Object.assign({}, item, { taskStatus: statusSource.taskStatus }));
-    var rawStatus = {
-      taskStatus: statusSource.taskStatus,
-      taskStatusName: statusSource.taskStatusName || (d.rawStatus && d.rawStatus.taskStatusName)
-    };
-    var readAt = new Date();
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
-    var statusReadAt = readAt.getFullYear() + '-' + pad(readAt.getMonth() + 1) + '-' + pad(readAt.getDate()) + ' ' + pad(readAt.getHours()) + ':' + pad(readAt.getMinutes()) + ':' + pad(readAt.getSeconds());
-    var rawText = rawStatus.taskStatus !== undefined
-      ? 'taskStatus=' + rawStatus.taskStatus + (rawStatus.taskStatusName ? '（' + rawStatus.taskStatusName + '）' : '')
-      : '-';
-    var middleText = statusInfo.code === null
-      ? '中台：未映射'
-      : '中台：' + statusInfo.info.label + '（' + statusInfo.code + ' ' + statusInfo.info.code + '）';
     var botText = d.botName ? d.botName + '（' + d.botId + '）' : (d.botId || '-');
-    var templateText = d.templateName ? d.templateName + '（' + d.templateId + '）' : (d.templateId || '-');
-    var taskTypeText = d.taskType === 'streaming' ? '流式' : (d.taskType === 'same_day' ? '当日' : d.taskType);
-    return '<div class="task-detail-section" data-anno="houpu-task-detail" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-013,FLD-014,FLD-016,FLD-017,FLD-018,FLD-019">' +
+    return '<div class="task-detail-section" data-anno="houpu-task-detail" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-016,FLD-018,FLD-019">' +
       row('任务ID', escapeHtml(d.task_id)) +
-      row('关联方式', '按已有任务 ID 关联（中台不创建任务）') +
       row('厚朴账号', defaultAccount ? escapeHtml(defaultAccount.name + '（' + defaultAccount.id + '）') : '未配置') +
       row('任务名称', escapeHtml(d.taskName)) +
-      row('任务类型', escapeHtml(taskTypeText)) +
       row('机器人', botText) +
       row('执行时段', escapeHtml(d.callPeriod)) +
       row('并发', d.concurrency) +
       row('重呼', escapeHtml(d.recall)) +
       row('未呼优先', d.unCalledPriority ? '是' : '否') +
-      row('服务端回调', escapeHtml(d.serverCallback)) +
-      row('模板', templateText) +
       row('批次号', escapeHtml(d.batchId)) +
       row('平台有效号码数', d.validNumberCount) +
-      row('任务状态', escapeHtml(rawText) + ' → ' + middleText) +
-      row('状态获取方式', '打开详情时调用厚朴任务查询接口实时读取') +
-      row('状态读取时间', statusReadAt) +
       row('创建时间', escapeHtml(d.createdAt)) +
       row('外呼进度', escapeHtml(d.progress)) +
     '</div>';

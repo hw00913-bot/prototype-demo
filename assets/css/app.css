@@ -4128,16 +4128,6 @@ p { margin-bottom: 8px; }
 .ds-switch input:checked + span { background: #1677ff; }
 .ds-switch input:checked + span::after { transform: translateX(20px); }
 .ds-warning { color: #86909c; font-size: 12px; line-height: 1.5; }
-.ds-multi-select { position: relative; width: 180px; }
-.ds-multi-select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: 36px; padding: 0 10px; text-align: left; appearance: none; }
-.ds-multi-select-trigger:hover, .ds-multi-select-trigger:focus, .ds-multi-select.open .ds-multi-select-trigger { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.12); }
-.ds-multi-select-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-multi-select-arrow { flex: 0 0 auto; color: #999; font-size: 12px; }
-.ds-multi-select-menu { display: none; position: absolute; z-index: 20; top: 40px; left: 0; width: 100%; padding: 6px 0; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
-.ds-multi-select.open .ds-multi-select-menu { display: block; }
-.ds-multi-select-option { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; color: #333; font-size: 13px; cursor: pointer; }
-.ds-multi-select-option:hover { background: #f5f9ff; }
-.ds-multi-select-option input { margin: 0; accent-color: #1677ff; }
 .ds-redial-row { margin-top: -4px; }
 .ds-redial-field { flex-direction: column; align-items: flex-start; gap: 8px; }
 .ds-redial-table { width: 100%; table-layout: fixed; border: 1px solid #e5e8ef; border-radius: 6px; border-collapse: separate; border-spacing: 0; overflow: visible; background: #fff; }
@@ -4145,11 +4135,9 @@ p { margin-bottom: 8px; }
 .ds-redial-table th { height: 42px; background: #f7f8fa; font-weight: 600; color: #4e5969; }
 .ds-redial-table td { color: #333; }
 .ds-redial-table tr:last-child td { border-bottom: 0; }
-.ds-redial-table .biz-form-input, .ds-redial-table .biz-form-select, .ds-redial-table .ds-multi-select { width: 100%; min-width: 0; max-width: 240px; margin: 0 auto; }
+.ds-redial-table .biz-form-input, .ds-redial-table .biz-form-select { width: 100%; min-width: 0; max-width: 240px; margin: 0 auto; }
 .ds-redial-table .biz-form-input { height: 36px; padding: 0 10px; }
-.ds-redial-table .ds-multi-select-trigger { width: 100%; min-width: 0; flex: none; }
 .ds-redial-table .ds-redial-call-status:disabled { color: #4e5969; background: #f5f5f5; border-color: #e5e6eb; cursor: not-allowed; opacity: 1; }
-.ds-redial-table .ds-multi-select-menu { top: 39px; text-align: left; }
 
 /* ===== 外呼详情抽屉：平台扩展（源自大众/电声/一知参考源） ===== */
 .task-detail-muted { color: #999; font-size: 12px; word-break: break-all; }
@@ -4867,6 +4855,5 @@ p { margin-bottom: 8px; }
 .account-radio-label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #1f1f1f; cursor: pointer; user-select: none; }
 .account-radio-label input[type="radio"] { margin: 0; width: 16px; height: 16px; accent-color: #1677ff; cursor: pointer; }
 .account-form-error { color: #ff4d4f; font-size: 12px; margin-top: 4px; }
-
 
 

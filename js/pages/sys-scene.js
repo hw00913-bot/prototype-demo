@@ -4,7 +4,7 @@
  * 创建抽屉对齐 releases_demo 各平台参考源的供应商创建界面：
  *  - 一知科技：场景id + 模型类型 + 一知账号 + 默认 7 传入字段
  *  - 中科金智能：任务id + 模型类型 + 中科金账号 + 默认姓名字段
- *  - 电声：匹配机器人 + 呼叫时段/排除日期 + N天M呼 + 黑名单 + 自动启动 + 模型类型/账号
+ *  - 电声：匹配机器人 + 呼叫时段/排除日期 + M呼/统一间隔/自动换算天数 + 黑名单 + 自动启动 + 模型类型/账号
  *  - 冰兰：数据导入方式(接口传入) + 呼叫通道/线路 + 呼叫策略(机器人/优先级/时段/重拨/拦截)
  *  - 厚朴：输入平台已有任务 ID，查询任务资料后建立只读关联
  *  - 大众通信：任务ID(uuid) + 模型类型 + 默认账号
@@ -446,52 +446,127 @@
     return dates.filter(function (date, index) { return dates.indexOf(date) === index; });
   }
 
-  /* ===== 电声：N天M呼间隔分钟数多选 ===== */
-  function renderDianshengIntervalControl() {
-    var options = (window.MockDianshengIntervals || ['15', '30', '45', '60', '90', '120']).map(function (value) {
-      return '<label class="ds-multi-select-option"><input type="checkbox" class="ds-redial-interval-option" value="' + value + '" onchange="window.Pages[\'sys-scene\'].updateDianshengIntervalSummary(this)"><span>' + value + ' 分钟</span></label>';
-    }).join('');
-    return '<div class="ds-multi-select" onclick="event.stopPropagation()">' +
-      '<button type="button" class="biz-form-select ds-multi-select-trigger" onclick="window.Pages[\'sys-scene\'].toggleDianshengIntervalMenu(this)"><span class="ds-multi-select-value">请选择间隔分钟数</span><span class="ds-multi-select-arrow">▾</span></button>' +
-      '<div class="ds-multi-select-menu">' + options + '</div>' +
-    '</div>';
-  }
-
-  function toggleDianshengIntervalMenu(button) {
-    var control = button && button.closest ? button.closest('.ds-multi-select') : null;
-    if (control) control.classList.toggle('open');
-  }
-
-  function updateDianshengIntervalSummary(input) {
-    var control = input && input.closest ? input.closest('.ds-multi-select') : null;
-    if (!control) return;
-    var values = Array.prototype.map.call(control.querySelectorAll('.ds-redial-interval-option:checked'), function (option) {
-      return option.value;
-    });
-    var valueText = control.querySelector('.ds-multi-select-value');
-    if (valueText) valueText.textContent = values.length ? values.join('、') + ' 分钟' : '请选择间隔分钟数';
-  }
-
-  function closeDianshengIntervalMenus(event) {
-    if (event && event.target.closest && event.target.closest('.ds-multi-select')) return;
-    Array.prototype.forEach.call(document.querySelectorAll('.ds-multi-select.open'), function (control) {
-      control.classList.remove('open');
-    });
-  }
-
+  /* ===== 电声：统一重呼间隔与执行天数预估 ===== */
   function getDianshengRedialRules() {
     var row = document.querySelector('#dsRedialRulesBody .ds-redial-rule-row');
-    if (!row) return { days: 1, maxAttempts: 1, intervalMinutes: [] };
-    var days = row.querySelector('.ds-redial-days');
+    if (!row) return { maxAttempts: 1, uniformIntervalMinutes: 0, intervalMinutes: [] };
     var times = row.querySelector('.ds-redial-times');
-    var intervals = row.querySelectorAll('.ds-redial-interval-option:checked');
-    var intervalMinutes = Array.prototype.map.call(intervals, function (option) {
-      return parseInt(option.value, 10);
-    }).filter(function (value) { return value > 0; });
+    var interval = row.querySelector('.ds-redial-interval');
+    var maxAttempts = Math.max(1, parseInt(times && times.value, 10) || 1);
+    var uniformIntervalMinutes = Math.max(0, parseInt(interval && interval.value, 10) || 0);
     return {
-      days: Math.max(1, parseInt(days && days.value, 10) || 1),
-      maxAttempts: Math.max(1, parseInt(times && times.value, 10) || 1),
-      intervalMinutes: intervalMinutes
+      maxAttempts: maxAttempts,
+      uniformIntervalMinutes: uniformIntervalMinutes,
+      intervalMinutes: Array(Math.max(0, maxAttempts - 1)).fill(uniformIntervalMinutes)
+    };
+  }
+
+  function parseDianshengDateTime(value) {
+    var match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (!match) return null;
+    var date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]), Number(match[6] || 0), 0);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function getDianshengPlannedStart(autoStart) {
+    if (autoStart && !autoStart.enabled && autoStart.executeDateTime) {
+      return parseDianshengDateTime(autoStart.executeDateTime);
+    }
+    return new Date();
+  }
+
+  function getDianshengDateKey(date) {
+    function pad(value) { return value < 10 ? '0' + value : String(value); }
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  }
+
+  function getDianshengWeekdayName(date) {
+    return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
+  }
+
+  function getDianshengTimeMinutes(value) {
+    var parts = String(value || '').split(':');
+    return parts.length === 2 ? Number(parts[0]) * 60 + Number(parts[1]) : -1;
+  }
+
+  function findNextDianshengCallableTime(candidate, windows, excludeDates) {
+    var cursor = new Date(candidate.getTime());
+    var excluded = excludeDates.reduce(function (map, date) { map[date] = true; return map; }, {});
+    for (var dayOffset = 0; dayOffset <= 3660; dayOffset++) {
+      var dateKey = getDianshengDateKey(cursor);
+      var weekday = getDianshengWeekdayName(cursor);
+      var activeWindows = excluded[dateKey] ? [] : windows.filter(function (win) {
+        return win.weekdays.indexOf(weekday) !== -1;
+      }).map(function (win) {
+        return {
+          beginMinutes: getDianshengTimeMinutes(win.beginTime),
+          endMinutes: getDianshengTimeMinutes(win.endTime)
+        };
+      }).filter(function (win) {
+        return win.beginMinutes >= 0 && win.endMinutes > win.beginMinutes;
+      }).sort(function (a, b) { return a.beginMinutes - b.beginMinutes; });
+
+      for (var index = 0; index < activeWindows.length; index++) {
+        var windowItem = activeWindows[index];
+        var begin = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), Math.floor(windowItem.beginMinutes / 60), windowItem.beginMinutes % 60, 0, 0);
+        var end = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), Math.floor(windowItem.endMinutes / 60), windowItem.endMinutes % 60, 0, 0);
+        if (cursor < begin) return begin;
+        if (cursor >= begin && cursor < end) return cursor;
+      }
+
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 1, 0, 0, 0, 0);
+    }
+    throw new Error('未能在10年内找到可呼叫时间');
+  }
+
+  function calculateDianshengTaskEstimate(startAt, windows, excludeDates, redialRules) {
+    var plannedTimes = [];
+    var cursor = findNextDianshengCallableTime(startAt, windows, excludeDates);
+    plannedTimes.push(cursor);
+    for (var attempt = 1; attempt < redialRules.maxAttempts; attempt++) {
+      cursor = new Date(cursor.getTime() + redialRules.uniformIntervalMinutes * 60000);
+      cursor = findNextDianshengCallableTime(cursor, windows, excludeDates);
+      plannedTimes.push(cursor);
+    }
+    var firstDateUtc = Date.UTC(startAt.getFullYear(), startAt.getMonth(), startAt.getDate());
+    var lastTime = plannedTimes[plannedTimes.length - 1];
+    var lastDateUtc = Date.UTC(lastTime.getFullYear(), lastTime.getMonth(), lastTime.getDate());
+    return {
+      days: Math.floor((lastDateUtc - firstDateUtc) / 86400000) + 1,
+      plannedTimes: plannedTimes
+    };
+  }
+
+  function buildDianshengTaskEstimate() {
+    var windows = getDianshengCallWindows();
+    var excludeDates = getDianshengExcludeDates();
+    var redialRules = getDianshengRedialRules();
+    var autoStart = getDianshengAutoStart();
+    var startAt = getDianshengPlannedStart(autoStart);
+    if (!startAt) throw new Error('请填写有效的任务计划开始时间');
+    var estimate = calculateDianshengTaskEstimate(startAt, windows, excludeDates, redialRules);
+    if (estimate.days > 365) throw new Error('预计执行天数超过365天，请调整呼叫时段、排除日期或重呼配置');
+    var weekdayCodes = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周日': 7 };
+    return {
+      callTimeWindow: {
+        windows: windows.map(function (win) {
+          return {
+            weekdays: win.weekdays.map(function (day) { return weekdayCodes[day]; }),
+            beginTime: win.beginTime,
+            endTime: win.endTime
+          };
+        }),
+        excludeDates: excludeDates,
+        onOutOfWindow: 'postpone'
+      },
+      nDayMCallPolicy: {
+        days: estimate.days,
+        maxAttempts: redialRules.maxAttempts,
+        intervalMinutes: redialRules.intervalMinutes
+      },
+      autoStart: autoStart,
+      plannedStartAt: startAt,
+      plannedTimes: estimate.plannedTimes
     };
   }
 
@@ -613,7 +688,7 @@
               '</div>' +
 
               /* ===== 电声面板 ===== */
-              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden" data-anno="sys-scene-diansheng-config" data-anno-page="sys-scene" data-anno-label="电声平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-015">' +
+              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden" data-anno="sys-scene-diansheng-config" data-anno-page="sys-scene" data-anno-label="电声平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-015,FLD-057,FLD-058,FLD-059">' +
                 '<div class="ds-call-strategy">' +
                   '<div class="ds-call-title">呼叫任务配置</div>' +
                   '<div class="biz-form-row"><label class="biz-form-label">匹配机器人</label><div class="biz-form-field">' +
@@ -630,14 +705,13 @@
                       '<div class="ds-exclude-date-list" id="dsExcludeDateList">' + renderDianshengExcludeDateRow(0) + '</div>' +
                       '<a href="#" class="biz-add-link" onclick="event.preventDefault();window.Pages[\'sys-scene\'].addDianshengExcludeDate()">添加日期</a>' +
                     '</div></div>' +
-                  '<div class="biz-form-row ds-switch-row"><label class="biz-form-label required">自动重呼配置</label><div class="biz-form-field ds-switch-field"><span class="ds-warning">△ 按“N天M呼”配置，间隔分钟数按实际呼叫顺序填写</span></div></div>' +
+                  '<div class="biz-form-row ds-switch-row"><label class="biz-form-label required">自动重呼配置</label><div class="biz-form-field ds-switch-field"><span class="ds-warning">△ 最大执行天数由系统在创建任务提交接口前，结合计划开始时间和呼叫时段自动换算</span></div></div>' +
                   '<div class="biz-form-row ds-redial-row"><label class="biz-form-label"></label><div class="biz-form-field ds-redial-field">' +
-                    '<table class="ds-redial-table"><thead><tr><th>呼叫状态</th><th>最大执行天数</th><th>最大呼叫次数</th><th>间隔分钟数</th></tr></thead>' +
+                    '<table class="ds-redial-table"><thead><tr><th>呼叫状态</th><th>最大呼叫次数</th><th>统一重呼间隔（分钟）</th></tr></thead>' +
                       '<tbody id="dsRedialRulesBody"><tr class="ds-redial-rule-row">' +
                         '<td><input class="biz-form-input ds-redial-call-status" value="未接通" disabled aria-label="呼叫状态"></td>' +
-                        '<td><input class="biz-form-input ds-redial-days" type="number" min="1" max="365" value="3" aria-label="最大执行天数"></td>' +
                         '<td><input class="biz-form-input ds-redial-times" type="number" min="1" max="20" value="3" aria-label="最大呼叫次数"></td>' +
-                        '<td>' + renderDianshengIntervalControl() + '</td>' +
+                        '<td><input class="biz-form-input ds-redial-interval" type="number" min="1" max="10080" value="60" aria-label="统一重呼间隔分钟数"></td>' +
                       '</tr></tbody></table>' +
                   '</div></div>' +
                   '<div class="biz-form-row ds-switch-row"><label class="biz-form-label">黑名单拦截</label><div class="biz-form-field ds-stack-field">' +
@@ -700,8 +774,7 @@
               '</div>' +
 
               /* ===== 厚朴面板：按已有任务 ID 关联 ===== */
-              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013,FLD-014,FLD-016,FLD-017">' +
-                '<div class="biz-form-row"><label class="biz-form-label">厚朴账号</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="houpuAccountDisplay" value="" readonly><div class="biz-form-tip">原型使用模拟的服务端默认账号；OAuth2 凭据和令牌不进入浏览器。</div></div></div>' +
+              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013,FLD-014,FLD-016,FLD-017,FLD-056">' +
                 '<div class="biz-form-row" style="align-items:flex-start;"><label class="biz-form-label required">厚朴任务ID</label><div class="biz-form-field">' +
                   '<div class="houpu-task-link-control"><input type="text" class="biz-form-input" id="houpuTaskId" value="' + escapeHtmlAttr(data.taskId || '') + '" placeholder="请输入厚朴平台已有 task_id" oninput="window.Pages[\'sys-scene\'].onHoupuTaskIdInput()"><button type="button" class="btn btn-default" onclick="window.Pages[\'sys-scene\'].queryHoupuTask()">查询并关联</button></div>' +
                   '<div class="houpu-link-status" id="houpuLinkStatus">输入厚朴平台已有任务 ID，查询成功后才能保存场景。</div>' +
@@ -718,6 +791,11 @@
                   '</tbody></table></div>' +
                   '<table class="biz-inner-table houpu-template-fields" id="houpuTemplateFieldTable"><thead><tr><th>序号</th><th>导入字段</th><th>参数名</th><th>是否必填</th></tr></thead><tbody id="houpuTemplateFieldBody"></tbody></table>' +
                 '</div></div>' +
+                '<div class="biz-form-row" id="hpModelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
+                  '<label class="biz-radio"><input type="radio" name="hpModelType" value="小模型"><span>小模型</span></label>' +
+                  '<label class="biz-radio"><input type="radio" name="hpModelType" value="大模型"><span>大模型</span></label>' +
+                '</div></div></div>' +
+                '<div class="biz-form-row" id="hpAccountRow"><label class="biz-form-label required">厚朴账号</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="houpuAccountDisplay" value="" readonly><div class="biz-form-tip">原型使用模拟的服务端默认账号；OAuth2 凭据和令牌不进入浏览器。</div></div></div>' +
               '</div>' +
 
               /* ===== 大众通信面板 ===== */
@@ -778,7 +856,6 @@
     currentHoupuStatusReadAt = '';
     document.body.insertAdjacentHTML('beforeend', renderDrawerHtml(modalTitle, {}));
     document.body.style.overflow = 'hidden';
-    document.addEventListener('click', closeDianshengIntervalMenus);
     requestAnimationFrame(function () {
       var backdrop = document.getElementById('bizAddSceneBackdrop');
       var drawer = document.getElementById('bizAddSceneDrawer');
@@ -805,7 +882,6 @@
     var data = Object.assign({}, row, { tenants: row.tenant ? [row.tenant] : [] });
     document.body.insertAdjacentHTML('beforeend', renderDrawerHtml('编辑业务场景', data));
     document.body.style.overflow = 'hidden';
-    document.addEventListener('click', closeDianshengIntervalMenus);
     requestAnimationFrame(function () {
       var backdrop = document.getElementById('bizAddSceneBackdrop');
       var drawer = document.getElementById('bizAddSceneDrawer');
@@ -819,6 +895,8 @@
   /* ===== 厚朴：编辑态按已保存任务 ID 恢复关联快照 ===== */
   function applyHoupuEditPrefill(data) {
     if (!data || getCurrentPlatform() !== '厚朴') return;
+    var modelType = document.querySelector('input[name="hpModelType"][value="' + data.modelType + '"]');
+    if (modelType) modelType.checked = true;
     if (data.taskId) queryHoupuTask(true);
   }
 
@@ -829,7 +907,6 @@
     if (!backdrop && !drawer) return;
     if (backdrop) backdrop.classList.remove('open');
     if (drawer) drawer.classList.add('closing');
-    document.removeEventListener('click', closeDianshengIntervalMenus);
     setTimeout(function () {
       if (backdrop) backdrop.remove();
       document.body.style.overflow = '';
@@ -884,7 +961,7 @@
     });
 
     /* 清空各平台模型类型与账号选中 */
-    ['modelType', 'zkjModelType', 'dsModelType', 'dzModelType'].forEach(function (name) {
+    ['modelType', 'zkjModelType', 'dsModelType', 'hpModelType', 'dzModelType'].forEach(function (name) {
       var checked = document.querySelector('input[name="' + name + '"]:checked');
       if (checked) checked.checked = false;
     });
@@ -1326,6 +1403,8 @@
     };
     if (platform === '厚朴') {
       row.taskId = getTrimmedValue('houpuTaskId');
+      var hpModelType = document.querySelector('input[name="hpModelType"]:checked');
+      row.modelType = hpModelType ? hpModelType.value : '';
       if (currentHoupuLinkedTask && currentHoupuLinkedTask.taskId === row.taskId) {
         var houpuAccount = getDefaultHoupuAccount();
         row.houpuAccountId = houpuAccount ? houpuAccount.id : '';
@@ -1370,8 +1449,18 @@
       if (!modelTypeEl) return '请选择模型类型';
     } else if (platform === '电声') {
       var windows = getDianshengCallWindows();
-      var completeWindow = windows.some(function (win) { return win.weekdays.length && win.beginTime && win.endTime; });
-      if (!completeWindow) return '请至少配置一个完整的呼叫时段';
+      if (!windows.length || windows.some(function (win) { return !win.weekdays.length || !win.beginTime || !win.endTime; })) return '请至少配置一个完整的呼叫时段';
+      if (windows.some(function (win) { return getDianshengTimeMinutes(win.beginTime) >= getDianshengTimeMinutes(win.endTime); })) return '呼叫时段的结束时间必须晚于开始时间';
+      var redialRules = getDianshengRedialRules();
+      if (redialRules.maxAttempts < 1 || redialRules.maxAttempts > 20) return '最大呼叫次数必须为1至20之间的整数';
+      if (redialRules.maxAttempts > 1 && redialRules.uniformIntervalMinutes < 1) return '请输入统一重呼间隔分钟数';
+      var autoStart = getDianshengAutoStart();
+      if (!autoStart.enabled && !autoStart.executeDateTime) return '请选择任务计划开始时间';
+      try {
+        buildDianshengTaskEstimate();
+      } catch (estimateError) {
+        return estimateError.message || '无法计算电声任务预计执行天数';
+      }
       modelTypeEl = document.querySelector('input[name="dsModelType"]:checked');
       if (!modelTypeEl) return '请选择模型类型';
       accountEl = document.getElementById('dsAccountSelect');
@@ -1396,6 +1485,8 @@
         if (!priorityEl || !priorityEl.value) return '请选择优先级';
       }
     } else if (platform === '厚朴') {
+      modelTypeEl = document.querySelector('input[name="hpModelType"]:checked');
+      if (!modelTypeEl) return '请选择模型类型';
       if (!data.taskId) return '请输入厚朴任务 ID';
       if (!getDefaultHoupuAccount()) return '未配置可用的厚朴默认账号';
       if (findHoupuLinkedScene(data.taskId)) return '同一厚朴任务 ID 不能关联多个场景';
@@ -1415,14 +1506,21 @@
       return;
     }
     var data = collectFormSceneRow();
+    var dianshengEstimate = null;
+    if (data.platform === '电声') {
+      dianshengEstimate = buildDianshengTaskEstimate();
+      data.callTimeWindow = dianshengEstimate.callTimeWindow;
+      data.nDayMCallPolicy = dianshengEstimate.nDayMCallPolicy;
+      data.autoStart = dianshengEstimate.autoStart;
+    }
     if (currentEditingId) {
       var row = SceneRows.find(function (item) { return item.id === currentEditingId; });
       if (row) Object.assign(row, data);
-      showToast('保存成功', 'success');
+      showToast(dianshengEstimate ? '保存成功，创建任务时预计执行 ' + dianshengEstimate.nDayMCallPolicy.days + ' 个自然日' : '保存成功', 'success');
     } else {
       var maxId = SceneRows.reduce(function (max, item) { return Math.max(max, item.id || 0); }, 0);
       SceneRows.push(Object.assign({ id: maxId + 1 }, data));
-      showToast('创建成功', 'success');
+      showToast(dianshengEstimate ? '创建成功，预计执行 ' + dianshengEstimate.nDayMCallPolicy.days + ' 个自然日' : '创建成功', 'success');
     }
     closeAddModal();
     refreshSceneTable();
@@ -1460,8 +1558,6 @@
     removeDianshengCallWindow: removeDianshengCallWindow,
     addDianshengExcludeDate: addDianshengExcludeDate,
     removeDianshengExcludeDate: removeDianshengExcludeDate,
-    toggleDianshengIntervalMenu: toggleDianshengIntervalMenu,
-    updateDianshengIntervalSummary: updateDianshengIntervalSummary,
     addTimeSlot: addTimeSlot,
     removeTimeSlot: removeTimeSlot,
     showInputFieldEditModal: showInputFieldEditModal,

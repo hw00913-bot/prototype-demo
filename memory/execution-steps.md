@@ -778,3 +778,176 @@
 ### 失败处理
 - 重复 ID 未拦截或编辑自身被误拦截时，回到 sys-scene 唯一性校验逻辑修复。
 - 任务状态未重新读取时，回到任务查询 Mock 与页面初始化逻辑修复。
+
+## 步骤 16：厚朴场景模型与账号位置补齐
+
+### 需求来源
+- SRC-013：2026-08-31 用户确认的厚朴场景模型与账号位置补充
+- 验收项：R-009 业务场景
+
+### 目标
+为厚朴新建业务场景补齐大模型/小模型必选项，并将模拟默认账号移动到业务信息之前。
+
+### 文件
+- mock/data.js
+- js/pages/sys-scene.js
+- docs/功能说明文档.md
+- docs/功能说明文档.html
+- memory/business-rules.md
+- memory/source-materials.md
+- memory/field-map.md
+- memory/acceptance-map.md
+- memory/change-log.md
+
+### 预期变更类型
+- update
+
+### 工作
+1. 在厚朴任务关联资料之后新增大模型/小模型单选。
+2. 将厚朴默认账号调整到模型类型之后、业务信息之前只读展示。
+3. 保存模型类型，并在编辑已有厚朴场景时正确回显。
+4. 未选择模型类型时阻止保存。
+
+### 验收
+- 新建厚朴场景可见大模型、小模型两个选项。
+- 模型类型为必填，保存后编辑可正确回显。
+- 厚朴账号紧邻业务信息上方且不可编辑。
+- Markdown 与生成 HTML 保持同步。
+
+### 验证
+- 浏览器验证新建厚朴场景的字段顺序、必填拦截、保存和编辑回显。
+- 检查 JavaScript 语法、说明文档同步、控制台及静态资源。
+
+### 验证技能
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli`
+
+### 标注影响
+- affected-pages: sys-scene
+- annotation-required: no
+- annotation-targets: 现有“厚朴平台配置”锚点继续引用完整版说明文档
+
+### 依赖
+- 步骤 15（厚朴开发评审规则补齐）
+
+### 失败处理
+- 模型类型未保存或未回显时，回到 sys-scene 表单收集与编辑初始化逻辑修复。
+- 账号位置错误时，回到厚朴平台面板的字段顺序修复。
+
+## 步骤 17：厚朴任务详情字段收敛
+
+### 需求来源
+- SRC-014：2026-08-31 用户确认的厚朴任务详情字段收敛
+- 验收项：R-002 外呼列表
+
+### 目标
+精简“外呼列表 → 查看 → 任务详情”中的厚朴详情，仅保留执行与追溯所需的 12 项核心信息，避免在详情区重复展示关联、模板、回调和状态诊断字段。
+
+### 文件
+- js/pages/scene-list.js
+- mock/data.js
+- index.html
+- docs/功能说明文档.md
+- docs/功能说明文档.html
+- annotations/annotations.js
+- memory/business-rules.md
+- memory/source-materials.md
+- memory/acceptance-map.md
+- memory/annotation-prompt.md
+- memory/annotation-coverage.md
+- memory/change-log.md
+
+### 预期变更类型
+- update
+
+### 工作
+1. 从厚朴任务详情移除关联方式、任务类型、服务端回调、模板、任务状态、状态获取方式和状态读取时间。
+2. 保留任务 ID、厚朴账号、任务名称、机器人、执行时段、并发、重呼、未呼优先、批次号、平台有效号码数、创建时间和外呼进度。
+3. 清理仅服务于已删除详情行的 Mock 字段，但保留任务卡片、场景配置和全平台状态映射所需数据。
+4. 让唯一说明文档、项目记忆和详情标注锚点与当前页面保持一致。
+
+### 验收
+- 厚朴任务详情准确展示 12 项核心字段。
+- 7 项非必要字段不再出现在厚朴任务详情区。
+- 列表卡片和详情顶部仍可展示按统一规则映射后的任务状态。
+- 业务场景配置、号码模板用途与全平台状态映射不受影响。
+- Markdown 与生成 HTML 保持同步。
+
+### 验证
+- JavaScript 语法、唯一说明文档同步和 S8/final 门禁。
+- 浏览器验证桌面端与移动端的详情字段清单、顶部状态、控制台和静态资源。
+
+### 验证技能
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli`
+
+### 标注影响
+- affected-pages: scene-list
+- annotation-required: yes
+- annotation-targets: 厚朴任务详情（只读） | region | FLD-014, FLD-016, FLD-018, FLD-019
+
+### 依赖
+- 步骤 15（厚朴开发评审规则补齐）
+
+### 失败处理
+- 若详情仍出现被移除字段，回到 scene-list 的厚朴详情渲染逻辑修复。
+- 若列表或详情顶部状态丢失，回到任务卡片状态映射逻辑复核，不恢复详情区的冗余状态行。
+
+## 步骤 18：电声重呼配置与执行天数换算
+
+### 需求来源
+- SRC-015：2026-09-01 用户确认的电声重呼与 `days` 换算规则
+- 验收项：R-009 业务场景
+
+### 目标
+收敛电声场景的重呼输入，并在模拟提交创建任务接口前换算完整的 `intervalMinutes` 和 `days`。
+
+### 文件
+- js/pages/sys-scene.js
+- assets/css/app.css
+- mock/data.js
+- index.html
+- docs/功能说明文档.md
+- docs/功能说明文档.html
+- memory/business-rules.md
+- memory/source-materials.md
+- memory/field-map.md
+- memory/acceptance-map.md
+- memory/change-log.md
+
+### 预期变更类型
+- update
+
+### 工作
+1. 移除电声场景中的最大执行天数输入列。
+2. 将间隔分钟数多选改为统一正整数输入。
+3. 按 `maxAttempts - 1` 生成重复的 `intervalMinutes` 数组。
+4. 以计划开始时间为基准，结合呼叫窗口、可呼叫星期、排除日期和 `postpone` 顺延逐次模拟呼叫，换算自然日 `days`。
+5. 在唯一功能说明 Markdown 的业务场景章节写入完整换算口径，并重新生成 HTML。
+
+### 验收
+- 页面不存在最大执行天数输入框。
+- 最大呼叫次数与统一重呼间隔均可输入并进行范围校验。
+- `intervalMinutes.length = maxAttempts - 1`，数组内每项等于统一间隔。
+- `days` 按任务计划开始日期到末次计划呼叫日期的自然日包含首尾换算。
+- Markdown 与生成 HTML 保持同步。
+
+### 验证
+- JavaScript 语法、静态字段检查、唯一说明文档同步和 final 门禁。
+- 浏览器验证电声表单字段、跨时段顺延的 `days` 预估、提交提示、控制台和静态资源。
+
+### 验证技能
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli`
+
+### 标注影响
+- affected-pages: sys-scene
+- annotation-required: no
+- annotation-targets: 现有“电声平台配置”锚点继续指向完整版说明文档，新规则不在标注重复维护
+
+### 依赖
+- 步骤 17（当前项目基线）
+
+### 失败处理
+- 换算数组或天数错误时，回到 sys-scene 的电声排程模拟逻辑修复。
+- 页面与文档口径不一致时，以 `docs/功能说明文档.md` 为唯一事实源收敛。

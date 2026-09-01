@@ -88,36 +88,27 @@ var MockZkjTaskDetail = {
 /* ===== 厚朴 已关联任务详情 Mock（按平台已有 task_id 关联；中台不创建任务） ===== */
 var MockHoupuTaskDetail = {
   24: {
-    task_id: 'HP-TASK-20260714-001', taskName: '厚朴-新线索首访', taskType: 'streaming',
+    task_id: 'HP-TASK-20260714-001', taskName: '厚朴-新线索首访',
     botId: 'bot_hp_nissan_001', botName: '东风日产新线索首访机器人',
     callPeriod: '每天 09:00-11:30、13:30-17:30', concurrency: 50,
     recall: '未接通间隔 30 分钟重呼，最多 2 次；已接通不重呼', unCalledPriority: true,
-    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
-    templateId: 'TPL-HP-XXS-001', templateName: '新线索首访话术模板',
     batchId: 'HP-BATCH-20260714-0001', validNumberCount: 998,
-    rawStatus: { taskStatus: 1, taskStatusName: '执行中' },
     createdAt: '2026-07-14 09:20:00', progress: '400 / 1000'
   },
   25: {
-    task_id: 'HP-TASK-20260713-001', taskName: '厚朴-保客回访', taskType: 'same_day',
+    task_id: 'HP-TASK-20260713-001', taskName: '厚朴-保客回访',
     botId: 'bot_hp_nissan_002', botName: '东风日产保客回访机器人',
     callPeriod: '每天 09:30-12:00、14:00-18:00', concurrency: 30,
     recall: '未接通间隔 60 分钟重呼，最多 1 次', unCalledPriority: false,
-    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
-    templateId: 'TPL-HP-BKHF-002', templateName: '保客回访话术模板',
     batchId: 'HP-BATCH-20260713-0003', validNumberCount: 796,
-    rawStatus: { taskStatus: 4, taskStatusName: '系统挂起' },
     createdAt: '2026-07-13 14:05:00', progress: '500 / 800'
   },
   26: {
-    task_id: 'HP-TASK-20260715-001', taskName: '厚朴-流失预警', taskType: 'streaming',
+    task_id: 'HP-TASK-20260715-001', taskName: '厚朴-流失预警',
     botId: 'bot_hp_nissan_003', botName: '东风日产流失预警机器人',
     callPeriod: '每天 09:00-12:00、14:00-19:00', concurrency: 60,
     recall: '不重呼', unCalledPriority: true,
-    serverCallback: '服务端已配置（回调地址不在浏览器展示）', callbackConfigured: true,
-    templateId: 'TPL-HP-LSYJ-003', templateName: '流失预警话术模板',
     batchId: 'HP-BATCH-20260715-0002', validNumberCount: 1995,
-    rawStatus: { taskStatus: 6, taskStatusName: '系统暂停' },
     createdAt: '2026-07-15 10:00:00', progress: '800 / 2000'
   }
 };
@@ -921,9 +912,9 @@ var MockSceneRows = [
   { id: 9, name: '东风日产-新线索-电声', sceneId: 'DS-SCENE-001', code: 'DS-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '电声', updater: '-', updateTime: '2026-07-15 09:00:00', strategyCode: 'NISSAN_NEW_LEAD_001', robotName: '东风日产新线索机器人' },
   { id: 10, name: '华东店-冷线索跟进-大众通信', sceneId: 'DZ-SCENE-001', code: 'DZ-LXS', category: '冷线索', tenant: '东风日产-燃油车', platform: '大众通信', updater: '-', updateTime: '2026-07-14 08:30:00', taskUuid: '9f6d9a40-2fb3-4c56-8b21-202607140017' },
   { id: 11, name: '燃油车新线索-冰兰', sceneId: 'BL-SCENE-001', code: 'BL-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '冰兰', updater: '-', updateTime: '2026-07-16 09:00:00' },
-  { id: 12, name: '厚朴-新线索首访', sceneId: 'HP-SCENE-001', code: 'HP-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-17 09:00:00', taskName: 'HP-DEMO-新线索首访', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', taskStatus: 1, botId: 'bot_hp_nissan_001', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '18:00' }, concurrency: 50, redial: true, uncalledFirst: true, templateId: 'TPL-HP-XXS-001', callbackConfigured: true },
-  { id: 13, name: '厚朴-保客回访', sceneId: 'HP-SCENE-002', code: 'HP-BKHF', category: '回访', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-13 14:05:00', taskName: 'HP-DEMO-保客回访', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', taskStatus: 4, botId: 'bot_hp_nissan_002', taskType: 'same_day', schedule: null, concurrency: 30, redial: true, uncalledFirst: false, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true },
-  { id: 14, name: '厚朴-流失预警', sceneId: 'HP-SCENE-003', code: 'HP-LSYJ', category: '流失预警', tenant: '东风日产-燃油车', platform: '厚朴', updater: '-', updateTime: '2026-07-15 10:00:00', taskName: 'HP-DEMO-流失预警', taskId: 'HP-TASK-20260715-001', batchId: 'HP-BATCH-20260715-0002', taskStatus: 6, botId: 'bot_hp_nissan_003', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '19:00' }, concurrency: 60, redial: false, uncalledFirst: true, templateId: 'TPL-HP-LSYJ-003', callbackConfigured: true }
+  { id: 12, name: '厚朴-新线索首访', sceneId: 'HP-SCENE-001', code: 'HP-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '厚朴', modelType: '大模型', updater: '-', updateTime: '2026-07-17 09:00:00', taskName: 'HP-DEMO-新线索首访', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', taskStatus: 1, botId: 'bot_hp_nissan_001', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '18:00' }, concurrency: 50, redial: true, uncalledFirst: true, templateId: 'TPL-HP-XXS-001', callbackConfigured: true },
+  { id: 13, name: '厚朴-保客回访', sceneId: 'HP-SCENE-002', code: 'HP-BKHF', category: '回访', tenant: '东风日产-燃油车', platform: '厚朴', modelType: '大模型', updater: '-', updateTime: '2026-07-13 14:05:00', taskName: 'HP-DEMO-保客回访', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', taskStatus: 4, botId: 'bot_hp_nissan_002', taskType: 'same_day', schedule: null, concurrency: 30, redial: true, uncalledFirst: false, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true },
+  { id: 14, name: '厚朴-流失预警', sceneId: 'HP-SCENE-003', code: 'HP-LSYJ', category: '流失预警', tenant: '东风日产-燃油车', platform: '厚朴', modelType: '大模型', updater: '-', updateTime: '2026-07-15 10:00:00', taskName: 'HP-DEMO-流失预警', taskId: 'HP-TASK-20260715-001', batchId: 'HP-BATCH-20260715-0002', taskStatus: 6, botId: 'bot_hp_nissan_003', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '19:00' }, concurrency: 60, redial: false, uncalledFirst: true, templateId: 'TPL-HP-LSYJ-003', callbackConfigured: true }
 ];
 
 var MockTenantOptions = ['东风日产-燃油车', '东风日产-点检', '重庆东风南方渝兴', '重庆东风南方渝发', '超级管理组'];
@@ -1004,8 +995,6 @@ var MockDianshengAccounts = [
   { name: '电声账号 B', modelType: '小模型' }
 ];
 /* 电声：重呼间隔分钟数选项 */
-var MockDianshengIntervals = ['15', '30', '45', '60', '90', '120'];
-
 /* 黑名单分组（电声/冰兰拦截下拉候选） */
 var MockSceneBlacklistGroups = ['东风日产默认黑名单', '试驾退订黑名单'];
 

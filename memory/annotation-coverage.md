@@ -1,6 +1,6 @@
 # 标注准备覆盖清单（S9 重生成版）
 
-> 当前保留 55 个唯一业务锚点，并已回写至 `annotations/annotations.js`。厚朴相关标注引用任务 ID 关联、默认账号、唯一关联和实时状态出处，完整接口、状态和权限规则仍只维护在《功能说明文档》。
+> 当前保留 55 个唯一业务锚点，并已回写至 `annotations/annotations.js`。电声标注仅补充重呼换算的来源与字段引用，完整公式仍只维护在《功能说明文档》；厚朴相关标注继续引用最新任务关联与详情收敛出处。
 
 ## 页面与锚点覆盖
 
@@ -10,7 +10,7 @@
 | 2 | scene-list | `[data-anno="scene-list-filters"]` | R-002 | SRC-001~SRC-006 | FLD-003,004,006 | 名称、状态、平台筛选 |
 | 3 | scene-list | `[data-anno="scene-list-grid"]` | R-002 | SRC-001~SRC-006 | FLD-001,003,004,006,007,008,009 | 六平台任务卡片与数量口径 |
 | 4 | scene-list | `[data-anno="scene-list-dazhong-readonly"]` | R-002 | SRC-006 | FLD-014,015 | 大众任务只读差异 |
-| 5 | scene-list | `[data-anno="houpu-task-detail"]` | R-002 | SRC-005, SRC-011, SRC-012 | FLD-013, FLD-014, FLD-016, FLD-017, FLD-018, FLD-019 | 厚朴已关联任务、默认账号、批次及实时原始/中台状态；完整规则见《功能说明文档》 |
+| 5 | scene-list | `[data-anno="houpu-task-detail"]` | R-002 | SRC-005, SRC-011, SRC-012, SRC-014 | FLD-014, FLD-016, FLD-018, FLD-019 | 厚朴详情仅展示 12 项核心信息，不重复展示 7 项非必要字段；完整规则见《功能说明文档》 |
 | 6 | scene-list | `[data-anno="scene-import-rules"]` | R-002 | SRC-001~006 | FLD-018,019 | 平台导入限制入口；完整规则见《功能说明文档》 |
 | 7 | scene-list | `[data-anno="scene-task-detail"]` | R-002 | SRC-001~SRC-006 | FLD-001~015 | 统一任务详情抽屉与平台字段 |
 | 8 | scene-block | `[data-anno="block-group-list"]` | R-003 | SRC-003 | FLD-070 | 黑名单分组选择 |
@@ -46,9 +46,9 @@
 | 38 | sys-scene | `[data-anno="sys-scene-platform-selector"]` | R-009 | SRC-001,002,003,005,006 | FLD-006 | 平台互斥选择与面板联动 |
 | 39 | sys-scene | `[data-anno="sys-scene-yizhi-config"]` | R-009 | SRC-001 | FLD-006,014 | 一知场景 ID、模型与账号关联 |
 | 40 | sys-scene | `[data-anno="sys-scene-zhongkejin-config"]` | R-009 | SRC-002 | FLD-006,013 | 中科金任务 ID 与模型配置 |
-| 41 | sys-scene | `[data-anno="sys-scene-diansheng-config"]` | R-009 | SRC-003 | FLD-006,015 | 电声呼叫时段、重呼、黑名单与启动策略 |
+| 41 | sys-scene | `[data-anno="sys-scene-diansheng-config"]` | R-009 | SRC-003, SRC-015 | FLD-006, FLD-015, FLD-057, FLD-058, FLD-059 | 电声呼叫时段、最大呼叫次数、统一间隔与提交前 `days` 换算；完整规则见《功能说明文档》 |
 | 42 | sys-scene | `[data-anno="sys-scene-binglan-config"]` | R-009 | SRC-004 | FLD-006,014,015 | 冰兰通道、机器人、时段与拦截策略 |
-| 43 | sys-scene | `[data-anno="sys-scene-houpu-config"]` | R-009 | SRC-011, SRC-012 | FLD-006,013,014,016,017 | 默认账号查询已有 task_id；同一 ID 不得关联多场景；任务状态实时读取，未确认关联禁止保存 |
+| 43 | sys-scene | `[data-anno="sys-scene-houpu-config"]` | R-009 | SRC-011, SRC-012, SRC-013 | FLD-006, FLD-013, FLD-014, FLD-016, FLD-017, FLD-056 | 已有 task_id 关联；模型类型必选；默认账号位于业务信息前；完整规则见《功能说明文档》 |
 | 44 | sys-scene | `[data-anno="sys-scene-dazhong-config"]` | R-009 | SRC-006 | FLD-002,006,012 | 大众 UUID 关联与 SaaS 侧策略边界 |
 | 45 | sys-tags | `[data-anno="sys-tags-scene-management"]` | R-010 | SRC-007 | none | 标签适用场景维护入口 |
 | 46 | sys-tags | `[data-anno="sys-tags-supplier-management"]` | R-010 | SRC-007,003,006 | none | 标签供应商维护入口 |
@@ -71,8 +71,8 @@
 
 ## 来源与字段覆盖
 
-- 来源覆盖：SRC-001、SRC-002、SRC-003、SRC-004、SRC-005、SRC-006、SRC-007、SRC-008、SRC-009、SRC-010 均在本轮页面说明或交互说明中可追溯；SRC-008 仅作为底座来源写入交互文档，不强行挂到业务锚点。
-- 字段覆盖：FLD-001、FLD-002、FLD-003、FLD-004、FLD-005、FLD-006、FLD-007、FLD-008、FLD-009、FLD-010、FLD-011、FLD-012、FLD-013、FLD-014、FLD-015、FLD-020、FLD-021、FLD-022、FLD-023、FLD-024、FLD-025、FLD-026、FLD-027、FLD-028、FLD-029、FLD-030、FLD-031、FLD-032、FLD-033、FLD-034、FLD-035、FLD-036、FLD-040、FLD-041、FLD-042、FLD-043、FLD-044、FLD-045、FLD-050、FLD-051、FLD-052、FLD-053、FLD-054、FLD-055、FLD-060、FLD-061、FLD-062、FLD-063、FLD-070、FLD-071、FLD-072、FLD-073、FLD-074、FLD-075 均由至少一个源码锚点承载。
+- 来源覆盖：SRC-001、SRC-002、SRC-003、SRC-004、SRC-005、SRC-006、SRC-007、SRC-008、SRC-009、SRC-010、SRC-011、SRC-012、SRC-013、SRC-014、SRC-015 均在本轮页面说明或项目说明中可追溯；SRC-008 仅作为底座来源写入交接说明，不强行挂到业务锚点。
+- 字段覆盖：FLD-001、FLD-002、FLD-003、FLD-004、FLD-005、FLD-006、FLD-007、FLD-008、FLD-009、FLD-010、FLD-011、FLD-012、FLD-013、FLD-014、FLD-015、FLD-016、FLD-017、FLD-018、FLD-019、FLD-020、FLD-021、FLD-022、FLD-023、FLD-024、FLD-025、FLD-026、FLD-027、FLD-028、FLD-029、FLD-030、FLD-031、FLD-032、FLD-033、FLD-034、FLD-035、FLD-036、FLD-040、FLD-041、FLD-042、FLD-043、FLD-044、FLD-045、FLD-050、FLD-051、FLD-052、FLD-053、FLD-054、FLD-055、FLD-056、FLD-057、FLD-058、FLD-059、FLD-060、FLD-061、FLD-062、FLD-063、FLD-070、FLD-071、FLD-072、FLD-073、FLD-074、FLD-075 均由至少一个源码锚点承载。
 
 ## Gaps
 

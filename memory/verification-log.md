@@ -480,3 +480,133 @@ Evidence: `Loop preflight PASS` for s7/s8/s9/final；`Documentation sync check P
 Result: pass
 Consecutive Failures: 0
 Next Action: 原型规则已完善；等用户另行确认后再交接知识库，GitHub 由用户手动提交
+
+Date: 2026-08-31
+Step: step-16
+Scope: step
+Local URL / File: http://127.0.0.1:5178/index.html?verify=houpu-model-account-v1 | js/pages/sys-scene.js | mock/data.js | docs/功能说明文档.md
+Tool: prototype-verifier | playwright-cli | render_doc_html.py | loop_run.py | static check
+Command / Check: 厚朴新建场景模型类型展示与必填；默认账号位置与只读属性；场景保存和编辑回显；完整版说明文档 v2.6；JavaScript 语法；静态资源与控制台
+Passed: 新建厚朴场景显示小模型和大模型两个选项；未选择模型时提示“请选择模型类型”且抽屉保持打开；选择小模型并关联内置任务后保存成功，重新编辑仍回显小模型和原任务 ID；默认账号显示“厚朴默认账号（HP-DEFAULT-001）”且只读，纵向顺序为模型类型、厚朴账号、业务信息；说明 Markdown 与 HTML 同步
+Failed: 无
+Evidence: 新建页 top 顺序 680 < 728 < 814；编辑页 checkedModel=小模型、taskId=HP-TASK-20260828-004、accountReadonly=true；23 个静态请求全部 200；console Errors=0、Warnings=0；`Documentation sync check PASS`；v2.6 页面包含“厚朴-模型类型”和“业务信息之前只读展示”
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行完成前全局门禁后交付
+
+Date: 2026-08-31
+Step: step-16
+Scope: annotation-sync-remediation
+Local URL / File: annotations/annotations.js | memory/annotation-prompt.md | memory/annotation-coverage.md
+Tool: systematic-debugging | loop_run.py
+Command / Check: 首次 final 门禁核对新增 SRC-013/FLD-056 与厚朴锚点、标注 43、提示词和覆盖表的合同
+Passed: 页面实现、JavaScript 语法和说明文档同步检查通过
+Failed: 提示词、覆盖表与标注 43 未同步新增来源和字段；归类为 S9 标注合同不同步，未涉及业务实现错误
+Evidence: final 门禁报告缺少 SRC-013/FLD-056 引用、标注 43 fieldRefs 与锚点合同不一致
+Result: fail
+Consecutive Failures: 1
+Next Action: 最小差异补齐 SRC-013/FLD-056 后重新执行 final 门禁
+
+Date: 2026-08-31
+Step: step-16
+Scope: annotation-sync-remediation
+Local URL / File: annotations/annotations.js | memory/annotation-prompt.md | memory/annotation-coverage.md | http://127.0.0.1:5178/index.html?verify=houpu-annotation-v14
+Tool: systematic-debugging | annotation-generator | loop_run.py | playwright-cli
+Command / Check: 最小差异同步厚朴锚点、标注 43、提示词和覆盖表后重跑 final
+Passed: 厚朴锚点、标注 43、手动标注提示词和覆盖表均引用 SRC-013/FLD-056；字段说明为 FLD-056 独立一行；运行时加载 dataVersion 12 与 annotations.js v14；最终门禁通过
+Failed: 无
+Evidence: 浏览器 sourceRefs=[SRC-011,SRC-012,SRC-013]、fieldRefs=[FLD-006,FLD-013,FLD-014,FLD-016,FLD-017,FLD-056]、hasModelLine=true；`Loop preflight PASS [final]`
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成最终静态与工作区复核后交付
+
+Date: 2026-08-31
+Step: step-17
+Scope: step
+Local URL / File: http://127.0.0.1:5178/index.html | js/pages/scene-list.js | mock/data.js | docs/功能说明文档.md
+Tool: prototype-verifier | playwright-cli | render_doc_html.py | node --check | static check
+Command / Check: 外呼列表打开厚朴任务 24；切换任务详情；核对 12 项核心字段、7 项非必要字段缺失、详情顶部状态、标注锚点字段引用、桌面与 390×844 移动端、控制台、静态资源及 Markdown/HTML 同步
+Passed: 厚朴任务详情仅展示任务 ID、厚朴账号、任务名称、机器人、执行时段、并发、重呼、未呼优先、批次号、平台有效号码数、创建时间和外呼进度；关联方式、任务类型、服务端回调、模板、任务状态、状态获取方式和状态读取时间均未出现；详情顶部继续显示映射状态“进行中”；锚点仅引用 FLD-014/016/018/019；桌面和移动端均可查看且无页面级横向溢出；说明 Markdown 与 HTML 同步
+Failed: 无
+Evidence: 浏览器 labels 精确等于 12 项清单，anchorFields=`FLD-014,FLD-016,FLD-018,FLD-019`，headerStatus=`状态：进行中`；桌面 documentOverflow=false；移动端 viewport=390×844、detailVisible=true、documentOverflow=false、drawerWidth=312；console Errors=0、Warnings=0；23 个静态请求全部 200；`node --check` 与 `Documentation sync check PASS`
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行 S8 全局验证并最小同步厚朴详情标注
+
+Date: 2026-08-31
+Step: global
+Scope: global
+Local URL / File: http://127.0.0.1:5178/index.html?verify=houpu-detail-v8 | docs/功能说明文档.html | annotations/annotations.js | memory/annotation-coverage.md
+Tool: verification-before-completion | prototype-verifier | playwright-cli | annotation-generator | loop_run.py | render_doc_html.py | node --check | git diff --check
+Command / Check: 厚朴任务详情字段收敛全局回归；源码锚点、正式标注、标注提示词和覆盖表合同；JavaScript 语法；Markdown/HTML 同步；桌面与移动端详情；控制台与静态资源；S8/S9 门禁
+Passed: 页面、唯一说明文档、项目记忆和标注均采用同一详情范围；正式标注 ID 5 仅引用 SRC-005/011/012/014 与 FLD-014/016/018/019，完整规则继续指向《功能说明文档》；运行时加载 dataVersion 13、55 条连续标注且目标锚点存在；S8 和 S9 门禁通过
+Failed: 无
+Evidence: 运行时 annotationCount=55、sourceRefs=[SRC-005,SRC-011,SRC-012,SRC-014]、fieldRefs=[FLD-014,FLD-016,FLD-018,FLD-019]、targetExists=true、fieldDescLines=4；详情 labels 精确等于 12 项核心字段；`Documentation sync check PASS`、`node --check` 与 `git diff --check` 通过；`Loop preflight PASS` for s8/s9；console Errors=0、Warnings=0，23 个静态请求全部 200
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行 final 门禁并完成工作区复核后交付
+
+Date: 2026-08-31
+Step: step-17
+Scope: annotation-coverage-remediation
+Local URL / File: memory/annotation-coverage.md | annotations/annotations.js
+Tool: systematic-debugging | loop_run.py | static check
+Command / Check: 首次 final 门禁核对 55 条正式标注 fieldRefs 与覆盖清单的逐项合同
+Passed: 页面实现、详情锚点、正式标注 ID 5、JavaScript 语法、文档同步及 S7/S8/S9 门禁均通过
+Failed: 覆盖表第 43 行将 FLD-017 缩写为无前缀的 `017`，且底部全局字段覆盖尾注遗漏 FLD-016~019，导致 final 门禁无法识别 FLD-017 已覆盖
+Evidence: final 门禁报告 `annotation-coverage.md 未覆盖字段引用：FLD-017`；正式标注仍由 sys-scene 第 43 条引用 FLD-017，页面业务逻辑无缺失
+Result: fail
+Consecutive Failures: 1
+Next Action: 仅规范化覆盖表的 FLD 前缀及全局字段尾注后重跑 final，不修改页面与业务规则
+
+Date: 2026-08-31
+Step: step-17
+Scope: annotation-coverage-remediation
+Local URL / File: memory/annotation-coverage.md | annotations/annotations.js
+Tool: systematic-debugging | loop_run.py | static check
+Command / Check: 将覆盖表第 43 行的字段编号改为完整 FLD 前缀，并补齐全局字段覆盖尾注后重跑 final
+Passed: 覆盖表可明确追溯 FLD-016/017/018/019；正式标注与源码锚点未发生业务回退；final 门禁通过
+Failed: 无
+Evidence: 第 43 行包含完整 `FLD-017`，全局字段覆盖尾注包含 FLD-016~019；`Loop preflight PASS [final]`
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成最终静态检查和临时浏览器产物清理后交付
+
+Date: 2026-09-01
+Step: step-18
+Scope: step
+Local URL / File: http://127.0.0.1:5182/index.html?verify=diansheng-days-v1 | http://127.0.0.1:5182/docs/功能说明文档.html?verify=diansheng-days-v1 | js/pages/sys-scene.js | docs/功能说明文档.md
+Tool: prototype-verifier | playwright-cli | render_doc_html.py | node --check | static check
+Command / Check: 打开系统管理→业务场景→新建→电声；检查重呼表头和输入类型；填写定时启动 2026-09-02 17:30、每日 09:00–18:00、最大 4 呼、统一间隔 120 分钟并提交；核对浏览器反馈、控制台、静态资源、JavaScript 语法和 Markdown/HTML 同步
+Passed: 电声表单仅显示呼叫状态、最大呼叫次数和统一重呼间隔；最大执行天数输入不存在；间隔为数字输入；定时测试跨越当日呼叫窗口后反馈“预计执行 2 个自然日”；唯一 Markdown 与生成 HTML 同步，HTML 包含完整换算章节
+Failed: 无
+Evidence: 表头=`呼叫状态|最大呼叫次数|统一重呼间隔（分钟）`；输入值=`maxAttempts=4, uniformInterval=120`；提交提示=`创建成功，预计执行 2 个自然日`；源码生成 `Array(maxAttempts - 1).fill(uniformIntervalMinutes)`；原型页 console Errors=0、Warnings=0，23 个静态请求全部 200；文档页 console Errors=0、Warnings=0，2 个静态请求全部 200；`Documentation sync check PASS`、`node --check` 与 `git diff --check` 通过
+Result: pass
+Consecutive Failures: 0
+Next Action: 执行 S8/final 完成前门禁；本次不改写正式标注内容
+
+Date: 2026-09-01
+Step: step-18
+Scope: annotation-contract-check
+Local URL / File: js/pages/sys-scene.js | annotations/annotations.js | memory/annotation-prompt.md | memory/annotation-coverage.md
+Tool: verification-before-completion | loop_run.py | systematic-debugging
+Command / Check: 执行 final 门禁，核对电声源码锚点、正式标注、手动提示词和覆盖表的来源/字段合同
+Passed: 页面实现、换算结果、JavaScript 语法、文档同步和 S8/S9 门禁均通过
+Failed: 电声正式标注 ID 41 仍只引用 SRC-003 与 FLD-006/015，未同步新增的 SRC-015 与 FLD-057/058/059；手动提示词和覆盖表同样缺少引用
+Evidence: final 门禁报告 13 项错误，均指向来源、字段引用和 fieldDesc 独立行；未发现业务实现错误
+Result: fail
+Consecutive Failures: 1
+Next Action: 回到 S9 做最小标注合同同步，完整换算公式仍只引用《功能说明文档》
+
+Date: 2026-09-01
+Step: step-18
+Scope: annotation-contract-remediation
+Local URL / File: http://127.0.0.1:5183/index.html?verify=diansheng-annotation-v16 | annotations/annotations.js | memory/annotation-prompt.md | memory/annotation-coverage.md
+Tool: annotation-generator | systematic-debugging | playwright-cli | loop_run.py | static check
+Command / Check: 对标注 ID 41、手动标注提示词和覆盖表最小补充 SRC-015、FLD-057/058/059；每个字段独立一行；提升标注数据版本；重跑 final 并在浏览器读取运行时标注
+Passed: 电声锚点、正式标注、手动提示词和覆盖表的来源/字段合同一致；标注仅保留字段摘要并指向完整说明文档；运行时加载 annotations.js v16 与 dataVersion 14；final 门禁通过
+Failed: 无
+Evidence: 运行时 ID 41 sourceRefs=`SRC-003,SRC-015`，fieldRefs=`FLD-006,FLD-015,FLD-057,FLD-058,FLD-059`，fieldDesc=5 条独立行；console Errors=0、Warnings=0；23 个静态请求全部 200；`Loop preflight PASS [final]`
+Result: pass
+Consecutive Failures: 0
+Next Action: 完成最终工作区复核后交付，不提交 GitHub

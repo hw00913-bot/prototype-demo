@@ -33,6 +33,10 @@
 | FLD-017 | SRC-011 | 厚朴任务关联 | botId / templateId | 机器人与号码模板 | 已关联厚朴任务返回的机器人和号码字段模板快照 | 根据任务查询结果只读反显；模板 `fields` 仅用于解释号码导入列，不在中台编辑 | 文本/只读动态字段表 | [data-anno="sys-scene-houpu-config"] | sys-scene.js |
 | FLD-018 | SRC-005 | 厚朴导入 | batchId | 批次ID | 厚朴号码导入接口返回的批次标识 | 导入成功后保存并用于回调关联与幂等去重 | 文本 | [data-anno="houpu-task-detail"] | scene-list.js |
 | FLD-019 | SRC-005 | 厚朴导入 | validNumberCount | 有效号码数 | 厚朴平台实际接收的有效号码数量 | 以平台返回值为准，不使用原始文件行数替代 | 整数 | [data-anno="houpu-task-detail"] | scene-list.js |
+| FLD-056 | SRC-013 | 业务场景配置 | modelType | 模型类型 | 业务场景使用的 AI 模型及计费归类 | 用户必选大模型或小模型；厚朴场景保存到中台，不修改平台已有任务 | 单选 | [data-anno="sys-scene-houpu-config"] | sys-scene.js |
+| FLD-057 | SRC-015 | 电声业务场景 | maxAttempts | 最大呼叫次数 | 单个客户包含首呼在内的最大计划呼叫数 | 用户输入1–20的正整数，直接提交给电声 | 数字输入 | [data-anno="sys-scene-diansheng-config"] | sys-scene.js |
+| FLD-058 | SRC-015 | 电声业务场景 | intervalMinutes | 重呼间隔分钟数组 | 电声相邻计划呼叫的间隔数组 | 用户输入统一间隔 `I`；中台提交前生成长度为 `maxAttempts - 1` 的 `[I, I, ……]` | 正整数输入→整数数组 | [data-anno="sys-scene-diansheng-config"] | sys-scene.js |
+| FLD-059 | SRC-015 | 电声业务场景 | days | 最大执行天数 | 电声任务从计划开始日期到末次计划呼叫日期的自然日跨度 | 中台在创建任务提交接口前，结合计划开始时间、`callTimeWindow`、排除日期、`maxAttempts` 和统一间隔模拟排程换算 | 正整数，无页面输入 | [data-anno="sys-scene-diansheng-config"] | sys-scene.js |
 
 ## 通话记录字段
 

@@ -137,7 +137,7 @@
 
     <div class="doc-card">
       <h1 id="title-1">东风日产智能外呼中台 · 统一功能说明文档</h1>
-<blockquote><strong>版本</strong>：v2.5 统一合并版<br><strong>更新时间</strong>：2026-08-28<br><strong>文档密级</strong>：内部产品技术基线文档<br><strong>适用范围</strong>：东风日产智能外呼中台各端（总部超管、大区/小区、门店租户、DCC线索中心、各外呼供应商接入）<br><strong>维护规则</strong>：本 Markdown 是说明内容的唯一事实源；<code>功能说明文档.html</code> 由 <code>tools/render_doc_html.py</code> 自动生成，禁止手工修改 HTML。</blockquote>
+<blockquote><strong>版本</strong>：v2.8 统一合并版<br><strong>更新时间</strong>：2026-09-01<br><strong>文档密级</strong>：内部产品技术基线文档<br><strong>适用范围</strong>：东风日产智能外呼中台各端（总部超管、大区/小区、门店租户、DCC线索中心、各外呼供应商接入）<br><strong>维护规则</strong>：本 Markdown 是说明内容的唯一事实源；<code>功能说明文档.html</code> 由 <code>tools/render_doc_html.py</code> 自动生成，禁止手工修改 HTML。</blockquote>
 <hr>
 <h2 id="sec-1">一. 版本说明</h2>
 <div class="table-wrap"><table>
@@ -148,6 +148,24 @@
 <th>更新内容</th>
 </tr></thead>
 <tbody>
+<tr>
+<td><strong>v2.8</strong></td>
+<td>2026-09-01</td>
+<td>胡灏文 / 产品团队</td>
+<td>1. 电声自动重呼改为单一的统一重呼间隔输入；<br>2. 页面不再展示最大执行天数输入框；<br>3. 明确中台在创建任务提交电声接口前，根据计划开始时间、呼叫窗口、最大呼叫次数和统一间隔模拟排程，自动换算 <code>days</code> 和 <code>intervalMinutes</code>。</td>
+</tr>
+<tr>
+<td><strong>v2.7</strong></td>
+<td>2026-08-31</td>
+<td>胡灏文 / 产品团队</td>
+<td>1. 收敛外呼列表中的厚朴任务详情字段；<br>2. 移除关联方式、任务类型、服务端回调、模板、任务状态、状态获取方式和状态读取时间；<br>3. 保留任务 ID、默认账号、任务名称、机器人、执行参数、批次、有效号码数、创建时间和外呼进度。</td>
+</tr>
+<tr>
+<td><strong>v2.6</strong></td>
+<td>2026-08-31</td>
+<td>胡灏文 / 产品团队</td>
+<td>1. 厚朴新建业务场景补充模型类型（大模型/小模型）必选项；<br>2. 厚朴默认账号调整到任务关联资料之后、业务信息之前只读展示；<br>3. 场景保存模型类型用于中台配置和计费归类，不修改厚朴平台已有任务。</td>
+</tr>
 <tr>
 <td><strong>v2.5</strong></td>
 <td>2026-08-28</td>
@@ -714,7 +732,7 @@
 <p><strong>2）交互说明：</strong> 展示创建日期、话术/机器人名称、任务 ID、任务描述、启动方式（自动/手动）、拨打时段（星期与时间段）、风控策略（频次限制与黑名单策略）、自动重拨设置（重拨间隔与最大次数）。右上角提供「终止任务」操作。</p>
 <p><strong>3）数据来源：</strong> 中台任务库、供应商策略接口。</p>
 <p><strong>4）逻辑说明：</strong> 只读呈现，保障任务执行过程中的策略审计完整性。</p>
-<p>厚朴任务详情展示已关联的 <code>task_id</code>、关联方式、模拟默认账号、任务类型、<code>bot_id</code>、执行时段、并发、重呼、未呼优先、服务端回调配置状态、号码模板、<code>batch_id</code>、平台有效号码数、平台原始任务状态及中台映射状态；打开详情时必须通过服务端任务查询接口重新读取任务状态，不使用历史快照代替。该任务由厚朴平台预先创建，中台仅按任务 ID 关联。浏览器不得展示 OAuth2 凭据、访问令牌或真实回调地址。</p>
+<p>厚朴任务详情仅展示 <code>task_id</code>、模拟默认账号、任务名称、<code>bot_id</code>、执行时段、并发、重呼、未呼优先、<code>batch_id</code>、平台有效号码数、创建时间和外呼进度。关联方式、任务类型、服务端回调、号码模板、任务状态、状态获取方式和状态读取时间不在该详情区重复展示；任务状态仍按统一映射用于列表卡片及详情顶部状态。该任务由厚朴平台预先创建，中台仅按任务 ID 关联。浏览器不得展示 OAuth2 凭据、访问令牌或真实回调地址。</p>
 <p><strong>5）功能明细：</strong></p>
 <div class="table-wrap"><table>
 <thead><tr>
@@ -1687,10 +1705,19 @@
 <li>选中平台后，下方字段动态互斥切换：</li>
 <li><strong>冰兰平台</strong>：呼叫通道（联友 VCP / 冰兰外呼通道）、线路、机器人 ID；若选择冰兰外呼通道，自动隐藏中台本地呼叫时段、自动重拨、黑名单拦截等策略；</li>
 <li><strong>一知/中科金</strong>：场景 ID、模型类型（大模型/小模型）、选择账号（根据模型级联过滤）；</li>
-<li><strong>电声平台</strong>：场景类型自动绑定 <code>leadTypeCode</code>（新线索 <code>NEW_LEAD</code> / 冷线索 <code>COLD_LEAD</code>），自动只读匹配机器人编码，配置多时段 <code>callTimeWindow</code> 与排除日期，自动重拨（固定 N天M呼），底部按钮显示「确定并生成任务」，自动调用电声接口生成 <code>strategyCode</code>；</li>
-<li><strong>厚朴平台</strong>：先在厚朴平台创建并配置任务，再在中台输入已有 <code>task_id</code>，点击“查询并关联”。原型使用模拟的服务端默认厚朴账号；同一 <code>task_id</code> 全局仅能关联一个业务场景。查询成功后只读反显任务名称、<code>bot_id</code>、任务类型（<code>streaming</code> 流式 / <code>same_day</code> 当日）、执行时段、并发、重呼、未呼优先、号码模板、厚朴原始任务状态及中台映射状态。打开已关联场景编辑页或主动查询时实时刷新任务状态；只要任务可查询，原型不再根据 <code>0</code>–<code>6</code> 的具体状态限制关联。中台不调用厚朴任务创建接口，也不允许编辑厚朴侧任务策略。OAuth2 凭据、访问令牌和真实回调地址仅在服务端维护；</li>
+<li><strong>电声平台</strong>：场景类型自动绑定 <code>leadTypeCode</code>（新线索 <code>NEW_LEAD</code> / 冷线索 <code>COLD_LEAD</code>），自动只读匹配机器人编码，配置多时段 <code>callTimeWindow</code> 与排除日期，输入最大呼叫次数与统一重呼间隔；最大执行天数不在页面输入，由中台在创建任务提交电声接口前自动换算。底部按钮显示「确定并生成任务」，自动调用电声接口生成 <code>strategyCode</code>；</li>
+<li><strong>厚朴平台</strong>：先在厚朴平台创建并配置任务，再在中台输入已有 <code>task_id</code>，点击“查询并关联”。查询成功后只读反显任务名称、<code>bot_id</code>、任务类型（<code>streaming</code> 流式 / <code>same_day</code> 当日）、执行时段、并发、重呼、未呼优先、号码模板、厚朴原始任务状态及中台映射状态；随后必须选择大模型或小模型，默认账号在业务信息之前只读展示。模型类型用于中台场景配置和计费归类，不修改厚朴平台已有任务。原型使用模拟的服务端默认厚朴账号；同一 <code>task_id</code> 全局仅能关联一个业务场景。打开已关联场景编辑页或主动查询时实时刷新任务状态；只要任务可查询，原型不再根据 <code>0</code>–<code>6</code> 的具体状态限制关联。中台不调用厚朴任务创建接口，也不允许编辑厚朴侧任务策略。OAuth2 凭据、访问令牌和真实回调地址仅在服务端维护；</li>
 <li>场景删除时自动校验是否被运行中外呼任务引用。</li>
 </ul>
+<p><strong>电声重呼与 <code>days</code> 换算规则（创建任务提交接口前）：</strong></p>
+<ol>
+<li>定时启动以 <code>autoStart.executeDateTime</code> 为计划开始时间；立即启动以中台提交创建任务请求时的系统时间为计划开始时间，不依赖实际呼叫结果或回调。</li>
+<li>页面的“最大呼叫次数”直接对应 <code>maxAttempts</code>，含首呼；若为 <code>M</code>，则中台将统一重呼间隔 <code>I</code> 重复 <code>M - 1</code> 次，生成 <code>intervalMinutes = [I, I, ……]</code>。<code>M = 1</code> 时数组为空。</li>
+<li>中台从计划开始时间开始模拟排程：第 1 次呼叫取 <code>nextCallableTime(startAt)</code>；第 <code>N</code> 次呼叫取 <code>nextCallableTime(第 N-1 次计划时间 + I 分钟)</code>，直到得到 <code>M</code> 个计划呼叫时间。</li>
+<li><code>nextCallableTime</code> 必须同时检查 <code>callTimeWindow.windows</code>、可呼叫星期和 <code>excludeDates</code>：时间早于当天首个窗口时移到该窗口开始，落在窗口间隔时移到当天下一个窗口，晚于最后窗口、星期不可呼或命中排除日期时，按 <code>onOutOfWindow = postpone</code> 顺延至下一个可呼叫日的首个窗口。</li>
+<li>得到最后一次计划呼叫时间后，按自然日包含首尾计算：<code>days = 最后一次计划呼叫日期 - 任务计划开始日期 + 1</code>。周末、禁呼日和排除日期不发起呼叫，但仍计入自然日跨度。</li>
+<li>换算完成后，中台将 <code>days</code>、<code>maxAttempts</code> 和 <code>intervalMinutes</code> 一并放入电声创建任务请求。找不到可呼叫时间或预估超过 365 个自然日时，阻止提交并提示调整呼叫窗口、排除日期或重呼配置。</li>
+</ol>
 <p><strong>3）数据来源：</strong> 中台场景库、各供应商机器人与策略接口。</p>
 <p><strong>权限范围：</strong> 见“五. 其他说明 → 7. 统一角色权限说明（唯一维护出处）”。</p>
 <p><strong>4）逻辑说明：</strong> 平台配置完全隔离互斥，保障异构供应商接入标准统一。</p>
@@ -1725,6 +1752,33 @@
 <td>电声仅允许新线索与冷线索</td>
 </tr>
 <tr>
+<td>电声-最大呼叫次数</td>
+<td>限制单个客户的最大计划呼叫次数</td>
+<td>用户输入</td>
+<td>直接转换为 <code>maxAttempts</code>，含首呼</td>
+<td>1–20 的正整数</td>
+<td>3</td>
+<td>超出范围阻止提交</td>
+</tr>
+<tr>
+<td>电声-统一重呼间隔</td>
+<td>配置每两次相邻呼叫之间的统一间隔</td>
+<td>用户输入</td>
+<td>将间隔 <code>I</code> 重复 <code>maxAttempts - 1</code> 次生成 <code>intervalMinutes</code></td>
+<td>正整数（分钟）</td>
+<td>60</td>
+<td><code>maxAttempts > 1</code> 时必填</td>
+</tr>
+<tr>
+<td>电声-最大执行天数</td>
+<td>提交给电声的任务最大自然日跨度</td>
+<td>中台预估</td>
+<td>按计划开始时间、<code>callTimeWindow</code>、排除日期、<code>maxAttempts</code> 和统一间隔模拟全部计划呼叫，<code>days = 末次计划日期 - 开始日期 + 1</code></td>
+<td>正整数（自然日），页面不展示输入框</td>
+<td>系统换算</td>
+<td>无可呼叫时间或超过 365 天时阻止提交</td>
+</tr>
+<tr>
 <td>电声-确定并生成任务</td>
 <td>同步在电声平台创建外呼策略</td>
 <td>电声接口</td>
@@ -1732,6 +1786,15 @@
 <td>接口调用</td>
 <td>--</td>
 <td>接口失败阻断入库并保持表单</td>
+</tr>
+<tr>
+<td>厚朴-模型类型</td>
+<td>标识厚朴业务场景使用的 AI 模型及计费归类</td>
+<td>用户选择</td>
+<td>大模型 / 小模型</td>
+<td>Radio 组</td>
+<td>--</td>
+<td>必选；保存到中台场景，不修改厚朴平台已有任务</td>
 </tr>
 <tr>
 <td>厚朴-默认账号</td>
