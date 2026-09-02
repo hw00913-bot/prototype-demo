@@ -34,7 +34,7 @@
       : 'prototype';
   var items = [
     { key: 'prototype', label: '原型页面', href: new URL('index.html', root).href },
-    { key: 'docs', label: '说明文档', href: new URL('docs/功能说明文档.html', root).href },
+    { key: 'docs', label: '说明文档', href: new URL('docs/interaction.html', root).href },
     { key: 'flowcharts', label: '流程图集', href: new URL('flowcharts/index.html', root).href }
   ];
   var itemMap = {};

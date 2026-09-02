@@ -1,82 +1,53 @@
 # 项目结构摘要
 
-> S5 阶段读取真实文件结构后填写本文件。S6 拆分以此为可编辑边界，不得把总控工具包（tools/prototype-loop-orchestrator）纳入业务实现范围。
-
 ## 可编辑业务文件清单
 
 | 路径 | 类型 | 责任 | 可编辑原因 |
-|---|---|---|---|
-| index.html | entry | 页面入口 | 原型入口页面，包含导航和页面容器 |
-| js/app.js | logic | 应用主逻辑 | 页面初始化和路由控制 |
-| js/common.js | logic | 公共工具函数 | 提供Toast、筛选、Tab切换等公共功能 |
-| js/nav.js | logic | 导航逻辑 | 左侧菜单导航控制 |
-| js/pages/home.js | page | 首页 | 首页概览数据展示 |
-| js/pages/scene-list.js | page | 外呼列表 | 外呼任务列表、筛选、详情 |
-| js/pages/scene-block.js | page | 外呼拦截 | 黑名单管理 |
-| js/pages/report-call.js | page | 通话统计 | 通话统计数据展示 |
-| js/pages/report-billing.js | page | 计费统计 | 计费统计数据展示 |
-| js/pages/report-clue.js | page | 线索统计 | 线索统计数据展示 |
-| js/pages/result-records.js | page | 通话记录 | 通话记录查询 |
-| js/pages/result-clue.js | page | 线索记录 | 线索记录查询 |
-| js/pages/sys-account.js | page | 账号管理 | 账号管理配置 |
-| js/pages/sys-scene.js | page | 业务场景 | 业务场景配置 |
-| js/pages/sys-tags.js | page | 标签管理 | 标签管理配置 |
-| js/pages/sys-tenant.js | page | 租户管理 | 租户管理配置 |
-| mock/data.js | data | Mock数据 | 所有Mock数据源 |
-| config/nav.json | config | 交付导航配置 | Loop 结构与交付入口配置 |
-| config/project.json | config | 项目配置 | 项目基本信息 |
-| assets/css/global.css | style | 全局样式 | 全局CSS样式 |
-| assets/css/app.css | style | 应用样式 | 应用CSS样式 |
-| annotations/annotation-runtime.js | annotation | 标注运行时 | 标注系统运行时 |
-| annotations/annotation.css | annotation | 标注样式 | 标注系统样式 |
-| annotations/annotations.js | annotation | 标注数据 | 标注数据定义 |
+| --- | --- | --- | --- |
+| `index.html` | entry | 页面入口与资源版本 | 删除旧字段后提升资源缓存版本 |
+| `js/pages/sys-scene.js` | page | 大众业务场景配置 | 删除输入、采集、校验和确认文案 |
+| `js/pages/scene-list.js` | page | 大众任务详情 | 删除关联任务 ID 详情行并更新字段锚点 |
+| `mock/data.js` | data | 大众场景与详情 Mock | 删除 `scheduledRedialTaskId` |
+| `docs/功能说明文档.md` | documentation | 唯一功能说明内容源 | 删除旧字段、门禁和详情说明 |
+| `docs/功能说明文档.html` | generated documentation | 可浏览功能说明 | 由 Markdown 重新生成 |
+| `docs/interaction.html` | documentation | 本轮交互说明 | 同步删除字段和限制口径 |
+| `annotations/annotations.js` | annotation data | 页面标注 | 回写当前 11 字段合同 |
+| `memory/*.md` | workflow evidence | 需求、拆分、验收、验证与标注追溯 | 本轮 loop 产物 |
 
 ## 页面与入口
 
-- 入口页面：`index.html`
-- 页面路由/导航：左侧边栏导航，点击切换右侧内容区域
-- 页面实现文件：`js/pages/*.js`（12个页面文件）
-
-## 页面路由结构
-
-```
-首页 (home.js)
-├── 外呼场景
-│   ├── 外呼列表 (scene-list.js)
-│   └── 外呼拦截 (scene-block.js)
-├── 统计分析
-│   ├── 通话统计 (report-call.js)
-│   ├── 计费统计 (report-billing.js)
-│   └── 线索统计 (report-clue.js)
-├── 外呼结果
-│   ├── 通话记录 (result-records.js)
-│   └── 线索记录 (result-clue.js)
-└── 系统管理
-    ├── 账号管理 (sys-account.js)
-    ├── 租户管理 (sys-tenant.js)
-    ├── 通道管理 (无对应JS文件)
-    ├── 业务场景 (sys-scene.js)
-    └── 标签管理 (sys-tags.js)
-```
+- `index.html`：统一入口，加载业务页面、Mock 和标注运行时。
+- `config/nav.json` 与 `js/nav.js`：导航结构，本轮不修改。
+- `js/pages/sys-scene.js`：系统管理-业务场景，包含 `sys-scene-dazhong-redial`。
+- `js/pages/scene-list.js`：外呼场景-外呼列表及任务详情，包含 `scene-list-dazhong-redial`。
 
 ## 公共组件与复用边界
 
-- `js/common.js`：公共工具函数，包括Toast、筛选、Tab切换、级联菜单等
-- `js/components/`：公共组件目录（当前为空，可扩展）
+- `assets/css/app.css`：现有大众重呼样式可继续复用；删除一行字段不需要新样式。
+- `js/common.js` 与其他页面：本轮不修改。
+- 其他供应商平台面板和任务详情属于回归边界。
 
 ## 数据与配置来源
 
-- Mock 数据位置：`mock/data.js`
-- 配置文件位置：`config/nav.json`、`config/project.json`、`config/workflow.json`
+- `mock/data.js`：删除大众场景和任务详情中的 `scheduledRedialTaskId`，保留次数、确认记录和轮次。
+- `config/project.json`：项目配置，不修改业务含义。
+- `memory/source-materials.md` 与 `memory/field-map.md`：当前来源和字段合同。
 
 ## 标注与交互说明位置
 
-- 源码锚点位置：业务页面中的 `data-anno` 属性
-- 标注运行时位置：`annotations/`
-- 完整说明唯一内容源：`docs/功能说明文档.md`
-- 完整说明展示页：`docs/功能说明文档.html`（由 `tools/render_doc_html.py` 生成）
+- 源码锚点：`sys-scene-dazhong-redial`、`scene-list-dazhong-redial`。
+- 标注运行时：`annotations/annotation-runtime.js` 与 `annotations/annotation.css`，不修改。
+- 标注数据：`annotations/annotations.js`。
+- 交互说明：`docs/interaction.html`。
+
+## 生成与验证工具
+
+- `tools/render_doc_html.py`：从 Markdown 生成并校验功能说明 HTML。
+- `tools/loop_run.py`、`tools/loop_preflight.py`：阶段和最终门禁。
+- 浏览器验证覆盖配置页、三类大众任务详情、说明与 marker。
 
 ## 不纳入实现/交付的目录
 
-- `tools/prototype-loop-orchestrator/`：项目内总控工具包，不作为业务实现、验证对账、标注覆盖或交付统计范围。
-- `.playwright-cli/`：浏览器验证生成缓存，已忽略且不纳入业务实现。
+- `tools/prototype-loop-orchestrator/`：总控工具包，不作为业务实现范围。
+- `.loop-history/`：历史迭代归档，仅作工作流留痕。
+- `.git/`：版本控制元数据。

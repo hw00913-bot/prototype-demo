@@ -1,29 +1,24 @@
 {
   "workflow": "prototype-loop",
   "version": 1,
-  "projectId": "demo-present-df4127ec",
-  "documentation": {
-    "source": "docs/功能说明文档.md",
-    "output": "docs/功能说明文档.html",
-    "compatibilityAliases": []
-  },
+  "projectId": "id-df4127ec",
   "entry": "index.html",
   "stage": "none",
   "currentIteration": {
-    "name": "智能外呼平台整合",
+    "name": "大众定时重呼移除关联任务ID",
     "status": "active",
     "planConfirmed": true,
     "projectRulesWritten": true,
     "memoryInitialized": true,
-    "confirmedAt": "2026-08-19T15:58:10",
-    "pmApprovedAt": "2026-08-19T15:58:10",
-    "pmApprovedBy": "PM",
-    "pmApprovalEvidence": "基于现有原型整合，展示智能外呼平台完整能力",
-    "approvedStartupPlanSha256": "257b1d5fbd0acbc7c4fbd6a8dbf20adb8204c08c34f4fa57ee12678888d3e9f2",
+    "confirmedAt": "2026-09-02T17:25:49",
+    "pmApprovedAt": "2026-09-02T17:25:49",
+    "pmApprovedBy": "PM（用户）",
+    "pmApprovalEvidence": "用户明确说明“大众 SaaS 后台不提供定时重呼任务 ID，所以要删掉相关功能”，并用截图红框指定删除关联重呼任务 ID 区域。",
+    "approvedStartupPlanSha256": "ed2c7f240ce22a2cb63e7153efc5719c5cc14f17141fa9ea71c5e0bf0c891310",
     "approvedClaudeSha256": "6e0ec326a89048d6b7a0e7baf8667160da5ebf0f4d312f7fb02967ca9475f8ba",
     "planApprovalVersion": "plan-approval-v1",
-    "planApprovalId": "31ea0dcea2a554d0",
-    "startupPlanFrozenAt": "2026-08-19T15:58:10"
+    "planApprovalId": "640bc9f9d6125145",
+    "startupPlanFrozenAt": "2026-09-02T17:25:49"
   },
   "artifacts": {
     "decisions": "docs/decisions.md",
@@ -41,7 +36,7 @@
     "changeLog": "memory/change-log.md",
     "navigation": "config/nav.json",
     "annotations": "annotations/annotations.js",
-    "interactionDoc": "docs/功能说明文档.html"
+    "interactionDoc": "docs/interaction.html"
   },
   "verification": {
     "serveOverHttp": true,
@@ -78,9 +73,9 @@
   },
   "frozenArtifacts": {
     "memory/project-startup-plan.md": {
-      "sha256": "257b1d5fbd0acbc7c4fbd6a8dbf20adb8204c08c34f4fa57ee12678888d3e9f2",
+      "sha256": "ed2c7f240ce22a2cb63e7153efc5719c5cc14f17141fa9ea71c5e0bf0c891310",
       "frozenAtStage": "S2",
-      "frozenAt": "2026-08-19T15:58:10"
+      "frozenAt": "2026-09-02T17:25:49"
     }
   }
 }

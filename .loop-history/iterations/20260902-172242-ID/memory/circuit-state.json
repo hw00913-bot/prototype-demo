@@ -1,0 +1,27 @@
+{
+  "threshold": 3,
+  "failures": [],
+  "checks": [
+    {
+      "stepId": "step-01",
+      "checkpoint": "dazhong-redial-config",
+      "consecutiveFailures": 0,
+      "lastError": "",
+      "updatedAt": "2026-09-02T16:50:00+08:00"
+    },
+    {
+      "stepId": "step-02",
+      "checkpoint": "dazhong-redial-trace",
+      "consecutiveFailures": 0,
+      "lastError": "",
+      "updatedAt": "2026-09-02T17:05:00+08:00"
+    },
+    {
+      "stepId": "step-03",
+      "checkpoint": "dazhong-redial-documentation",
+      "consecutiveFailures": 0,
+      "lastError": "",
+      "updatedAt": "2026-09-02T17:15:00+08:00"
+    }
+  ]
+}

@@ -78,11 +78,7 @@
       if (item && item.id != null) cachedMap[item.id] = item;
     });
     return source.map(function (item) {
-      var cachedItem = cachedMap[item.id];
-      if (item.revision && (!cachedItem || cachedItem.revision !== item.revision)) {
-        return clone(item);
-      }
-      return clone(cachedItem || item);
+      return clone(cachedMap[item.id] || item);
     }).sort(function (a, b) {
       return Number(a.id) - Number(b.id);
     });
@@ -147,21 +143,34 @@
       marker.className = 'anno-marker';
       marker.textContent = anno.id || String(index + 1);
       marker.title = anno.title || '';
-      marker.addEventListener('click', function (event) {
-        if (marker._dragged) { marker._dragged = false; return; }
-        event.stopPropagation();
-        openPopup(anno, marker);
-      });
+
+      // 绑定 mousedown 处理拖拽
       marker.addEventListener('mousedown', function (event) {
-        if (event.button !== 0) return;
+        event.stopPropagation();
         var startX = event.clientX;
         var startY = event.clientY;
-        var origLeft = marker.offsetLeft;
-        var origTop = marker.offsetTop;
-        marker._dragged = false;
-        markerDragState = { marker: marker, anno: anno, target: target, startX: startX, startY: startY, origLeft: origLeft, origTop: origTop };
+        var rect = marker.getBoundingClientRect();
+        markerDragState = {
+          marker: marker,
+          anno: anno,
+          target: target,
+          offsetX: startX - rect.left,
+          offsetY: startY - rect.top,
+          moved: false,
+          startX: startX,
+          startY: startY
+        };
         event.preventDefault();
+      });
+
+      marker.addEventListener('click', function (event) {
         event.stopPropagation();
+        // 拖拽结束后，防止误触发弹窗
+        if (marker.getAttribute('data-dragged') === 'true') {
+          marker.removeAttribute('data-dragged');
+          return;
+        }
+        openPopup(anno, marker);
       });
       overlay.appendChild(marker);
       positionMarker(marker, target, anno.position);
@@ -172,6 +181,9 @@
     if (!selector) return null;
     try {
       var nodes = document.querySelectorAll(selector);
+      if (nodes.length > 1) {
+        console.warn('[AnnotationRuntime] target selector is not unique:', selector, nodes.length);
+      }
       return nodes.length === 1 ? nodes[0] : null;
     } catch (err) {
       return null;
@@ -234,7 +246,7 @@
       + '  <div class="anno-popup-title">' + escapeHTML(anno.title || '未命名标注') + '</div>'
       + '  <button class="anno-popup-close" type="button" title="关闭">&times;</button>'
       + '</div>'
-      + '<div class="anno-popup-body"><div class="anno-popup-desc">' + (anno.desc || generateDesc(anno.sections)) + '</div></div>'
+      + '<div class="anno-popup-body"><div class="anno-popup-desc">' + renderDescription(anno) + '</div></div>'
       + '<div class="anno-popup-footer">'
       + '  <button class="anno-btn anno-copy" type="button">复制数据</button>'
       + '  <button class="anno-btn anno-btn-primary anno-edit" type="button">编辑</button>'
@@ -313,20 +325,18 @@
     });
     if (!found) items.push(clone(currentAnno));
     saveCached(items);
-    // 写回文件
-    var cfg = getConfig();
-    if (cfg.enableFileWriteback && cfg.saveEndpoint) {
-      writebackToFile([currentAnno]);
-    }
     activePopup.innerHTML = buildViewHTML(currentAnno);
     bindViewEvents();
     bindDrag();
     fitPopupToViewport(activePopup);
+    showToast('已保存到浏览器缓存');
   }
 
   function copyCurrent() {
     if (!currentAnno) return;
-    copyText(JSON.stringify(currentAnno, null, 2));
+    var latest = getAnnotations().filter(function (item) { return item.id === currentAnno.id; })[0];
+    var dataToCopy = latest || currentAnno;
+    copyText(JSON.stringify(dataToCopy, null, 2));
   }
 
   function copyText(text) {
@@ -362,11 +372,22 @@
     dragState = null;
   }
 
+  function renderDescription(anno) {
+    if (anno.sections && typeof anno.sections === 'object') {
+      return generateDesc(anno.sections);
+    }
+    return '<div class="anno-section-content">' + escapeHTML(anno.desc || '未提供说明') + '</div>';
+  }
+
   function generateDesc(sections) {
     var data = sections || {};
     return sectionFields.map(function (field, index) {
-      return (index + 1) + '. ' + field[1] + '：' + escapeHTML(data[field[0]] || '待确认');
-    }).join('<br>');
+      return ''
+        + '<section class="anno-section">'
+        + '  <div class="anno-section-title">' + (index + 1) + '. ' + field[1] + '</div>'
+        + '  <div class="anno-section-content">' + escapeHTML(data[field[0]] || '未提供') + '</div>'
+        + '</section>';
+    }).join('');
   }
 
   function escapeHTML(value) {
@@ -376,43 +397,6 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
-  }
-
-  function writebackToFile(items) {
-    var cfg = getConfig();
-    if (!cfg.saveEndpoint) return;
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', cfg.saveEndpoint);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          showToast('已保存并写回文件');
-        } else {
-          showToast('已保存到缓存（文件写回失败）');
-        }
-      };
-      xhr.onerror = function () {
-        showToast('已保存到缓存（写回服务未启动）');
-      };
-      xhr.send(JSON.stringify({ items: items }));
-    } catch (err) {
-      showToast('已保存到缓存');
-    }
-  }
-
-  function saveMarkerPosition(anno) {
-    var items = getAnnotations();
-    var found = false;
-    items = items.map(function (item) {
-      if (item.id === anno.id) { found = true; item.position = clone(anno.position); }
-      return item;
-    });
-    if (!found) {
-      var copy = clone(anno);
-      items.push(copy);
-    }
-    saveCached(items);
   }
 
   function showToast(text) {
@@ -426,18 +410,28 @@
   }
 
   document.addEventListener('mousemove', function (event) {
-    // 标注点拖拽
     if (markerDragState) {
-      var dx = event.clientX - markerDragState.startX;
-      var dy = event.clientY - markerDragState.startY;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-        markerDragState.marker._dragged = true;
+      var ds = markerDragState;
+      var dx = event.clientX - ds.startX;
+      var dy = event.clientY - ds.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        ds.moved = true;
+        ds.marker.setAttribute('data-dragged', 'true');
       }
-      markerDragState.marker.style.left = Math.round(markerDragState.origLeft + dx) + 'px';
-      markerDragState.marker.style.top = Math.round(markerDragState.origTop + dy) + 'px';
+      if (ds.moved) {
+        var left = event.clientX - ds.offsetX;
+        var top = event.clientY - ds.offsetY;
+
+        // 边界限制
+        left = Math.max(0, Math.min(left, window.innerWidth - ds.marker.offsetWidth));
+        top = Math.max(0, Math.min(top, window.innerHeight - ds.marker.offsetHeight));
+
+        ds.marker.style.left = left + 'px';
+        ds.marker.style.top = top + 'px';
+      }
       return;
     }
-    // 弹窗拖拽
+
     if (!dragState || !activePopup) return;
     var x = Math.max(8, Math.min(event.clientX - dragState.x, window.innerWidth - activePopup.offsetWidth - 8));
     var y = Math.max(8, Math.min(event.clientY - dragState.y, window.innerHeight - activePopup.offsetHeight - 8));
@@ -446,33 +440,52 @@
   });
 
   document.addEventListener('mouseup', function () {
-    // 标注点拖拽结束：计算偏移并保存
     if (markerDragState) {
-      var state = markerDragState;
+      var ds = markerDragState;
       markerDragState = null;
-      var m = state.marker;
-      var target = state.target;
-      var anno = state.anno;
-      var targetRect = target.getBoundingClientRect();
-      // 标注点中心 = left/top + 10（marker 20×20）
-      var cx = parseInt(m.style.left, 10) + 10;
-      var cy = parseInt(m.style.top, 10) + 10;
-      var pos = anno.position || {};
-      // 根据标注点中心相对 target 的位置推断 placement
-      var hSide = cx < targetRect.left + targetRect.width / 2 ? 'left' : 'right';
-      var vSide = cy < targetRect.top + targetRect.height / 2 ? 'top' : 'bottom';
-      pos.placement = vSide + '-' + hSide;
-      // offset 相对 placement 对应的参照边，与 positionMarker 保持一致
-      var refX = hSide === 'left' ? targetRect.left : targetRect.right;
-      var refY = vSide === 'top' ? targetRect.top : targetRect.bottom;
-      pos.offsetX = Math.round(cx - refX);
-      pos.offsetY = Math.round(cy - refY);
-      anno.position = pos;
-      // 用新 position 重新定位
-      positionMarker(m, target, pos);
-      saveMarkerPosition(anno);
+      if (ds.moved) {
+        var rect = ds.target.getBoundingClientRect();
+        var markerRect = ds.marker.getBoundingClientRect();
+
+        var pos = ds.anno.position || {};
+        var placement = pos.placement || 'top-right';
+
+        var x = rect.right;
+        var y = rect.top;
+        if (placement.indexOf('left') >= 0) x = rect.left;
+        if (placement.indexOf('bottom') >= 0) y = rect.bottom;
+        if (placement.indexOf('center') >= 0) y = rect.top + rect.height / 2;
+
+        var newOffsetX = Math.round(markerRect.left + 10 - x);
+        var newOffsetY = Math.round(markerRect.top + 10 - y);
+
+        var items = getAnnotations();
+        var found = false;
+        items = items.map(function (item) {
+          if (item.id === ds.anno.id) {
+            found = true;
+            var updated = clone(item);
+            updated.position = updated.position || {};
+            updated.position.offsetX = newOffsetX;
+            updated.position.offsetY = newOffsetY;
+            return updated;
+          }
+          return item;
+        });
+        if (found) {
+          saveCached(items);
+          showToast('锚点位置已更新并保存');
+        }
+
+        setTimeout(function () {
+          ds.marker.removeAttribute('data-dragged');
+        }, 50);
+      } else {
+        ds.marker.removeAttribute('data-dragged');
+      }
       return;
     }
+
     dragState = null;
     fitPopupToViewport(activePopup);
   });
@@ -485,17 +498,39 @@
 
   function observeChanges() {
     var root = document.body;
-    observer = new MutationObserver(function (mutations) {
-      var shouldRender = mutations.some(function (mutation) {
-        var target = mutation.target;
-        if (target && target.closest && target.closest('#anno-overlay, #anno-toggle-btn, .anno-popup, .anno-toast')) {
-          return false;
-        }
-        return true;
+    var _lastRender = 0;
+    var _rafPending = false;
+
+    function scheduleRender() {
+      var now = Date.now();
+      // Burst protection: skip if we rendered within the last 200 ms.
+      if (now - _lastRender < 200) return;
+      if (_rafPending) return;
+      _rafPending = true;
+      window.requestAnimationFrame(function () {
+        _rafPending = false;
+        _lastRender = Date.now();
+        render();
       });
+    }
+
+    observer = new MutationObserver(function (mutations) {
+      // Skip entirely when annotations are hidden.
+      if (!visible) return;
+
+      var shouldRender = false;
+      for (var i = 0; i < mutations.length; i++) {
+        var target = mutations[i].target;
+        if (target && target.closest && target.closest('#anno-overlay, #anno-toggle-btn, .anno-popup, .anno-toast')) {
+          continue;
+        }
+        shouldRender = true;
+        break;
+      }
       if (!shouldRender) return;
-      window.clearTimeout(observer._timer);
-      observer._timer = window.setTimeout(render, 120);
+
+      window.clearTimeout(observer._debounceTimer);
+      observer._debounceTimer = window.setTimeout(scheduleRender, 300);
     });
     observer.observe(root, { childList: true, subtree: true });
   }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <title>大众定时重呼移除关联任务ID - 功能说明文档</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f5f5; padding: 40px 20px; color: #333; line-height: 1.6; }
+    .container { max-width: 1180px; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 48px; }
+    h1 { font-size: 24px; font-weight: 600; margin-bottom: 32px; color: #1a1a1a; border-bottom: 2px solid #1677ff; padding-bottom: 12px; }
+    h2 { font-size: 18px; font-weight: 600; margin: 32px 0 16px; color: #1a1a1a; }
+    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 12px; color: #333; }
+    p { margin: 8px 0; font-size: 14px; }
+    strong { color: #333; }
+    a { color: #1677ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .table-wrap { width: 100%; overflow-x: auto; margin: 12px 0; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #d9d9d9; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #fafafa; font-weight: 600; color: #333; white-space: nowrap; }
+    tr:hover { background: #fafafa; }
+    hr { border: none; border-top: 1px solid #e8e8e8; margin: 24px 0; }
+    .section-divider { margin: 32px 0; }
+    .jump-btn { display: inline-block; padding: 8px 20px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; }
+    .jump-btn:hover { background: #4096ff; text-decoration: none; }
+    @media (max-width: 640px) { body { padding: 20px 12px; } .container { padding: 24px 18px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align: right; margin-bottom: 24px;"><a href="../index.html" class="jump-btn" data-delivery-switch="prototype">跳转演示页面 →</a></div>
+    <h1>功能说明文档</h1>
+    <h2>一. 版本说明</h2>
+    <div class="table-wrap"><table><thead><tr><th>版本号</th><th>更新时间</th><th>更新内容</th></tr></thead><tbody><tr><td>v1.0</td><td>2026-09-02</td><td>删除大众 SaaS 不提供的定时重呼任务 ID 输入、校验、数据和详情展示；保留计划次数、人工确认和末次判断。</td></tr></tbody></table></div>
+    <h2>二. 项目范围</h2>
+    <div class="table-wrap"><table><thead><tr><th>系统名称</th><th>涉及板块</th><th>功能范围</th><th>对接系统范围</th></tr></thead><tbody><tr><td>智能外呼统一中台</td><td>系统管理 / 外呼场景</td><td>大众通信重呼配置与任务详情追溯</td><td>大众通信 SaaS（无定时重呼任务 ID 和对应接口）</td></tr></tbody></table></div>
+    <h2>三. 逻辑说明</h2>
+    <div class="table-wrap"><table><thead><tr><th>流程名称</th><th>跳转地址</th></tr></thead><tbody><tr><td>大众通信定时重呼配置</td><td>本期未提供 ProcessOn 流程链接。流程为：选择定时重呼 → 填写计划次数 → 人工确认后台配置 → 保存 → 详情查看轮次与末次结论。</td></tr></tbody></table></div>
+    <h2>四. 功能说明</h2>
+    <hr class="section-divider">
+    <h3>1. 系统管理-业务场景-大众通信重呼配置</h3>
+    <p><strong>1）功能名称：</strong> 大众通信重呼配置</p>
+    <p><strong>2）交互说明：</strong> 页面已删除关联重呼任务 ID。定时重呼只填写计划重呼次数，并确认已在大众后台完成配置且次数一致；主任务 UUID、方式或次数变化后确认失效。</p>
+    <p><strong>3）数据来源：</strong> SRC-001、SRC-002、SRC-003；配置字段 FLD-001 至 FLD-008。</p>
+    <p><strong>4）逻辑说明：</strong> 大众 SaaS 不提供定时重呼任务 ID，中台不输入、不保存、不校验。次数必须是大于等于 1 的整数；未人工确认时阻止保存。</p>
+    <p><strong>5）功能明细</strong></p>
+    <div class="table-wrap"><table><thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead><tbody>
+      <tr><td>重呼方式</td><td>定时重呼或任务重呼</td><td>FLD-003</td><td>需要重呼时默认定时重呼</td><td>Radio</td><td>定时重呼</td><td>切换后清空原确认</td></tr>
+      <tr><td>计划重呼次数</td><td>实际重呼次数，不含首次</td><td>FLD-004</td><td>最大呼叫轮次等于次数加一</td><td>正整数</td><td>1</td><td>空值、小数或小于 1 阻止保存</td></tr>
+      <tr><td>人工确认</td><td>声明后台配置完成且次数一致</td><td>FLD-005、FLD-007、FLD-008</td><td>勾选时记录确认人和时间</td><td>状态 + 人员 + 时间</td><td>尚未确认</td><td>关键配置变化后失效</td></tr>
+    </tbody></table></div>
+    <hr class="section-divider">
+    <h3>2. 外呼场景-任务详情-大众通信重呼追溯</h3>
+    <p><strong>1）功能名称：</strong> 大众通信重呼追溯</p>
+    <p><strong>2）交互说明：</strong> 定时重呼只读展示计划次数、人工确认、当前/最大轮次和末次结论；任务重呼只展示风险知情状态。</p>
+    <p><strong>3）数据来源：</strong> SRC-001、SRC-003；详情字段 FLD-003 至 FLD-011。</p>
+    <p><strong>4）逻辑说明：</strong> 不展示定时重呼任务 ID。最大轮次 = 计划次数 + 1；当前轮次达到或超过最大轮次时为末次。</p>
+    <p><strong>5）功能明细</strong></p>
+    <div class="table-wrap"><table><thead><tr><th>功能名称</th><th>功能说明</th><th>数据来源</th><th>取值逻辑</th><th>数据格式</th><th>默认值</th><th>异常处理</th></tr></thead><tbody>
+      <tr><td>呼叫轮次</td><td>当前轮次和计划总轮次</td><td>FLD-004、FLD-009、FLD-010</td><td>总轮次为计划次数加一</td><td>第 X/Y 次</td><td>无法判断</td><td>缺值时不计算</td></tr>
+      <tr><td>末次判断</td><td>识别是否达到计划上限</td><td>FLD-011</td><td>当前轮次大于等于最大轮次</td><td>状态标签</td><td>无法判断</td><td>任务重呼不套用定时公式</td></tr>
+    </tbody></table></div>
+    <hr class="section-divider">
+    <h2>五. 其他说明</h2>
+    <h3>1. 已知限制</h3>
+    <div class="table-wrap"><table><thead><tr><th>说明项</th><th>说明</th></tr></thead><tbody><tr><td>大众定时重呼接口</td><td>大众通信 SaaS 不提供定时重呼任务 ID 和对应接口。中台仅记录计划次数与人工确认，不自动创建或校验后台配置。</td></tr></tbody></table></div>
+  </div>
+  <script src="../js/delivery-nav.js"></script>
+</body>
+</html>
+

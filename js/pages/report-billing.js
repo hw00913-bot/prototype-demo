@@ -38,9 +38,9 @@
 
     filteredRows = allRows.slice();
     return '<div class="billing-page">' +
-      '<div class="billing-note" data-anno="report-billing-rule" data-anno-page="report-billing" data-anno-label="计费口径" data-anno-kind="region">备注：通话计费以客户接通为准，按分钟收费，未满 1 分钟按 1 分钟计费</div>' +
+      '<div class="billing-note" data-anno-page="report-billing" data-anno-label="计费口径" data-anno-kind="region">备注：通话计费以客户接通为准，按分钟收费，未满 1 分钟按 1 分钟计费</div>' +
       '<div class="billing-heading"><strong>计费统计</strong><span>查看不同租户的每日通话计费明细（按账号收费不统计在内）。</span></div>' +
-      '<div class="filter-bar" data-anno="report-billing-filters" data-anno-page="report-billing" data-anno-label="计费统计筛选" data-anno-kind="region" data-anno-fields="FLD-006,FLD-050,FLD-055">' +
+      '<div class="filter-bar" data-anno-page="report-billing" data-anno-label="计费统计筛选" data-anno-kind="region" data-anno-fields="FLD-006,FLD-050,FLD-055">' +
         '<div class="filter-item"><label>计费日期：</label><div class="filter-date-range"><input id="billingDateFrom" value="2026-06-01" aria-label="计费开始日期"><span class="sep">&rarr;</span><input id="billingDateTo" value="2026-06-09" aria-label="计费结束日期"><span class="calendar-icon">&#128197;</span></div></div>' +
         '<div class="filter-item"><label for="billingTenant">租户名称：</label><select id="billingTenant" class="filter-select" style="width:180px;"><option value="">请选择</option>' + tenantOptions + '</select></div>' +
         '<div class="filter-item"><label for="billingPlatform">智能平台：</label><select id="billingPlatform" class="filter-select" style="width:160px;"><option value="">全部</option>' + platformOptions + '</select></div>' +
@@ -48,7 +48,7 @@
       '</div>' +
       '<div class="billing-table-card">' +
         '<div class="billing-toolbar"><button class="billing-tool-btn billing-refresh" title="刷新" onclick="window.Pages[\'report-billing\'].refresh()"></button><button class="billing-tool-btn billing-settings" title="设置" onclick="showToast(\'设置功能开发中\',\'info\')"></button></div>' +
-        '<div class="billing-table-wrap"><table class="billing-table" data-anno="report-billing-table" data-anno-page="report-billing" data-anno-label="计费统计列表" data-anno-kind="table" data-anno-fields="FLD-006,FLD-050,FLD-055"><thead><tr><th>序号</th><th>计费日期</th><th>租户名称</th><th>智能平台</th><th>计费类型</th><th>计费时长</th><th>操作</th></tr></thead><tbody id="billingTableBody">' + renderRows(filteredRows) + '</tbody></table></div>' +
+        '<div class="billing-table-wrap"><table class="billing-table" data-anno-page="report-billing" data-anno-label="计费统计列表" data-anno-kind="table" data-anno-fields="FLD-006,FLD-050,FLD-055"><thead><tr><th>序号</th><th>计费日期</th><th>租户名称</th><th>智能平台</th><th>计费类型</th><th>计费时长</th><th>操作</th></tr></thead><tbody id="billingTableBody">' + renderRows(filteredRows) + '</tbody></table></div>' +
         '<div id="billingPagination">' + renderPagination(filteredRows.length) + '</div>' +
       '</div>' +
     '</div>';
@@ -106,7 +106,7 @@
   function showDetail(id) {
     if (document.getElementById('billingDetailBackdrop')) return;
     var html = '<div class="billing-detail-backdrop" id="billingDetailBackdrop" onclick="window.Pages[\'report-billing\'].closeDetail(event)">' +
-      '<div class="billing-detail-modal" data-anno="report-billing-detail" data-anno-page="report-billing" data-anno-label="计费明细" data-anno-kind="region" data-anno-fields="FLD-006,FLD-050,FLD-055" onclick="event.stopPropagation()">' +
+      '<div class="billing-detail-modal" data-anno-page="report-billing" data-anno-label="计费明细" data-anno-kind="region" data-anno-fields="FLD-006,FLD-050,FLD-055" onclick="event.stopPropagation()">' +
         '<div class="billing-detail-header"><strong>详情</strong><button class="billing-detail-close" aria-label="关闭" onclick="window.Pages[\'report-billing\'].closeDetail()">&times;</button></div>' +
         '<div class="billing-detail-body">' +
           '<div class="billing-detail-toolbar"><button class="btn btn-primary" onclick="showToast(\'导出任务已提交\',\'success\')">导出</button><button class="billing-tool-btn billing-refresh" title="刷新" onclick="showToast(\'刷新成功\',\'success\')"></button><button class="billing-tool-btn billing-settings" title="设置" onclick="showToast(\'设置功能开发中\',\'info\')"></button></div>' +

@@ -142,7 +142,7 @@
     }).join('');
 
     return '<div class="record-detail-backdrop" id="clueTagBackdrop" onclick="window.Pages[\'result-clue\'].closeModal(event)">' +
-      '<div class="billing-detail-modal" data-anno="result-clue-customer-tags" data-anno-page="result-clue" data-anno-label="客户详细标签" data-anno-kind="region" data-anno-fields="FLD-031,FLD-036" style="width:520px;max-width:90vw;background:#fff;border-radius:8px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.15);" onclick="event.stopPropagation()">' +
+      '<div class="billing-detail-modal" data-anno-page="result-clue" data-anno-label="客户详细标签" data-anno-kind="region" data-anno-fields="FLD-031,FLD-036" style="width:520px;max-width:90vw;background:#fff;border-radius:8px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.15);" onclick="event.stopPropagation()">' +
         '<div class="billing-detail-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:16px;font-weight:600;"><span>客户详细标签</span><button class="billing-detail-close" style="border:none;background:none;font-size:20px;cursor:pointer;color:#999;" onclick="window.Pages[\'result-clue\'].closeModal()">&times;</button></div>' +
         '<div class="billing-detail-body"><div class="clue-tag-grid">' + grid + '</div></div>' +
       '</div></div>';
@@ -159,7 +159,7 @@
     }).join('');
 
     return '<div class="record-detail-backdrop" id="clueDetailBackdrop" style="z-index: 5000;" onclick="window.Pages[\'result-clue\'].closeModal(event)">' +
-      '<div class="scene-detail-drawer open" data-anno="result-clue-revisit-detail" data-anno-page="result-clue" data-anno-label="线索多次回访详情" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-025,FLD-026,FLD-031" style="width:680px;height:100vh;background:#fff;position:fixed;right:0;top:0;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.15);z-index:5001;transform:none;" onclick="event.stopPropagation()">' +
+      '<div class="scene-detail-drawer open" data-anno-page="result-clue" data-anno-label="线索多次回访详情" data-anno-kind="region" data-anno-fields="FLD-020,FLD-021,FLD-025,FLD-026,FLD-031" style="width:680px;height:100vh;background:#fff;position:fixed;right:0;top:0;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.15);z-index:5001;transform:none;" onclick="event.stopPropagation()">' +
         '<div class="scene-detail-header" style="padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;"><span class="scene-detail-title" style="font-size:15px;font-weight:600;">线索多次回访详情（' + escapeHtml(item.platform || '-') + ' · ' + escapeHtml(item.phone || '-') + '）</span><button type="button" class="scene-detail-close" style="border:none;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1;" onclick="window.Pages[\'result-clue\'].closeModal()">&times;</button></div>' +
         '<div class="scene-detail-body" style="padding:20px;flex:1;overflow-y:auto;">' +
           '<div class="scene-detail-table-wrap"><table class="record-table">' +
@@ -215,7 +215,7 @@
         '<span class="record-title">线索记录</span>' +
         '<span class="record-subtitle">以线索的维度查看统计结果。</span>' +
       '</div>' +
-      '<div class="filter-bar" data-anno="result-clue-filters" data-anno-page="result-clue" data-anno-label="线索记录筛选" data-anno-kind="region" data-anno-fields="FLD-020,FLD-024,FLD-025,FLD-027,FLD-031" style="margin-bottom:16px;">' +
+      '<div class="filter-bar" data-anno-page="result-clue" data-anno-label="线索记录筛选" data-anno-kind="region" data-anno-fields="FLD-020,FLD-024,FLD-025,FLD-027,FLD-031" style="margin-bottom:16px;">' +
         '<div class="filter-row">' +
           '<div class="filter-item"><label>用户号码：</label><input type="text" id="cluePhone" class="filter-input" placeholder="请输入" style="width:170px;"></div>' +
           '<div class="filter-item"><label>最后回访时间：</label><div class="filter-date-range"><input type="text" class="date-input" placeholder="请选择"><span class="sep">→</span><input type="text" class="date-input" placeholder="请选择"><span class="calendar-icon">&#128197;</span></div></div>' +
@@ -238,7 +238,7 @@
           '<span class="report-icon-btn" onclick="showToast(\'设置功能开发中\',\'info\')" title="列设置">&#9881;</span>' +
         '</div>' +
         '<div class="record-table-scroll">' +
-          '<table class="record-table" data-anno="result-clue-table" data-anno-page="result-clue" data-anno-label="线索记录列表" data-anno-kind="table" data-anno-fields="FLD-020,FLD-021,FLD-024,FLD-025,FLD-027,FLD-031">' +
+          '<table class="record-table" data-anno-page="result-clue" data-anno-label="线索记录列表" data-anno-kind="table" data-anno-fields="FLD-020,FLD-021,FLD-024,FLD-025,FLD-027,FLD-031">' +
             '<thead><tr>' +
               '<th style="width: 50px;">序号</th>' +
               '<th style="width: 120px;">用户号码</th>' +

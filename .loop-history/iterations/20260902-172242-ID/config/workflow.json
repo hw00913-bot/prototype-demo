@@ -1,0 +1,81 @@
+{
+  "workflow": "prototype-loop",
+  "version": 1,
+  "projectId": "prototype-df4127ec",
+  "entry": "index.html",
+  "stage": "none",
+  "currentIteration": {
+    "name": "大众通信重呼方式与人工确认",
+    "status": "active",
+    "planConfirmed": true,
+    "projectRulesWritten": true,
+    "memoryInitialized": true,
+    "confirmedAt": "2026-09-02T15:59:08",
+    "pmApprovedAt": "2026-09-02T15:59:08",
+    "pmApprovedBy": "PM",
+    "pmApprovalEvidence": "PM 已明确回复按已讨论方案修改原型、说明和标注；方案包括定时重呼/任务重呼选择、人工配置确认、计划重呼次数与最后一次计划呼叫判断",
+    "approvedStartupPlanSha256": "391b114adbc885b28f13d498cb400702e98f4701f13aa114a9bb949d99b1100b",
+    "approvedClaudeSha256": "4c652fcc78bad7f48790ea6147e967eb7aaf755d1724e13a4f2895a52d2d2dbf",
+    "planApprovalVersion": "plan-approval-v1",
+    "planApprovalId": "4b9427cd3815238d",
+    "startupPlanFrozenAt": "2026-09-02T15:59:08"
+  },
+  "artifacts": {
+    "decisions": "docs/decisions.md",
+    "projectMemory": "memory/project.md",
+    "businessRules": "memory/business-rules.md",
+    "fieldMap": "memory/field-map.md",
+    "taskPlan": "memory/task-plan.md",
+    "executionSteps": "memory/execution-steps.md",
+    "acceptanceMap": "memory/acceptance-map.md",
+    "verificationLog": "memory/verification-log.md",
+    "loopStatus": "memory/loop-status.md",
+    "circuitState": "memory/circuit-state.json",
+    "annotationCoverage": "memory/annotation-coverage.md",
+    "openItems": "memory/open-items.md",
+    "changeLog": "memory/change-log.md",
+    "navigation": "config/nav.json",
+    "annotations": "annotations/annotations.js",
+    "interactionDoc": "docs/interaction.html"
+  },
+  "verification": {
+    "serveOverHttp": true,
+    "checkJavaScriptSyntax": true,
+    "checkLocalResourcePaths": true,
+    "checkConsoleErrors": true,
+    "checkNavigation": true,
+    "checkCoreFlows": true,
+    "checkResponsive": true,
+    "checkAnnotations": true
+  },
+  "gates": {
+    "requirePreflight": true,
+    "requirePlanBeforeImplementation": true,
+    "requireStepVerification": true,
+    "requireVerificationLog": true,
+    "requireLocalEvidence": true,
+    "requireArtifactReconciliation": true,
+    "requireGlobalVerificationBeforeAnnotations": true,
+    "requireAnnotationCoverage": true,
+    "requireValidationBeforeHandoff": true
+  },
+  "stages": {
+    "s0": "completed",
+    "s1": "completed",
+    "s2": "completed",
+    "s3": "completed",
+    "s4": "completed",
+    "s5": "completed",
+    "s6": "completed",
+    "s7": "completed",
+    "s8": "completed",
+    "s9": "completed"
+  },
+  "frozenArtifacts": {
+    "memory/project-startup-plan.md": {
+      "sha256": "391b114adbc885b28f13d498cb400702e98f4701f13aa114a9bb949d99b1100b",
+      "frozenAtStage": "S2",
+      "frozenAt": "2026-09-02T15:59:08"
+    }
+  }
+}

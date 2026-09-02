@@ -62,7 +62,7 @@ DEFAULT_REQUIRED_PATHS = [
     "js/nav.js",
     "mock/data.js",
     "docs/decisions.md",
-    "docs/功能说明文档.html",
+    "docs/interaction.html",
     "flowcharts/index.html",
     "flowcharts/processon-links.txt",
     "memory/project.md",
@@ -133,7 +133,7 @@ DEFAULT_CONTENT_REQUIRED_BY_STAGE = {
         "memory/verification-log.md",
     ],
     "final": [
-        "docs/功能说明文档.html",
+        "docs/interaction.html",
         "memory/project.md",
         "memory/project-startup-plan.md",
         "memory/source-materials.md",
@@ -246,7 +246,7 @@ DEFAULT_MIN_CONTENT_CHARS = {
     "memory/annotation-prompt.md": 240,
     "memory/annotation-coverage.md": 120,
     "memory/open-items.md": 80,
-    "docs/功能说明文档.html": 160,
+    "docs/interaction.html": 160,
 }
 
 DEFAULT_REQUIRED_STAGE_LOGS_BY_STAGE = {
@@ -1612,17 +1612,17 @@ def check_interaction_document(target: Path, stage: str, errors: list[str]) -> N
     """Enforce the PM-facing interaction document contract independently of annotations."""
     if stage != "final":
         return
-    interaction = target / "docs" / "功能说明文档.html"
+    interaction = target / "docs" / "interaction.html"
     if not interaction.exists():
-        errors.append("缺失功能说明文档：docs/功能说明文档.html")
+        errors.append("缺失功能说明文档：docs/interaction.html")
         return
     text = read_text(interaction)
     if contains_unresolved_placeholder(text) or re.search(
         r"待补充|待确认|TODO|TBD", text, flags=re.IGNORECASE
     ):
-        errors.append("功能说明文档仍是初始化模板或含占位内容：docs/功能说明文档.html")
-    if len(text.strip()) < MIN_CONTENT_CHARS.get("docs/功能说明文档.html", 160):
-        errors.append("功能说明文档内容过短，疑似未生成：docs/功能说明文档.html")
+        errors.append("功能说明文档仍是初始化模板或含占位内容：docs/interaction.html")
+    if len(text.strip()) < MIN_CONTENT_CHARS.get("docs/interaction.html", 160):
+        errors.append("功能说明文档内容过短，疑似未生成：docs/interaction.html")
 
     required_markers = [
         "功能说明文档",
@@ -1654,14 +1654,14 @@ def check_interaction_document(target: Path, stage: str, errors: list[str]) -> N
             errors.append(f"功能说明文档缺少固定结构：{marker}")
 
     structural_patterns = [
-        (r'class=["\']doc-layout["\']', "doc-layout 主容器"),
-        (r'class=["\']doc-back-link["\']', "doc-back-link 返回按钮"),
+        (r'class=["\']container["\']', "container 主容器"),
+        (r'class=["\']jump-btn["\']', "jump-btn 跳转按钮"),
         (r'class=["\']table-wrap["\']', "table-wrap 表格容器"),
         (r'class=["\']section-divider["\']', "section-divider 功能分隔线"),
         (r'href=["\']\.\./index\.html["\']', "返回原型的 ../index.html 链接"),
-        (r"\.doc-main\s*\{[^}]*max-width\s*:\s*1280px", "1280px 文档内容区"),
-        (r"h1\s*\{[^}]*border-bottom\s*:\s*2px\s+solid\s+#0066ff", "蓝色 H1 分隔线"),
-        (r"\.doc-back-link\s*\{[^}]*background\s*:\s*#ffffff", "白底返回按钮"),
+        (r"\.container\s*\{[^}]*max-width\s*:\s*1180px", "1180px 文档容器"),
+        (r"h1\s*\{[^}]*border-bottom\s*:\s*2px\s+solid\s+#1677ff", "蓝色 H1 分隔线"),
+        (r"\.jump-btn\s*\{[^}]*background\s*:\s*#1677ff", "蓝色跳转按钮"),
     ]
     for pattern, label in structural_patterns:
         if re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL) is None:
@@ -1855,7 +1855,7 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
 
     page_scripts = {
         "index.html": "js/delivery-nav.js",
-        "docs/功能说明文档.html": "../js/delivery-nav.js",
+        "docs/interaction.html": "../js/delivery-nav.js",
         "flowcharts/index.html": "../js/delivery-nav.js",
     }
     for relative, script_ref in page_scripts.items():
@@ -1889,7 +1889,7 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
         "说明文档",
         "流程图集",
         "index.html",
-        "docs/功能说明文档.html",
+        "docs/interaction.html",
         "flowcharts/index.html",
         "delivery_embed",
         "data-delivery-frame",
@@ -1902,15 +1902,15 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
     for marker in required_markers:
         if marker not in nav_text:
             errors.append(f"统一交付内部切换脚本缺少机制：js/delivery-nav.js -> {marker}")
-    if "docs/功能说明文档.html" not in nav_text:
-        errors.append("统一交付导航应内部加载 docs/功能说明文档.html")
+    if "docs/interaction.html" not in nav_text:
+        errors.append("统一交付导航应内部加载 docs/interaction.html")
 
     if re.search(
         r"\{\s*key\s*:\s*['\"]docs['\"][^}]*docs/index\.html",
         nav_text,
         flags=re.IGNORECASE,
     ):
-        errors.append("说明文档仍使用外部分页入口：js/delivery-nav.js 应内部加载 docs/功能说明文档.html")
+        errors.append("说明文档仍使用外部分页入口：js/delivery-nav.js 应内部加载 docs/interaction.html")
 
 
 def check_stage_specific(target: Path, stage: str, errors: list[str]) -> None:

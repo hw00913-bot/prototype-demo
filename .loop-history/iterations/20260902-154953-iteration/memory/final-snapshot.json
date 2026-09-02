@@ -1,0 +1,172 @@
+{
+  "toolVersion": "2026-08-12-loop-integrity-v4",
+  "createdAt": "2026-09-02T15:49:46",
+  "gate": "final",
+  "files": [
+    {
+      "path": "annotations/annotations.js",
+      "sha256": "daa88f700c974552694ff26b3451acad5c88f9467e62f2fbe9c2aa6d885398fa",
+      "mtime": "2026-09-01T18:09:18"
+    },
+    {
+      "path": "assets/css/app.css",
+      "sha256": "d3f0469db177853c3cf499eff9563b0205a9177318575466450c256e60c81950",
+      "mtime": "2026-09-01T17:55:36"
+    },
+    {
+      "path": "assets/css/global.css",
+      "sha256": "a7b1e5f265b1793d167d1263e7d69408373ae5e59099f2abe34797a3a4ac235e",
+      "mtime": "2026-08-19T15:50:33"
+    },
+    {
+      "path": "docs/interaction.html",
+      "sha256": "4a7c4935f5036bd47bec1ac6f6268ab6c2f76352cf3602ccc6c86d60abed0c90",
+      "mtime": "2026-09-02T15:49:37"
+    },
+    {
+      "path": "docs/功能说明文档.html",
+      "sha256": "14f45809c6d2654d84019d21df6b4e4aea594e585107c56731ebdc3a5f96497c",
+      "mtime": "2026-09-01T18:00:48"
+    },
+    {
+      "path": "docs/计算逻辑.html",
+      "sha256": "d2066b4ea0630bcac861e539e5cc6b21e9353c0d6a2074ab7c6c34367dd16e73",
+      "mtime": "2026-08-21T10:59:18"
+    },
+    {
+      "path": "flowcharts/index.html",
+      "sha256": "3bc06b517b579ff4d4fc54acda434b2d935a6f8f8f96ec7ca82d44b1ee005a15",
+      "mtime": "2026-09-02T15:44:52"
+    },
+    {
+      "path": "flowcharts/processon-links.txt",
+      "sha256": "9d2fa46810760cd0026d97775f5662f554db0307428ee666e682c0c8f36daf74",
+      "mtime": "2026-08-19T15:49:34"
+    },
+    {
+      "path": "index.html",
+      "sha256": "cd6d7bc9fbfbad2ff5ba1dd8687db0972e8de3faeb6d5c5d9d423cefa6d8308b",
+      "mtime": "2026-09-01T18:09:18"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "5feda993a701b83626e0280a44fa6fa38ffa074d7a189ae7c4fef1f4c68ee2dc",
+      "mtime": "2026-08-20T16:21:18"
+    },
+    {
+      "path": "js/common.js",
+      "sha256": "a95733d7bc6aeb4d97e18875433cfded72fa76d9a1e89493001ee8124fff376c",
+      "mtime": "2026-08-19T14:06:50"
+    },
+    {
+      "path": "js/delivery-nav.js",
+      "sha256": "3a3441f7a8b0e85d16bea83ac6595f776d7661c825e06f0f41227901f8bd5c1b",
+      "mtime": "2026-09-02T15:44:52"
+    },
+    {
+      "path": "js/nav.js",
+      "sha256": "9a09dbf4c757ad8618a461fffeb76f0f7a8985b2dbfe4414d2a9a68f2ef8a510",
+      "mtime": "2026-08-21T10:11:12"
+    },
+    {
+      "path": "js/pages/home.js",
+      "sha256": "0eda9b03af6219df28f2d4338d0433eafe4be4a8ed865826a2ec77320ecb8b11",
+      "mtime": "2026-08-19T17:36:20"
+    },
+    {
+      "path": "js/pages/report-billing.js",
+      "sha256": "908f6e2acd5fa89613487bc40811fc380b5f092411d63c724486bc13322aa44d",
+      "mtime": "2026-08-21T09:30:24"
+    },
+    {
+      "path": "js/pages/report-call.js",
+      "sha256": "e12f235fcf66a3d6597ea52d79f44620bd89aa73a130eda0af4cee0f1c8a6628",
+      "mtime": "2026-08-21T09:30:24"
+    },
+    {
+      "path": "js/pages/report-clue.js",
+      "sha256": "1c153bce00029924657c509ac36e6ed9f050a807af255fc4ddfa5b41f23a3a78",
+      "mtime": "2026-08-21T09:31:14"
+    },
+    {
+      "path": "js/pages/result-clue.js",
+      "sha256": "82a7e53f84ab016c2a01daa2937d357b43a067527ae49d57a32fb7a049aeaab7",
+      "mtime": "2026-08-21T09:31:14"
+    },
+    {
+      "path": "js/pages/result-records.js",
+      "sha256": "d7516f812a0b09ea210cc5fed96f107ab7560f855b32cb661c61853c148781ae",
+      "mtime": "2026-08-26T16:22:13"
+    },
+    {
+      "path": "js/pages/scene-block.js",
+      "sha256": "79b7501306efbecf2ed6ee35524548efcc1565bb828ea9f0e49f7219f7691376",
+      "mtime": "2026-08-21T09:30:24"
+    },
+    {
+      "path": "js/pages/scene-list.js",
+      "sha256": "db29beed9b57bf6bcf041b49a3bcab16c0cbc562cb8eefffbdd3fd8c582135c1",
+      "mtime": "2026-08-31T09:03:22"
+    },
+    {
+      "path": "js/pages/sys-account.js",
+      "sha256": "06c01e6046eea4e6790ddb4cdef8f3805eabcc226b6a1a934d9bc5de6acedd37",
+      "mtime": "2026-08-20T16:08:45"
+    },
+    {
+      "path": "js/pages/sys-scene.js",
+      "sha256": "76d31af3bcd510c4d49cd7b23e5317da8ee00ed496ae89581b71fd7dd65a5eca",
+      "mtime": "2026-09-01T17:57:47"
+    },
+    {
+      "path": "js/pages/sys-tags.js",
+      "sha256": "edee2bfd08c2109a8dff3f25bac6ba251696a411ee42941f8aea3721f98dca3e",
+      "mtime": "2026-08-21T09:21:26"
+    },
+    {
+      "path": "js/pages/sys-tenant.js",
+      "sha256": "8aa37691d034785dc2d96b81f39685bec0f3591f2e9946e426c23315c4959004",
+      "mtime": "2026-08-21T09:34:31"
+    },
+    {
+      "path": "memory/acceptance-map.md",
+      "sha256": "98bf46b6c2f33cbdf7be49fe75bafa0c424e36fb4985b295edafad7a303c39d1",
+      "mtime": "2026-09-01T18:00:35"
+    },
+    {
+      "path": "memory/annotation-coverage.md",
+      "sha256": "62a548522924daba9c0aa3e67e6c7e5d1d3fb6371b998000b9de543e5f27e10a",
+      "mtime": "2026-09-01T18:09:18"
+    },
+    {
+      "path": "memory/annotation-prompt.md",
+      "sha256": "f19d6baa4f4e97e7511f1ea343085913472912da49a3c18570039a70d0fdcdfd",
+      "mtime": "2026-09-01T18:09:18"
+    },
+    {
+      "path": "memory/execution-steps.md",
+      "sha256": "530e1c17704eb3464359ef32f1bb885eec13aac4814de6895f91ff7c5ee4290d",
+      "mtime": "2026-09-01T18:00:35"
+    },
+    {
+      "path": "memory/field-map.md",
+      "sha256": "7c65c22a17ad8151cd3a3ea0fdaa188791a40b12eef62666023f01e2f019862c",
+      "mtime": "2026-09-01T18:00:35"
+    },
+    {
+      "path": "memory/source-materials.md",
+      "sha256": "31d526c9829e0c40bce85ce1c26d2a192719871ddb34af5cb48c61e4abe0043f",
+      "mtime": "2026-09-01T18:00:35"
+    },
+    {
+      "path": "memory/verification-log.md",
+      "sha256": "a2f05f14468c6c70c9785a8aab3e1b37aa9c9eca22425069eebffd1115136902",
+      "mtime": "2026-09-01T18:10:33"
+    },
+    {
+      "path": "mock/data.js",
+      "sha256": "cea99a4978e182b37898bf1ef798143423ccd010482aaaa8d95ed4f9bffa0709",
+      "mtime": "2026-09-01T17:55:36"
+    }
+  ]
+}

@@ -2216,6 +2216,45 @@ p { margin-bottom: 8px; }
 /* ===== 平台面板 ===== */
 .biz-platform-panel { margin-top: 2px; }
 
+/* 大众通信重呼方式与人工确认 */
+.dz-redial-config { margin-bottom: 26px; }
+.dz-redial-mode-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dz-redial-mode {
+  position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 88px;
+  padding: 14px 16px 14px 40px; border: 1px solid #d9d9d9; border-radius: 8px;
+  background: #fff; cursor: pointer; transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.dz-redial-mode:hover { border-color: #69b1ff; }
+.dz-redial-mode.selected { border-color: #1677ff; background: #f5f8ff; box-shadow: 0 0 0 2px rgba(22,119,255,.08); }
+.dz-redial-mode input { position: absolute; left: 16px; top: 17px; margin: 0; accent-color: #1677ff; }
+.dz-redial-mode-title { color: #262626; font-size: 14px; font-weight: 600; }
+.dz-redial-mode-title em { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; background: #e6f4ff; color: #1677ff; font-size: 11px; font-style: normal; font-weight: 500; }
+.dz-redial-mode-desc { color: #8c8c8c; font-size: 12px; line-height: 1.6; }
+.dz-redial-card { margin: 0 0 20px 115px; padding: 16px; border: 1px solid #d6e4ff; border-radius: 8px; background: #f7faff; }
+.dz-redial-card.dz-redial-risk { border-color: #ffd591; background: #fffaf0; }
+.dz-redial-card-title { margin-bottom: 14px; color: #1d39c4; font-size: 14px; font-weight: 600; }
+.dz-redial-risk .dz-redial-card-title { color: #d46b08; }
+.dz-redial-card .biz-form-row { margin-bottom: 18px; }
+.dz-redial-card .biz-form-row:last-child { margin-bottom: 0; }
+.dz-redial-card .biz-modal-notice { margin: 0 0 18px; }
+.dz-redial-warning { background: #fffbe6; }
+.dz-confirm-row { align-items: flex-start; }
+.dz-confirm-check { align-items: flex-start; line-height: 1.6; }
+.dz-confirm-check input { margin-top: 4px; flex-shrink: 0; }
+.dz-confirm-meta { margin-top: 8px; color: #8c8c8c; font-size: 12px; }
+.dz-redial-trace { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e8edf5; background: #fbfcff; }
+.dz-redial-trace-title { padding: 0 20px 10px; color: #17233d; font-size: 14px; font-weight: 600; }
+.dz-trace-status { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 12px; line-height: 18px; }
+.dz-trace-status.confirmed { color: #237804; background: #f6ffed; border: 1px solid #b7eb8f; }
+.dz-trace-status.last { color: #a8071a; background: #fff1f0; border: 1px solid #ffa39e; }
+.dz-trace-status.pending { color: #ad6800; background: #fffbe6; border: 1px solid #ffe58f; }
+.dz-trace-status.neutral { color: #595959; background: #fafafa; border: 1px solid #d9d9d9; }
+
+@media (max-width: 768px) {
+  .dz-redial-mode-group { grid-template-columns: 1fr; }
+  .dz-redial-card { margin-left: 0; }
+}
+
 @media (max-width: 1100px) {
   .tenant-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -4855,5 +4894,3 @@ p { margin-bottom: 8px; }
 .account-radio-label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #1f1f1f; cursor: pointer; user-select: none; }
 .account-radio-label input[type="radio"] { margin: 0; width: 16px; height: 16px; accent-color: #1677ff; cursor: pointer; }
 .account-form-error { color: #ff4d4f; font-size: 12px; margin-top: 4px; }
-
-

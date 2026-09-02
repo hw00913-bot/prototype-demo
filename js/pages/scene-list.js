@@ -147,7 +147,7 @@
             '<span class="scene-page-subtitle">当前系统所有的外呼呼叫记录。</span>' +
           '</div>' +
         '</div>' +
-        '<div class="filter-bar" data-anno="scene-list-filters" data-anno-page="scene-list" data-anno-label="外呼任务筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-006">' +
+        '<div class="filter-bar" data-anno-page="scene-list" data-anno-label="外呼任务筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-006">' +
           '<div class="filter-item"><label>场景名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:200px;"></div>' +
           '<div class="filter-item"><label>状态：</label><select class="filter-select" style="width:140px;">' +
             '<option value="">请选择</option>' + TaskStatusCodeList.map(function (code) { return '<option value="' + code + '">' + TaskStatusMap[code].label + '</option>'; }).join('') +
@@ -158,7 +158,7 @@
             '<button class="btn btn-primary" onclick="window.Pages[\'scene-list\'].doQuery()">查询</button>' +
           '</div>' +
         '</div>' +
-        '<div class="scene-card-grid" data-anno="scene-list-grid" data-anno-page="scene-list" data-anno-label="外呼任务列表" data-anno-kind="region" data-anno-fields="FLD-001,FLD-003,FLD-004,FLD-006,FLD-007,FLD-008,FLD-009">' + cards + '</div>' +
+        '<div class="scene-card-grid" data-anno-page="scene-list" data-anno-label="外呼任务列表" data-anno-kind="region" data-anno-fields="FLD-001,FLD-003,FLD-004,FLD-006,FLD-007,FLD-008,FLD-009">' + cards + '</div>' +
       '</div>';
   }
 
@@ -300,10 +300,32 @@
       + '<br>重呼次数：' + unitText(extra.redial_max_times, ' 次')
       + '<br>重呼条件（挂断原因）：' + hangupCauseText
       + '<br>重呼条件（对话状态）：' + redialConditionText;
+    var redialModeText = d.redialMode === 'scheduled' ? '定时重呼' : (d.redialMode === 'task' ? '任务重呼' : '未配置');
+    var plannedRedialTimes = Number(d.scheduledRedialTimes);
+    var maxCallRounds = d.redialMode === 'scheduled' && Number.isInteger(plannedRedialTimes) && plannedRedialTimes >= 1
+      ? plannedRedialTimes + 1
+      : null;
+    var currentCallRound = Number(d.currentCallRound);
+    var canJudgeLastCall = d.redialMode === 'scheduled' && Number.isInteger(currentCallRound) && currentCallRound >= 1 && maxCallRounds !== null;
+    var isLastPlannedCall = canJudgeLastCall ? currentCallRound >= maxCallRounds : null;
+    var callRoundText = canJudgeLastCall ? '第 ' + currentCallRound + '/' + maxCallRounds + ' 次' : '-';
+    var lastCallText = isLastPlannedCall === null
+      ? '<span class="dz-trace-status neutral">无法判断</span>'
+      : (isLastPlannedCall
+        ? '<span class="dz-trace-status last">是，已到计划上限</span>'
+        : '<span class="dz-trace-status pending">否，仍有计划重呼</span>');
     function row(label, value) {
       return '<div class="task-detail-row"><div class="task-detail-label">' + label + '</div><div class="task-detail-value">' + (value || '-') + '</div></div>';
     }
-    return '<div class="task-detail-section dazhong-task-detail" data-anno="scene-list-dazhong-readonly" data-anno-page="scene-list" data-anno-label="大众通信任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-015">' +
+    var scheduledTrace = d.redialMode === 'scheduled'
+      ? row('计划重呼次数', Number.isInteger(plannedRedialTimes) ? plannedRedialTimes + ' 次（不含首次）' : '-')
+        + row('人工配置确认', d.scheduledConfigConfirmed ? '<span class="dz-trace-status confirmed">已确认</span>' : '<span class="dz-trace-status pending">尚未确认</span>')
+        + row('确认记录', d.scheduledConfigConfirmed ? escapeHtml(d.redialConfirmedBy || '-') + '，' + escapeHtml(d.redialConfirmedAt || '-') : '-')
+        + row('当前呼叫轮次', callRoundText)
+        + row('是否最后一次计划呼叫', lastCallText)
+      : row('风险知情确认', d.taskRedialRiskAccepted ? '<span class="dz-trace-status confirmed">已知悉</span>' : '<span class="dz-trace-status pending">尚未确认</span>')
+        + row('末次呼叫判断', '<span class="task-detail-muted">任务重呼不使用定时重呼次数判断</span>');
+    return '<div class="task-detail-section dazhong-task-detail" data-anno-page="scene-list" data-anno-label="大众通信任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-015">' +
       row('任务名称', escapeHtml(d.name)) +
       row('话术名称', escapeHtml(d.destination_extension_name)) +
       row('任务 ID', escapeHtml(extra.id || item.uuid)) +
@@ -311,6 +333,11 @@
       row('拨打时间段', periodText) +
       row('AI坐席数', escapeHtml(seatsValue) + ' 个（总并发：' + escapeHtml(d.maximumcall) + '，弹性坐席：' + (d.elasticity_task ? '开启' : '关闭') + '）') +
       row('自动重拨设置', redialText) +
+      '<div class="dz-redial-trace" data-anno="scene-list-dazhong-redial" data-anno-page="scene-list" data-anno-label="大众通信重呼追溯" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011">' +
+        '<div class="dz-redial-trace-title">大众通信重呼追溯</div>' +
+        row('重呼方式', redialModeText) +
+        scheduledTrace +
+      '</div>' +
     '</div>';
   }
 
@@ -383,7 +410,7 @@
     }
     var defaultAccount = (window.MockHoupuAccounts || []).find(function (account) { return account.isDefault && account.enabled !== false; });
     var botText = d.botName ? d.botName + '（' + d.botId + '）' : (d.botId || '-');
-    return '<div class="task-detail-section" data-anno="houpu-task-detail" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-016,FLD-018,FLD-019">' +
+    return '<div class="task-detail-section" data-anno-page="scene-list" data-anno-label="厚朴任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-016,FLD-018,FLD-019">' +
       row('任务ID', escapeHtml(d.task_id)) +
       row('厚朴账号', defaultAccount ? escapeHtml(defaultAccount.name + '（' + defaultAccount.id + '）') : '未配置') +
       row('任务名称', escapeHtml(d.taskName)) +
@@ -974,7 +1001,7 @@
 
     var html = '' +
       '<div class="scene-detail-backdrop" id="sceneDetailBackdrop" onclick="window.Pages[\'scene-list\'].closeDetail(event)">' +
-        '<div class="scene-detail-drawer" data-anno="scene-task-detail" data-anno-page="scene-list" data-anno-label="外呼任务详情" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011,FLD-012,FLD-013,FLD-014,FLD-015" onclick="event.stopPropagation()">' +
+        '<div class="scene-detail-drawer" data-anno-page="scene-list" data-anno-label="外呼任务详情" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011,FLD-012,FLD-013,FLD-014,FLD-015" onclick="event.stopPropagation()">' +
           '<div class="scene-detail-header">' +
             '<span class="scene-detail-close" onclick="window.Pages[\'scene-list\'].closeDetail()">&times;</span>' +
             '<span class="scene-detail-title">查看外呼</span>' +
@@ -1168,7 +1195,7 @@
       ? '大众通信单次最多导入 100 条号码'
       : (isHoupu ? '单文件最多 150,000 条；单任务最多 50,000 批次；建议每批至少 200 条' : '号码数量不大于 2,000');
     return '' +
-      '<div class="import-upload-area" id="importUploadZone" data-anno="scene-import-rules" data-anno-page="scene-list" data-anno-label="手动导入规则" data-anno-kind="region" data-anno-fields="FLD-018,FLD-019"' +
+      '<div class="import-upload-area" id="importUploadZone" data-anno-page="scene-list" data-anno-label="手动导入规则" data-anno-kind="region" data-anno-fields="FLD-018,FLD-019"' +
         ' onclick="document.getElementById(\'importFileInput\').click()"' +
         ' ondragover="event.preventDefault();this.classList.add(\'dragover\')"' +
         ' ondragleave="this.classList.remove(\'dragover\')"' +

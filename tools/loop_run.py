@@ -735,11 +735,11 @@ def classify_error(error: str) -> tuple[str, str, str]:
             "资料来源未整理",
             "让 Agent 把输入资料、文档、截图、历史项目和口述内容整理为 SRC-* 来源记录。",
         )
-    if any(marker in error for marker in ["功能说明文档.html", "交互说明"]):
+    if any(marker in error for marker in ["interaction.html", "交互说明"]):
         return (
             "agent",
             "交互说明未生成",
-            "让 Agent 基于唯一 Markdown 内容源生成 docs/功能说明文档.html。",
+            "让 Agent 基于已验证原型、验收映射和标注内容生成 docs/interaction.html。",
         )
     if "流程图链接" in error:
         return (
@@ -823,7 +823,7 @@ def suggest_backflow(error: str) -> tuple[str, str, str] | None:
         if any(marker in error for marker in ["global", "全局", "Scope: global"]):
             return ("S8", STAGE_DISPATCH["S8"]["owner"], "重跑全局验证并更新验收结果")
         return ("S7", STAGE_DISPATCH["S7"]["owner"], "重跑单步验证并补证据")
-    if any(marker in error for marker in ["annotation-prompt", "annotation-coverage", "功能说明文档.html", "annotations.js", "标注", "sourceRefs", "fieldRefs", "final 交付快照", "final-snapshot", "重新运行 final"]):
+    if any(marker in error for marker in ["annotation-prompt", "annotation-coverage", "interaction.html", "annotations.js", "标注", "sourceRefs", "fieldRefs", "final 交付快照", "final-snapshot", "重新运行 final"]):
         return ("S9", STAGE_DISPATCH["S9"]["owner"], "重新生成标注提示词、覆盖清单或重跑收尾终检")
     if "流程图链接" in error:
         return ("PM", "PM", "修正 ProcessOn 链接清单后重新运行 final")

@@ -96,17 +96,17 @@
         '<div class="scene-page-title-row"><span class="scene-page-title">业务场景</span></div>' +
         '<div class="scene-page-subtitle" style="margin-top:6px;">创建使用智能外呼任务的业务场景，通过分配外呼平台的通话机器人和通话通道完成创建。</div>' +
       '</div>' +
-      '<div class="filter-bar" data-anno="sys-scene-filters" data-anno-page="sys-scene" data-anno-label="业务场景筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" style="margin:0 20px 16px;">' +
+      '<div class="filter-bar" data-anno-page="sys-scene" data-anno-label="业务场景筛选" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" style="margin:0 20px 16px;">' +
         '<div class="filter-item"><label>场景名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:180px;"></div>' +
         '<div class="filter-item"><label>场景分类：</label><select class="filter-select" style="width:160px;"><option value="">请选择</option><option value="新线索">新线索</option><option value="冷线索">冷线索</option></select></div>' +
         '<div class="filter-item"><label>所属平台：</label><select class="filter-select" style="width:160px;"><option value="">全部</option>' + platformOptions() + '</select></div>' +
         '<div class="btn-group"><button class="btn btn-default" onclick="resetFilter(this.closest(\'.scene-list-page\'))">重置</button><button class="btn btn-primary" onclick="doQuery()">查询</button></div>' +
       '</div>' +
       '<div style="padding:0 20px;margin-bottom:12px;display:flex;justify-content:flex-end;gap:8px;align-items:center;">' +
-        '<button class="btn btn-primary" data-anno="sys-scene-add-btn" data-anno-page="sys-scene" data-anno-label="新建业务场景" data-anno-kind="action" onclick="window.Pages[\'sys-scene\'].showAddModal()" style="height:34px;padding:0 16px;">+ 新建业务场景</button>' +
+        '<button class="btn btn-primary" data-anno-page="sys-scene" data-anno-label="新建业务场景" data-anno-kind="action" onclick="window.Pages[\'sys-scene\'].showAddModal()" style="height:34px;padding:0 16px;">+ 新建业务场景</button>' +
       '</div>' +
       '<div style="padding:0 20px 24px;"><div class="biz-scene-card" style="padding:0;overflow:hidden;">' +
-        '<div class="table-container"><table class="data-table" data-anno="sys-scene-table" data-anno-page="sys-scene" data-anno-label="业务场景列表" data-anno-kind="table" data-anno-fields="FLD-006">' +
+        '<div class="table-container"><table class="data-table" data-anno-page="sys-scene" data-anno-label="业务场景列表" data-anno-kind="table" data-anno-fields="FLD-006">' +
           '<thead><tr><th>序号</th><th>场景名称</th><th>场景ID</th><th>场景编码</th><th>场景分类</th><th>所属平台</th><th>可用租户</th><th>更新时间</th><th>操作</th></tr></thead>' +
           '<tbody id="bizSceneTableBody">' + tableRows + '</tbody>' +
         '</table></div>' +
@@ -603,7 +603,14 @@
     var tenants = data.tenants || [];
     var yizhiSceneId = platform === '一知科技' ? (data.sceneId || '') : '';
     var zkjTaskId = platform === '中科金智能' ? (data.sceneId || '') : '';
-    var dazhongTaskId = platform === '大众通信' ? (data.sceneId || '') : '';
+    var dazhongTaskId = platform === '大众通信' ? (data.taskUuid || data.sceneId || '') : '';
+    var dazhongRedialEnabled = platform === '大众通信' ? !!data.redialEnabled : false;
+    var dazhongRedialMode = data.redialMode === 'task' ? 'task' : 'scheduled';
+    var dazhongScheduledTimes = platform === '大众通信' && data.scheduledRedialTimes ? data.scheduledRedialTimes : 1;
+    var dazhongScheduledConfirmed = platform === '大众通信' && !!data.scheduledConfigConfirmed;
+    var dazhongTaskRiskAccepted = platform === '大众通信' && !!data.taskRedialRiskAccepted;
+    var dazhongConfirmedBy = platform === '大众通信' ? (data.redialConfirmedBy || '') : '';
+    var dazhongConfirmedAt = platform === '大众通信' ? (data.redialConfirmedAt || '') : '';
 
     var yizhiAccountOptions = (window.MockYizhiAccounts || []).map(function (acc) {
       return '<option value="' + acc.name + '">' + acc.name + ' (' + acc.id + ')</option>';
@@ -632,7 +639,7 @@
 
     var html =
       '<div class="biz-drawer-backdrop" id="bizAddSceneBackdrop" onclick="window.Pages[\'sys-scene\'].closeAddModal(event)">' +
-        '<div class="biz-drawer" id="bizAddSceneDrawer" data-anno="sys-scene-form" data-anno-page="sys-scene" data-anno-label="业务场景配置表单" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" onclick="event.stopPropagation()">' +
+        '<div class="biz-drawer" id="bizAddSceneDrawer" data-anno-page="sys-scene" data-anno-label="业务场景配置表单" data-anno-kind="region" data-anno-fields="FLD-003,FLD-006,FLD-013" onclick="event.stopPropagation()">' +
           '<div class="biz-drawer-header"><span class="biz-drawer-title">' + modalTitle + '</span><span class="biz-drawer-close" onclick="window.Pages[\'sys-scene\'].closeAddModal()">&#x2715;</span></div>' +
           '<div class="biz-drawer-body">' +
             '<div class="biz-form">' +
@@ -640,7 +647,7 @@
               '<div class="biz-form-row"><label class="biz-form-label required">场景编码</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="sceneCodeInput" placeholder="请输入字母、数字、符号" maxlength="20" value="' + sceneCode + '" oninput="window.Pages[\'sys-scene\'].updateCharCount(this,\'codeCount\',20)"><span class="biz-char-count" id="codeCount">' + sceneCode.length + ' / 20</span></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label">场景描述</label><div class="biz-form-field"><textarea class="biz-form-textarea" id="sceneDescTextarea" placeholder="请输入场景简要描述" rows="3">' + description + '</textarea></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">可用租户</label><div class="biz-form-field"><div class="biz-checkbox-group" id="tenantCheckboxGroup">' + tenantCheckboxesHtml(tenants) + '</div></div></div>' +
-              '<div class="biz-form-row" data-anno="sys-scene-platform-selector" data-anno-page="sys-scene" data-anno-label="智能平台选择" data-anno-kind="region" data-anno-fields="FLD-006"><label class="biz-form-label required">智能平台</label><div class="biz-form-field"><div class="biz-radio-group">' + platformRadiosHtml(platform) + '</div></div></div>' +
+              '<div class="biz-form-row" data-anno-page="sys-scene" data-anno-label="智能平台选择" data-anno-kind="region" data-anno-fields="FLD-006"><label class="biz-form-label required">智能平台</label><div class="biz-form-field"><div class="biz-radio-group">' + platformRadiosHtml(platform) + '</div></div></div>' +
               '<div class="biz-form-row"><label class="biz-form-label required">场景类型</label><div class="biz-form-field"><div class="biz-radio-group" id="sceneTypeGroup">' + sceneTypeRadiosHtml(sceneType) + '</div></div></div>' +
 
               /* 冰兰专属：数据导入方式（手动导入/接口传入） */
@@ -663,7 +670,7 @@
               '</div></div></div>' +
 
               /* ===== 一知科技面板 ===== */
-              '<div id="platformPanelYizhi" class="biz-platform-panel hidden" data-anno="sys-scene-yizhi-config" data-anno-page="sys-scene" data-anno-label="一知科技平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014">' +
+              '<div id="platformPanelYizhi" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="一知科技平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">一知科技场景id</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="yizhiSceneIdInput" placeholder="请输入一知科技平台创建的自助场景id" value="' + yizhiSceneId + '"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">你需要先在一知后台创建自动任务后，将自动任务 id 复制粘贴到此处完成关联。</div></div></div></div>' +
                 '<div class="biz-form-row hidden" id="modelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
@@ -677,7 +684,7 @@
               '</div>' +
 
               /* ===== 中科金智能面板 ===== */
-              '<div id="platformPanelZhongkejin" class="biz-platform-panel hidden" data-anno="sys-scene-zhongkejin-config" data-anno-page="sys-scene" data-anno-label="中科金平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013">' +
+              '<div id="platformPanelZhongkejin" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="中科金平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">中科金任务id</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="zkjTaskIdInput" placeholder="请输入中科金智能平台创建的外呼任务id" value="' + zkjTaskId + '"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">你需要先在中科金后台创建自动任务后，将自动任务 id 复制粘贴到此处完成关联。</div></div></div></div>' +
                 '<div class="biz-form-row hidden" id="zkjModelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
@@ -688,7 +695,7 @@
               '</div>' +
 
               /* ===== 电声面板 ===== */
-              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden" data-anno="sys-scene-diansheng-config" data-anno-page="sys-scene" data-anno-label="电声平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-015,FLD-057,FLD-058,FLD-059">' +
+              '<div id="platformPanelDiansheng" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="电声平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-015,FLD-057,FLD-058,FLD-059">' +
                 '<div class="ds-call-strategy">' +
                   '<div class="ds-call-title">呼叫任务配置</div>' +
                   '<div class="biz-form-row"><label class="biz-form-label">匹配机器人</label><div class="biz-form-field">' +
@@ -737,7 +744,7 @@
               '</div>' +
 
               /* ===== 冰兰面板（呼叫策略） ===== */
-              '<div id="platformPanelBinglan" class="biz-platform-panel hidden" data-anno="sys-scene-binglan-config" data-anno-page="sys-scene" data-anno-label="冰兰平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014,FLD-015">' +
+              '<div id="platformPanelBinglan" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="冰兰平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-014,FLD-015">' +
                 '<div class="biz-section-title">呼叫策略</div>' +
                 '<div class="biz-form-row"><label class="biz-form-label required">机器人id</label><div class="biz-form-field">' +
                   '<div id="binglanRobotIdInputWrap"><input type="text" class="biz-form-input" placeholder="请输入机器人id"></div>' +
@@ -774,7 +781,7 @@
               '</div>' +
 
               /* ===== 厚朴面板：按已有任务 ID 关联 ===== */
-              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno="sys-scene-houpu-config" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013,FLD-014,FLD-016,FLD-017,FLD-056">' +
+              '<div id="platformPanelHoupu" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="厚朴平台配置" data-anno-kind="region" data-anno-fields="FLD-006,FLD-013,FLD-014,FLD-016,FLD-017,FLD-056">' +
                 '<div class="biz-form-row" style="align-items:flex-start;"><label class="biz-form-label required">厚朴任务ID</label><div class="biz-form-field">' +
                   '<div class="houpu-task-link-control"><input type="text" class="biz-form-input" id="houpuTaskId" value="' + escapeHtmlAttr(data.taskId || '') + '" placeholder="请输入厚朴平台已有 task_id" oninput="window.Pages[\'sys-scene\'].onHoupuTaskIdInput()"><button type="button" class="btn btn-default" onclick="window.Pages[\'sys-scene\'].queryHoupuTask()">查询并关联</button></div>' +
                   '<div class="houpu-link-status" id="houpuLinkStatus">输入厚朴平台已有任务 ID，查询成功后才能保存场景。</div>' +
@@ -799,9 +806,32 @@
               '</div>' +
 
               /* ===== 大众通信面板 ===== */
-              '<div id="platformPanelDazhong" class="biz-platform-panel hidden" data-anno="sys-scene-dazhong-config" data-anno-page="sys-scene" data-anno-label="大众通信平台配置" data-anno-kind="region" data-anno-fields="FLD-002,FLD-006,FLD-012">' +
-                '<div class="biz-form-row"><label class="biz-form-label required">大众通信任务ID</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="dazhongTaskId" placeholder="请输入任务 uuid" value="' + dazhongTaskId + '"></div></div>' +
-                '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">请先在大众通信 SaaS 创建并配置任务，再将任务 ID（uuid）粘贴到此处关联。重呼、并发、呼叫时间等策略均在大众通信 SaaS 中配置。</div></div></div></div>' +
+              '<div id="platformPanelDazhong" class="biz-platform-panel hidden" data-anno="sys-scene-dazhong-redial" data-anno-page="sys-scene" data-anno-label="大众通信重呼配置" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008">' +
+                '<div class="biz-form-row"><label class="biz-form-label required">大众通信任务ID</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="dazhongTaskId" placeholder="请输入任务 uuid" value="' + escapeHtmlAttr(dazhongTaskId) + '" oninput="window.Pages[\'sys-scene\'].onDazhongRedialKeyChange()"></div></div>' +
+                '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">请先在大众通信 SaaS 创建并配置任务，再将任务 ID（uuid）粘贴到此处关联。并发、呼叫时间等平台策略仍在大众通信 SaaS 维护。</div></div></div></div>' +
+                '<div class="biz-form-row"><label class="biz-form-label required">是否需要重呼</label><div class="biz-form-field"><div class="biz-radio-group">' +
+                  '<label class="biz-radio"><input type="radio" name="dzRedialEnabled" value="no" ' + (!dazhongRedialEnabled ? 'checked' : '') + ' onchange="window.Pages[\'sys-scene\'].onDazhongRedialEnabledChange()"><span>不需要</span></label>' +
+                  '<label class="biz-radio"><input type="radio" name="dzRedialEnabled" value="yes" ' + (dazhongRedialEnabled ? 'checked' : '') + ' onchange="window.Pages[\'sys-scene\'].onDazhongRedialEnabledChange()"><span>需要</span></label>' +
+                '</div></div></div>' +
+                '<div id="dzRedialConfigPanel" class="dz-redial-config ' + (!dazhongRedialEnabled ? 'hidden' : '') + '">' +
+                  '<div class="biz-form-row"><label class="biz-form-label required">重呼方式</label><div class="biz-form-field"><div class="dz-redial-mode-group">' +
+                    '<label class="dz-redial-mode ' + (dazhongRedialMode === 'scheduled' ? 'selected' : '') + '"><input type="radio" name="dzRedialMode" value="scheduled" ' + (dazhongRedialMode === 'scheduled' ? 'checked' : '') + ' onchange="window.Pages[\'sys-scene\'].onDazhongRedialModeChange()"><span class="dz-redial-mode-title">定时重呼 <em>推荐</em></span><span class="dz-redial-mode-desc">在大众后台人工配置定时重呼，避免主任务完成后中断待重呼。</span></label>' +
+                    '<label class="dz-redial-mode ' + (dazhongRedialMode === 'task' ? 'selected' : '') + '"><input type="radio" name="dzRedialMode" value="task" ' + (dazhongRedialMode === 'task' ? 'checked' : '') + ' onchange="window.Pages[\'sys-scene\'].onDazhongRedialModeChange()"><span class="dz-redial-mode-title">任务重呼</span><span class="dz-redial-mode-desc">继续使用主任务内重呼，适用于已评估完成态风险的场景。</span></label>' +
+                  '</div></div></div>' +
+                  '<div id="dzScheduledRedialPanel" class="dz-redial-card ' + (dazhongRedialMode !== 'scheduled' ? 'hidden' : '') + '">' +
+                    '<div class="dz-redial-card-title">定时重呼人工配置</div>' +
+                    '<div class="biz-modal-notice dz-redial-warning"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">大众任务无待呼号码后会自动完成，完成后不会继续触发任务内待重呼号码。请先在大众后台完成定时重呼配置。平台暂未提供该功能接口，中台仅记录人工确认，无法自动校验。</div></div>' +
+                    '<div class="biz-form-row"><label class="biz-form-label required">计划重呼次数</label><div class="biz-form-field"><input type="number" class="biz-form-input" id="dzScheduledRedialTimes" min="1" step="1" value="' + escapeHtmlAttr(dazhongScheduledTimes) + '" oninput="window.Pages[\'sys-scene\'].onDazhongRedialKeyChange()"><div class="biz-form-tip">不含首次呼叫。例如填写 2，表示最多 1 次首呼 + 2 次重呼 = 3 次计划呼叫。</div></div></div>' +
+                    '<div class="biz-form-row dz-confirm-row"><label class="biz-form-label required">配置确认</label><div class="biz-form-field"><label class="biz-checkbox dz-confirm-check"><input type="checkbox" id="dzScheduledConfigConfirmed" ' + (dazhongScheduledConfirmed ? 'checked' : '') + ' onchange="window.Pages[\'sys-scene\'].onDazhongScheduledConfirmChange()"><span>我已在大众后台完成定时重呼配置，且计划重呼次数与实际配置一致。</span></label>' +
+                      '<input type="hidden" id="dzRedialConfirmedBy" value="' + escapeHtmlAttr(dazhongConfirmedBy) + '"><input type="hidden" id="dzRedialConfirmedAt" value="' + escapeHtmlAttr(dazhongConfirmedAt) + '">' +
+                      '<div class="dz-confirm-meta" id="dzRedialConfirmMeta">' + (dazhongScheduledConfirmed ? '已确认：' + escapeHtmlText(dazhongConfirmedBy || '管理员') + '，' + escapeHtmlText(dazhongConfirmedAt || '-') : '尚未人工确认') + '</div></div></div>' +
+                  '</div>' +
+                  '<div id="dzTaskRedialPanel" class="dz-redial-card dz-redial-risk ' + (dazhongRedialMode !== 'task' ? 'hidden' : '') + '">' +
+                    '<div class="dz-redial-card-title">任务重呼风险确认</div>' +
+                    '<div class="biz-modal-notice dz-redial-warning"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">当主任务没有待呼号码时，大众后台会将任务置为已完成。已完成任务中的待重呼号码可能不再触发。</div></div>' +
+                    '<label class="biz-checkbox dz-confirm-check"><input type="checkbox" id="dzTaskRedialRiskAccepted" ' + (dazhongTaskRiskAccepted ? 'checked' : '') + '><span>我已知悉上述平台限制与任务重呼风险。</span></label>' +
+                  '</div>' +
+                '</div>' +
                 '<div class="biz-form-row hidden" id="dzModelTypeRow"><label class="biz-form-label required">模型类型</label><div class="biz-form-field"><div class="biz-radio-group">' +
                   '<label class="biz-radio"><input type="radio" name="dzModelType" value="小模型" onchange="window.Pages[\'sys-scene\'].onDzModelTypeChange()"><span>小模型</span></label>' +
                   '<label class="biz-radio"><input type="radio" name="dzModelType" value="大模型" onchange="window.Pages[\'sys-scene\'].onDzModelTypeChange()"><span>大模型</span></label>' +
@@ -890,6 +920,7 @@
     });
     onPlatformChange();
     applyHoupuEditPrefill(data);
+    applyDazhongEditPrefill(data);
   }
 
   /* ===== 厚朴：编辑态按已保存任务 ID 恢复关联快照 ===== */
@@ -898,6 +929,17 @@
     var modelType = document.querySelector('input[name="hpModelType"][value="' + data.modelType + '"]');
     if (modelType) modelType.checked = true;
     if (data.taskId) queryHoupuTask(true);
+  }
+
+  /* ===== 大众通信：编辑态恢复模型与重呼分支 ===== */
+  function applyDazhongEditPrefill(data) {
+    if (!data || getCurrentPlatform() !== '大众通信') return;
+    var modelType = document.querySelector('input[name="dzModelType"][value="' + (data.modelType || '') + '"]');
+    if (modelType) {
+      modelType.checked = true;
+      onDzModelTypeChange();
+    }
+    updateDazhongRedialVisibility();
   }
 
   function closeAddModal(e) {
@@ -1019,6 +1061,7 @@
     } else if (platform === '大众通信') {
       showEl('platformPanelDazhong');
       showEl('dzModelTypeRow');
+      updateDazhongRedialVisibility();
     }
   }
 
@@ -1360,6 +1403,68 @@
     closeFieldModal();
   }
 
+  /* ===== 大众通信：重呼方式与人工确认 ===== */
+  function updateDazhongRedialVisibility() {
+    var enabled = document.querySelector('input[name="dzRedialEnabled"]:checked');
+    var mode = document.querySelector('input[name="dzRedialMode"]:checked');
+    var enabledValue = enabled && enabled.value === 'yes';
+    var modeValue = mode ? mode.value : 'scheduled';
+    var configPanel = document.getElementById('dzRedialConfigPanel');
+    var scheduledPanel = document.getElementById('dzScheduledRedialPanel');
+    var taskPanel = document.getElementById('dzTaskRedialPanel');
+    if (configPanel) configPanel.classList.toggle('hidden', !enabledValue);
+    if (scheduledPanel) scheduledPanel.classList.toggle('hidden', !enabledValue || modeValue !== 'scheduled');
+    if (taskPanel) taskPanel.classList.toggle('hidden', !enabledValue || modeValue !== 'task');
+    Array.prototype.forEach.call(document.querySelectorAll('.dz-redial-mode'), function (label) {
+      var input = label.querySelector('input[name="dzRedialMode"]');
+      label.classList.toggle('selected', !!input && input.checked);
+    });
+  }
+
+  function clearDazhongScheduledConfirmation() {
+    var confirmed = document.getElementById('dzScheduledConfigConfirmed');
+    var confirmedBy = document.getElementById('dzRedialConfirmedBy');
+    var confirmedAt = document.getElementById('dzRedialConfirmedAt');
+    var meta = document.getElementById('dzRedialConfirmMeta');
+    if (confirmed) confirmed.checked = false;
+    if (confirmedBy) confirmedBy.value = '';
+    if (confirmedAt) confirmedAt.value = '';
+    if (meta) meta.textContent = '尚未人工确认';
+  }
+
+  function onDazhongRedialEnabledChange() {
+    clearDazhongScheduledConfirmation();
+    var taskRisk = document.getElementById('dzTaskRedialRiskAccepted');
+    if (taskRisk) taskRisk.checked = false;
+    updateDazhongRedialVisibility();
+  }
+
+  function onDazhongRedialModeChange() {
+    clearDazhongScheduledConfirmation();
+    var taskRisk = document.getElementById('dzTaskRedialRiskAccepted');
+    if (taskRisk) taskRisk.checked = false;
+    updateDazhongRedialVisibility();
+  }
+
+  function onDazhongRedialKeyChange() {
+    clearDazhongScheduledConfirmation();
+  }
+
+  function onDazhongScheduledConfirmChange() {
+    var confirmed = document.getElementById('dzScheduledConfigConfirmed');
+    var confirmedBy = document.getElementById('dzRedialConfirmedBy');
+    var confirmedAt = document.getElementById('dzRedialConfirmedAt');
+    var meta = document.getElementById('dzRedialConfirmMeta');
+    if (!confirmed || !confirmed.checked) {
+      clearDazhongScheduledConfirmation();
+      return;
+    }
+    var now = formatNowDateTime();
+    if (confirmedBy) confirmedBy.value = '管理员';
+    if (confirmedAt) confirmedAt.value = now;
+    if (meta) meta.textContent = '已确认：管理员，' + now;
+  }
+
   /* ===== 提交（含各平台必填校验） ===== */
   function getTrimmedValue(id) {
     var el = document.getElementById(id);
@@ -1422,6 +1527,24 @@
         row.taskStatusName = currentHoupuLinkedTask.taskStatusName;
         row.taskStatusReadAt = currentHoupuStatusReadAt;
       }
+    } else if (platform === '大众通信') {
+      var dzEnabled = document.querySelector('input[name="dzRedialEnabled"]:checked');
+      var dzMode = document.querySelector('input[name="dzRedialMode"]:checked');
+      var dzModelType = document.querySelector('input[name="dzModelType"]:checked');
+      var dzScheduledConfirmed = document.getElementById('dzScheduledConfigConfirmed');
+      var dzTaskRiskAccepted = document.getElementById('dzTaskRedialRiskAccepted');
+      var dzScheduledTimesValue = getTrimmedValue('dzScheduledRedialTimes');
+      row.taskUuid = sceneIdVal;
+      row.modelType = dzModelType ? dzModelType.value : '';
+      row.redialEnabled = !!dzEnabled && dzEnabled.value === 'yes';
+      row.redialMode = row.redialEnabled ? (dzMode ? dzMode.value : 'scheduled') : '';
+      row.scheduledRedialTimes = row.redialEnabled && row.redialMode === 'scheduled' && /^\d+$/.test(dzScheduledTimesValue)
+        ? parseInt(dzScheduledTimesValue, 10)
+        : 0;
+      row.scheduledConfigConfirmed = row.redialEnabled && row.redialMode === 'scheduled' && !!dzScheduledConfirmed && dzScheduledConfirmed.checked;
+      row.taskRedialRiskAccepted = row.redialEnabled && row.redialMode === 'task' && !!dzTaskRiskAccepted && dzTaskRiskAccepted.checked;
+      row.redialConfirmedBy = row.scheduledConfigConfirmed ? getTrimmedValue('dzRedialConfirmedBy') : '';
+      row.redialConfirmedAt = row.scheduledConfigConfirmed ? getTrimmedValue('dzRedialConfirmedAt') : '';
     }
     return row;
   }
@@ -1495,6 +1618,13 @@
       if (!data.sceneId) return '请输入大众通信任务ID';
       modelTypeEl = document.querySelector('input[name="dzModelType"]:checked');
       if (!modelTypeEl) return '请选择模型类型';
+      if (data.redialEnabled && data.redialMode === 'scheduled') {
+        var dzTimesRaw = getTrimmedValue('dzScheduledRedialTimes');
+        if (!/^\d+$/.test(dzTimesRaw) || parseInt(dzTimesRaw, 10) < 1) return '计划重呼次数必须为大于等于 1 的整数';
+        if (!data.scheduledConfigConfirmed) return '请确认已在大众后台完成定时重呼关联配置';
+      } else if (data.redialEnabled && data.redialMode === 'task' && !data.taskRedialRiskAccepted) {
+        return '请先确认已知悉任务重呼的完成态风险';
+      }
     }
     return '';
   }
@@ -1550,6 +1680,10 @@
     onZkjModelTypeChange: onZkjModelTypeChange,
     onDsModelTypeChange: onDsModelTypeChange,
     onDzModelTypeChange: onDzModelTypeChange,
+    onDazhongRedialEnabledChange: onDazhongRedialEnabledChange,
+    onDazhongRedialModeChange: onDazhongRedialModeChange,
+    onDazhongRedialKeyChange: onDazhongRedialKeyChange,
+    onDazhongScheduledConfirmChange: onDazhongScheduledConfirmChange,
     onBinglanCallChannelChange: onBinglanCallChannelChange,
     onHoupuTaskIdInput: onHoupuTaskIdInput,
     queryHoupuTask: queryHoupuTask,

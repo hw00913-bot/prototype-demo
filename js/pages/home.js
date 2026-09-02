@@ -183,7 +183,7 @@
           '<div class="home-title">用量余额</div>' +
           '<div class="home-tenant-name">' + DEFAULT_TENANT + '</div>' +
         '</div>' +
-        '<div class="home-card-grid" data-anno="home-usage-cards" data-anno-page="home" data-anno-label="用量余额" data-anno-kind="region">' +
+        '<div class="home-card-grid" data-anno-page="home" data-anno-label="用量余额" data-anno-kind="region">' +
           '<div class="home-card">' +
             '<div class="home-card-label">大模型可用分钟数</div>' +
             '<div class="home-card-value">' + formatMinutes(summary.largeAvailableMinutes) + '</div>' +

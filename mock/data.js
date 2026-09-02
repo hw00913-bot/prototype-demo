@@ -147,6 +147,8 @@ var MockHoupuTemplates = [
 /* ===== 大众通信任务详情 Mock（2.0 编辑接口字段） ===== */
 var MockDazhongTaskEditDetail = {
   17: {
+    redialMode: 'scheduled', scheduledRedialTimes: 2,
+    scheduledConfigConfirmed: true, redialConfirmedBy: '管理员', redialConfirmedAt: '2026-09-02 15:30:00', currentCallRound: 3,
     task_type: 7, maximumcall: 20, recycle_limit: 0, name: '华东店-冷线索跟进-大众通信', remark: '华东区域冷线索自动跟进',
     destination_extension: '215870475195883520', destination_extension_name: '东风日产冷线索跟进话术', random_assignment_number: 0,
     _originate_timeout: 60, bridge_group_id: null, auto_recycle_rule_id: null, dial_time_id: 96, end_action: null,
@@ -163,6 +165,8 @@ var MockDazhongTaskEditDetail = {
     }
   },
   18: {
+    redialMode: 'scheduled', scheduledRedialTimes: 2,
+    scheduledConfigConfirmed: true, redialConfirmedBy: '运营专员', redialConfirmedAt: '2026-09-02 16:05:00', currentCallRound: 2,
     task_type: 7, maximumcall: 10, recycle_limit: 1, name: '南京售后回访-大众通信', remark: '南京区域售后满意度回访',
     destination_extension: '215870475195883521', destination_extension_name: '售后满意度回访话术', random_assignment_number: 1,
     _originate_timeout: 45, bridge_group_id: 'BRIDGE-NJ-01', auto_recycle_rule_id: 28, dial_time_id: 88, end_action: '完成后停止',
@@ -177,6 +181,7 @@ var MockDazhongTaskEditDetail = {
     }
   },
   19: {
+    redialMode: 'task', taskRedialRiskAccepted: true, currentCallRound: 1,
     task_type: 7, maximumcall: 20, recycle_limit: 0, name: '深圳新线索-大众通信', remark: '深圳新线索首次触达',
     destination_extension: '215870475195883522', destination_extension_name: '深圳新线索邀约话术', random_assignment_number: 0,
     _originate_timeout: 60, bridge_group_id: null, auto_recycle_rule_id: null, dial_time_id: 102, end_action: null,
@@ -910,7 +915,16 @@ var MockSceneRows = [
   { id: 7, name: 'NEV-冷线索-中科金', sceneId: 'ZKJ20260602002', code: 'ZKJ-LXS', category: '冷线索', tenant: '东风日产-燃油车', platform: '中科金智能', updater: '-', updateTime: '2026-06-02 10:30:00' },
   { id: 8, name: 'DCC-中科金-N7冷线索', sceneId: 'ZKJ20260603003', code: 'ZKJ-DCC-N7', category: '冷线索', tenant: '东风日产-燃油车', platform: '中科金智能', updater: '-', updateTime: '2026-06-03 14:00:00' },
   { id: 9, name: '东风日产-新线索-电声', sceneId: 'DS-SCENE-001', code: 'DS-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '电声', updater: '-', updateTime: '2026-07-15 09:00:00', strategyCode: 'NISSAN_NEW_LEAD_001', robotName: '东风日产新线索机器人' },
-  { id: 10, name: '华东店-冷线索跟进-大众通信', sceneId: 'DZ-SCENE-001', code: 'DZ-LXS', category: '冷线索', tenant: '东风日产-燃油车', platform: '大众通信', updater: '-', updateTime: '2026-07-14 08:30:00', taskUuid: '9f6d9a40-2fb3-4c56-8b21-202607140017' },
+  {
+    id: 10, name: '华东店-冷线索跟进-大众通信',
+    sceneId: '9f6d9a40-2fb3-4c56-8b21-202607140017', taskUuid: '9f6d9a40-2fb3-4c56-8b21-202607140017',
+    code: 'DZ-LXS', category: '冷线索', tenant: '东风日产-燃油车', platform: '大众通信', modelType: '大模型',
+    updater: '-', updateTime: '2026-07-14 08:30:00',
+    redialEnabled: true, redialMode: 'scheduled',
+    scheduledRedialTimes: 2,
+    scheduledConfigConfirmed: true, taskRedialRiskAccepted: false,
+    redialConfirmedBy: '管理员', redialConfirmedAt: '2026-09-02 15:30:00'
+  },
   { id: 11, name: '燃油车新线索-冰兰', sceneId: 'BL-SCENE-001', code: 'BL-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '冰兰', updater: '-', updateTime: '2026-07-16 09:00:00' },
   { id: 12, name: '厚朴-新线索首访', sceneId: 'HP-SCENE-001', code: 'HP-XXY', category: '新线索', tenant: '东风日产-燃油车', platform: '厚朴', modelType: '大模型', updater: '-', updateTime: '2026-07-17 09:00:00', taskName: 'HP-DEMO-新线索首访', taskId: 'HP-TASK-20260714-001', batchId: 'HP-BATCH-20260714-0001', taskStatus: 1, botId: 'bot_hp_nissan_001', taskType: 'streaming', schedule: { startTime: '09:00', endTime: '18:00' }, concurrency: 50, redial: true, uncalledFirst: true, templateId: 'TPL-HP-XXS-001', callbackConfigured: true },
   { id: 13, name: '厚朴-保客回访', sceneId: 'HP-SCENE-002', code: 'HP-BKHF', category: '回访', tenant: '东风日产-燃油车', platform: '厚朴', modelType: '大模型', updater: '-', updateTime: '2026-07-13 14:05:00', taskName: 'HP-DEMO-保客回访', taskId: 'HP-TASK-20260713-001', batchId: 'HP-BATCH-20260713-0003', taskStatus: 4, botId: 'bot_hp_nissan_002', taskType: 'same_day', schedule: null, concurrency: 30, redial: true, uncalledFirst: false, templateId: 'TPL-HP-BKHF-002', callbackConfigured: true },

@@ -45,7 +45,7 @@
   background: #ff4d4f;
   color: #fff;
   box-shadow: 0 4px 12px rgba(255, 77, 79, 0.35);
-  cursor: grab;
+  cursor: pointer;
   font-size: 12px;
   font-weight: 700;
   line-height: 18px;
@@ -53,7 +53,6 @@
   pointer-events: auto;
   user-select: none;
 }
-.anno-marker:active { cursor: grabbing; }
 
 .anno-marker:hover {
   transform: scale(1.12);
@@ -115,6 +114,23 @@
 
 .anno-popup-desc {
   white-space: normal;
+}
+
+.anno-section + .anno-section {
+  margin-top: 12px;
+}
+
+.anno-section-title {
+  margin-bottom: 2px;
+  color: #595959;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.anno-section-content {
+  color: #262626;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .anno-popup-footer {
