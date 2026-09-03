@@ -1,43 +1,61 @@
 # 手动标注提示词
 
+> 用于 PM 将本轮已验证需求手动投喂给标注生成器。只生成本轮标注，不继承历史标注。
+
 ## 标注输入资料
 
-- SRC-001：PM 明确确认大众 SaaS 不提供定时重呼任务 ID，要求删除相关功能。
-- SRC-002：用户截图红框定位“关联重呼任务 ID”整行。
-- SRC-003：当前静态原型，保留次数、人工确认、任务重呼和末次判断。
-- 字段合同：FLD-001、FLD-002、FLD-003、FLD-004、FLD-005、FLD-006、FLD-007、FLD-008、FLD-009、FLD-010、FLD-011。
+- 项目目标：精简大众通信任务详情的重呼追溯区，见 `memory/project.md`。
+- 验收结果：R-001 至 R-005 均通过，见 `memory/acceptance-map.md`。
+- 来源：SRC-001 用户文字、SRC-002 红框截图、SRC-003 当前原型底座。
+- 字段：FLD-001 重呼方式、FLD-002 计划重呼次数、FLD-003 人工配置确认、FLD-004 风险知情。
+- 决策：D-002，删除确认记录、当前呼叫轮次和是否最后一次计划呼叫的详情展示。
+- 页面证据：任务 17 与任务 19 的追溯区均无被删标签，锚点唯一，桌面与移动端通过。
 
 ## 可用 data-anno 锚点清单
 
-- page: sys-scene | data-anno: sys-scene-dazhong-redial | selector: [data-anno="sys-scene-dazhong-redial"] | label: 大众通信重呼配置 | kind: region | fieldRefs: FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008 | file: js/pages/sys-scene.js
-- page: scene-list | data-anno: scene-list-dazhong-redial | selector: [data-anno="scene-list-dazhong-redial"] | label: 大众通信重呼追溯 | kind: region | fieldRefs: FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011 | file: js/pages/scene-list.js
+- page: scene-list | data-anno: scene-list-dazhong-redial | selector: [data-anno="scene-list-dazhong-redial"] | label: 大众通信重呼追溯 | kind: region | fieldRefs: FLD-001,FLD-002,FLD-003,FLD-004 | file: js/pages/scene-list.js
 
 ## 手动标注提示词
 
-请基于已通过全局验证的当前静态原型，生成两条面向产品经理评审的页面标注。只使用上方锚点、SRC-001 至 SRC-003 和 FLD-001 至 FLD-011，不读取或复用任何历史标注。
+请为已通过验证的静态原型生成一条面向产品经理评审的页面标注，输出完整 `window.AnnotationData`。只允许使用上方锚点清单，不得猜测、新造或扩大 selector。
 
-必须说明的核心事实：
+输入边界：
 
-- 大众通信 SaaS 不提供定时重呼任务 ID；页面已删除该输入、校验和详情字段，中台不保存隐藏字段。
-- 定时重呼保留计划重呼次数和人工配置确认，次数不含首次。
-- 最大呼叫轮次 = 计划重呼次数 + 1；当前轮次大于等于最大轮次时为最后一次计划呼叫。
-- 主任务 UUID、重呼方式或计划次数变化时，原人工确认、确认人和确认时间失效。
-- 任务重呼保留完成态风险知情确认，不套用定时重呼次数公式。
+- 只覆盖 `scene-list` 页面“大众通信重呼追溯”区域。
+- 只依据 SRC-001、SRC-002、SRC-003 与 FLD-001 至 FLD-004。
+- 不读取、不复用、不续写旧 `annotations/annotations.js`、浏览器缓存、历史提示词或历史标注 ID。
+- 第一条且唯一一条标注使用 `id: "1"`；`target` 必须逐字等于 `[data-anno="scene-list-dazhong-redial"]`。
+- `sections.functionName` 必须逐字等于“大众通信重呼追溯”。
+- `sourceRefs` 必须为 `SRC-001,SRC-002,SRC-003`，`fieldRefs` 必须为 `FLD-001,FLD-002,FLD-003,FLD-004`。
+- 不得在标注中出现“确认记录”“当前呼叫轮次”“是否最后一次计划呼叫”作为现存页面字段，也不得描述详情页会计算或展示末次结论。
 
-每条标注必须包含 sections 的十个维度：functionName、functionDesc、permissionScope、dataSource、valueLogic、fieldDesc、interactionDesc、judgeRule、exceptionRule、otherDesc。functionName 必须逐字等于锚点 label，fieldRefs 必须与锚点合同完全一致。
+标注 sections 必须完整包含以下 10 个维度：
 
-fieldDesc 每个字段独立一行，格式必须为：FLD-* 字段名｜定义：业务含义｜逻辑：取值或计算逻辑｜格式：展示格式｜异常：空值或异常规则。
+1. functionName：大众通信重呼追溯。
+2. functionDesc：说明该只读区域用于查看任务采用的重呼方式与必要配置摘要。
+3. permissionScope：具备外呼任务查看权限的用户可查看，详情页不可修改。
+4. dataSource：中台保存的大众通信场景配置与任务关联数据；大众 SaaS 不提供定时重呼任务 ID 接口。
+5. valueLogic：scheduled 分支显示计划次数和人工配置确认；task 分支显示风险知情；不渲染确认明细、轮次或末次结论。
+6. fieldDesc：每个字段独立一行，严格使用：
+   - FLD-001 重呼方式｜定义：任务采用定时重呼或任务重呼的策略｜逻辑：读取 redialMode 并映射中文｜格式：定时重呼/任务重呼｜异常：缺失显示未配置
+   - FLD-002 计划重呼次数｜定义：定时重呼计划执行的重呼次数且不含首次｜逻辑：scheduled 分支读取已保存正整数｜格式：N 次（不含首次）｜异常：无效或缺失显示横线
+   - FLD-003 人工配置确认｜定义：是否声明大众后台定时重呼配置完成且次数一致｜逻辑：scheduled 分支读取确认布尔值｜格式：已确认/尚未确认｜异常：缺失按尚未确认
+   - FLD-004 风险知情｜定义：是否知悉任务重呼受主任务完成态影响｜逻辑：task 分支读取风险确认布尔值｜格式：已知悉/尚未确认｜异常：缺失按尚未确认
+7. interactionDesc：用户从外呼列表点击查看，切换任务详情后只读查看；模式不同自动切换摘要行。
+8. judgeRule：scheduled 展示 FLD-002/FLD-003，task 展示 FLD-004；两者均展示 FLD-001。
+9. exceptionRule：缺失数据按字段空值规则降级；不得用横线保留已删除三项。
+10. otherDesc：配置页人工确认门禁与业务侧末次判断规则仍保留，但确认明细、轮次与结论不在任务详情展示。
 
-标注 ID 必须是全局连续字符串：配置标注 id "1"，详情标注 id "2"。target 必须逐字使用锚点清单中的 selector。每条标注引用 sourceRefs: ["SRC-001","SRC-002","SRC-003"]。资料不足时输出缺口，不生成占位标注。
+如果任何来源或字段不足，输出缺口说明，不生成“待确认”占位标注，也不修改业务实现。
 
 ## 标注生成要求
 
-- Annotation 1 覆盖 R-001 至 R-004，字段 FLD-001 至 FLD-008。
-- Annotation 2 覆盖 R-005、R-006，字段 FLD-003 至 FLD-011。
-- R-007、R-008 由交互说明和验证记录追溯；R-009 由两条标注共同覆盖。
-- 不对其他平台、普通文本或装饰元素生成标注。
-- 不把已删除的定时重呼任务 ID 写入 fieldRefs 或 fieldDesc。
+- 核心验收页面 `scene-list` 至少生成一条标注，且只生成清单中的“大众通信重呼追溯”。
+- 标注对象必须追溯 R-001、R-002、R-003，并由 `docs/interaction.html` 补充覆盖 R-004、R-005。
+- `target`、`functionName`、`sourceRefs`、`fieldRefs` 必须与本提示词指定值完全一致。
+- 字段说明必须按 FLD-001 至 FLD-004 逐行写明定义、逻辑、格式和异常。
+- 缺少稳定锚点或资料时停止生成并报告缺口，不允许使用模糊 selector 或编造规则。
 
 ## 回写说明
 
-PM 要求同步更新标注，因此在确认 `annotations/annotations.js` 为本轮空骨架后，一次性写入两条完整 AnnotationData。回写后执行 JS 语法、selector 唯一性、字段逐行解释、页面 marker 和 final 门禁校验；终态后运行 `python3 tools/loop_run.py approve-annotations .` 刷新交付快照。
+生成结果经 PM 确认后，一次性写入本轮空的 `annotations/annotations.js`。回写后运行 `python3 tools/loop_run.py approve-annotations .`，重新校验 ID、来源、字段逐行说明、selector 与源码锚点语义合同，并刷新终态快照。

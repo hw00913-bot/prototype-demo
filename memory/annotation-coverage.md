@@ -4,11 +4,10 @@
 
 | Annotation ID / Prompt Item | Page | Target / Area | Requirement ID | Source Refs | Field Refs | Coverage Note |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | sys-scene | `[data-anno="sys-scene-dazhong-redial"]` / 大众通信重呼配置 | R-001,R-002,R-003,R-004,R-009 | SRC-001,SRC-002,SRC-003 | FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008 | 覆盖删除旧 ID、次数门禁、确认失效和任务风险。 |
-| 2 | scene-list | `[data-anno="scene-list-dazhong-redial"]` / 大众通信重呼追溯 | R-005,R-006,R-009 | SRC-001,SRC-002,SRC-003 | FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011 | 覆盖详情无旧 ID、确认追溯和末次计算。 |
-| 交互说明 | docs | `docs/interaction.html` | R-007 | SRC-001,SRC-002,SRC-003 | FLD-001 至 FLD-011 | 说明删除范围、保留流程、公式和无接口边界。 |
-| 全局回归 | memory | `memory/verification-log.md` | R-008 | SRC-003 | none | 记录语法、控制台、配置、三条任务详情和文档验证。 |
+| Annotation 1 | scene-list | `[data-anno="scene-list-dazhong-redial"]` / 大众通信重呼追溯 | R-001, R-002, R-003 | SRC-001, SRC-002, SRC-003 | FLD-001, FLD-002, FLD-003, FLD-004 | 覆盖精简后的详情摘要、模式分支、删除边界和空值规则 |
+| Interaction Section 1 | interaction_docs | 大众通信任务详情重呼追溯 | R-001, R-002, R-004, R-005 | SRC-001, SRC-002, SRC-003 | FLD-001, FLD-002, FLD-003, FLD-004 | 覆盖页面流程、配置页边界与验收结论 |
 
 ## Gaps
 
-- 无。两个核心页面均有唯一锚点，字段合同不包含已删除的定时重呼任务 ID。
+- 无。核心验收页面有唯一稳定锚点；功能说明和配置页回归由交互说明覆盖。
+- 本轮只回写 Annotation ID 1，不记录或继承历史 Annotation ID。

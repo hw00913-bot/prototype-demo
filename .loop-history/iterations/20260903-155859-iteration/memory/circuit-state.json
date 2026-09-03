@@ -1,0 +1,20 @@
+{
+  "threshold": 3,
+  "failures": [],
+  "checks": [
+    {
+      "stepId": "step-01",
+      "checkpoint": "remove-scheduled-redial-task-id",
+      "consecutiveFailures": 0,
+      "lastError": "",
+      "updatedAt": "2026-09-02T17:35:00+08:00"
+    },
+    {
+      "stepId": "step-02",
+      "checkpoint": "documentation-remove-task-id",
+      "consecutiveFailures": 0,
+      "lastError": "",
+      "updatedAt": "2026-09-02T17:45:00+08:00"
+    }
+  ]
+}

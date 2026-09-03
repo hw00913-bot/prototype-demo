@@ -806,7 +806,7 @@
               '</div>' +
 
               /* ===== 大众通信面板 ===== */
-              '<div id="platformPanelDazhong" class="biz-platform-panel hidden" data-anno="sys-scene-dazhong-redial" data-anno-page="sys-scene" data-anno-label="大众通信重呼配置" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008">' +
+              '<div id="platformPanelDazhong" class="biz-platform-panel hidden" data-anno-page="sys-scene" data-anno-label="大众通信重呼配置" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008">' +
                 '<div class="biz-form-row"><label class="biz-form-label required">大众通信任务ID</label><div class="biz-form-field"><input type="text" class="biz-form-input" id="dazhongTaskId" placeholder="请输入任务 uuid" value="' + escapeHtmlAttr(dazhongTaskId) + '" oninput="window.Pages[\'sys-scene\'].onDazhongRedialKeyChange()"></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label"></label><div class="biz-form-field"><div class="biz-modal-notice" style="margin:0;flex:1;"><span class="biz-notice-icon">&#x26A0;</span><div class="biz-notice-body">请先在大众通信 SaaS 创建并配置任务，再将任务 ID（uuid）粘贴到此处关联。并发、呼叫时间等平台策略仍在大众通信 SaaS 维护。</div></div></div></div>' +
                 '<div class="biz-form-row"><label class="biz-form-label required">是否需要重呼</label><div class="biz-form-field"><div class="biz-radio-group">' +

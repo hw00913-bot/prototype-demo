@@ -302,29 +302,13 @@
       + '<br>重呼条件（对话状态）：' + redialConditionText;
     var redialModeText = d.redialMode === 'scheduled' ? '定时重呼' : (d.redialMode === 'task' ? '任务重呼' : '未配置');
     var plannedRedialTimes = Number(d.scheduledRedialTimes);
-    var maxCallRounds = d.redialMode === 'scheduled' && Number.isInteger(plannedRedialTimes) && plannedRedialTimes >= 1
-      ? plannedRedialTimes + 1
-      : null;
-    var currentCallRound = Number(d.currentCallRound);
-    var canJudgeLastCall = d.redialMode === 'scheduled' && Number.isInteger(currentCallRound) && currentCallRound >= 1 && maxCallRounds !== null;
-    var isLastPlannedCall = canJudgeLastCall ? currentCallRound >= maxCallRounds : null;
-    var callRoundText = canJudgeLastCall ? '第 ' + currentCallRound + '/' + maxCallRounds + ' 次' : '-';
-    var lastCallText = isLastPlannedCall === null
-      ? '<span class="dz-trace-status neutral">无法判断</span>'
-      : (isLastPlannedCall
-        ? '<span class="dz-trace-status last">是，已到计划上限</span>'
-        : '<span class="dz-trace-status pending">否，仍有计划重呼</span>');
     function row(label, value) {
       return '<div class="task-detail-row"><div class="task-detail-label">' + label + '</div><div class="task-detail-value">' + (value || '-') + '</div></div>';
     }
     var scheduledTrace = d.redialMode === 'scheduled'
       ? row('计划重呼次数', Number.isInteger(plannedRedialTimes) ? plannedRedialTimes + ' 次（不含首次）' : '-')
         + row('人工配置确认', d.scheduledConfigConfirmed ? '<span class="dz-trace-status confirmed">已确认</span>' : '<span class="dz-trace-status pending">尚未确认</span>')
-        + row('确认记录', d.scheduledConfigConfirmed ? escapeHtml(d.redialConfirmedBy || '-') + '，' + escapeHtml(d.redialConfirmedAt || '-') : '-')
-        + row('当前呼叫轮次', callRoundText)
-        + row('是否最后一次计划呼叫', lastCallText)
-      : row('风险知情确认', d.taskRedialRiskAccepted ? '<span class="dz-trace-status confirmed">已知悉</span>' : '<span class="dz-trace-status pending">尚未确认</span>')
-        + row('末次呼叫判断', '<span class="task-detail-muted">任务重呼不使用定时重呼次数判断</span>');
+      : row('风险知情确认', d.taskRedialRiskAccepted ? '<span class="dz-trace-status confirmed">已知悉</span>' : '<span class="dz-trace-status pending">尚未确认</span>');
     return '<div class="task-detail-section dazhong-task-detail" data-anno-page="scene-list" data-anno-label="大众通信任务详情（只读）" data-anno-kind="region" data-anno-fields="FLD-014,FLD-015">' +
       row('任务名称', escapeHtml(d.name)) +
       row('话术名称', escapeHtml(d.destination_extension_name)) +
@@ -333,7 +317,7 @@
       row('拨打时间段', periodText) +
       row('AI坐席数', escapeHtml(seatsValue) + ' 个（总并发：' + escapeHtml(d.maximumcall) + '，弹性坐席：' + (d.elasticity_task ? '开启' : '关闭') + '）') +
       row('自动重拨设置', redialText) +
-      '<div class="dz-redial-trace" data-anno="scene-list-dazhong-redial" data-anno-page="scene-list" data-anno-label="大众通信重呼追溯" data-anno-kind="region" data-anno-fields="FLD-003,FLD-004,FLD-005,FLD-006,FLD-007,FLD-008,FLD-009,FLD-010,FLD-011">' +
+      '<div class="dz-redial-trace" data-anno="scene-list-dazhong-redial" data-anno-page="scene-list" data-anno-label="大众通信重呼追溯" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004">' +
         '<div class="dz-redial-trace-title">大众通信重呼追溯</div>' +
         row('重呼方式', redialModeText) +
         scheduledTrace +

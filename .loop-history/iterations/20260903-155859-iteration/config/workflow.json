@@ -1,24 +1,24 @@
 {
   "workflow": "prototype-loop",
   "version": 1,
-  "projectId": "prototype-df4127ec",
+  "projectId": "id-df4127ec",
   "entry": "index.html",
   "stage": "none",
   "currentIteration": {
-    "name": "大众任务详情精简重呼追溯",
+    "name": "大众定时重呼移除关联任务ID",
     "status": "active",
     "planConfirmed": true,
     "projectRulesWritten": true,
     "memoryInitialized": true,
-    "confirmedAt": "2026-09-03T16:01:15",
-    "pmApprovedAt": "2026-09-03T16:01:15",
-    "pmApprovedBy": "PM",
-    "pmApprovalEvidence": "用户于2026-09-03提供截图并明确要求去掉红框中的确认记录、当前呼叫轮次、是否最后一次计划呼叫",
-    "approvedStartupPlanSha256": "06607f1b39abdc7e25b0eff6d7c6f890ed7d1bfea4e524d14a09ad1ba111cd5c",
-    "approvedClaudeSha256": "ff44419c9d2533015c0ffb85b6d39d30b4b1c58e1b0d551cbdd4aba5e249727f",
+    "confirmedAt": "2026-09-02T17:25:49",
+    "pmApprovedAt": "2026-09-02T17:25:49",
+    "pmApprovedBy": "PM（用户）",
+    "pmApprovalEvidence": "用户明确说明“大众 SaaS 后台不提供定时重呼任务 ID，所以要删掉相关功能”，并用截图红框指定删除关联重呼任务 ID 区域。",
+    "approvedStartupPlanSha256": "ed2c7f240ce22a2cb63e7153efc5719c5cc14f17141fa9ea71c5e0bf0c891310",
+    "approvedClaudeSha256": "6e0ec326a89048d6b7a0e7baf8667160da5ebf0f4d312f7fb02967ca9475f8ba",
     "planApprovalVersion": "plan-approval-v1",
-    "planApprovalId": "7f7266d906b78ff2",
-    "startupPlanFrozenAt": "2026-09-03T16:01:15"
+    "planApprovalId": "640bc9f9d6125145",
+    "startupPlanFrozenAt": "2026-09-02T17:25:49"
   },
   "artifacts": {
     "decisions": "docs/decisions.md",
@@ -73,9 +73,9 @@
   },
   "frozenArtifacts": {
     "memory/project-startup-plan.md": {
-      "sha256": "06607f1b39abdc7e25b0eff6d7c6f890ed7d1bfea4e524d14a09ad1ba111cd5c",
+      "sha256": "ed2c7f240ce22a2cb63e7153efc5719c5cc14f17141fa9ea71c5e0bf0c891310",
       "frozenAtStage": "S2",
-      "frozenAt": "2026-09-03T16:01:15"
+      "frozenAt": "2026-09-02T17:25:49"
     }
   }
 }
