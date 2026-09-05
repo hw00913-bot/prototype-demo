@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-001",
+  "name": "维护租户商用/试用标记",
+  "summary": "平台管理员在租户管理中为租户设置商用或试用标记，标记只用于识别，不改变充值、冻结或消耗规则。",
+  "actors": [
+    "平台管理员",
+    "租户管理"
+  ],
+  "trigger": "新建、编辑或查看租户时需要识别其商用/试用属性",
+  "preconditions": [
+    "操作人具备租户管理权限"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "平台管理员",
+      "action": "进入租户新建或编辑界面",
+      "system_response": "展示商用/试用标记字段",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "平台管理员",
+      "action": "选择商用或试用并保存",
+      "system_response": "校验取值后保存租户标记",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "租户管理",
+      "action": "返回租户列表或打开充值管理",
+      "system_response": "以明确标签展示已保存的商用/试用标记",
+      "rule_ids": [
+        "BR-001"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "标记取值不是商用或试用",
+      "steps": [
+        "拒绝保存并提示选择有效标记"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "仅更改商用/试用标记",
+      "steps": [
+        "不触发套餐、额度、冻结或消耗规则变更"
+      ]
+    }
+  ],
+  "postconditions": [
+    "租户具有唯一的商用或试用标记",
+    "租户的原有充值、冻结与消耗状态不受标记变更影响"
+  ],
+  "acceptance_points": [
+    "AC-001",
+    "AC-002",
+    "AC-003"
+  ],
+  "source_story_ids": [
+    "US-001"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "平台管理员", "kind": "actor"},
+      {"id": "tenant", "name": "租户管理", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "维护租户标记"},
+      {"id": "N-001", "lane_id": "admin", "type": "action", "order": 2, "label": "打开租户新建/编辑", "step_ref": 1},
+      {"id": "N-002", "lane_id": "admin", "type": "action", "order": 3, "label": "选择商用或试用并保存", "step_ref": 2},
+      {"id": "N-003", "lane_id": "tenant", "type": "decision", "order": 4, "label": "标记取值有效？"},
+      {"id": "N-004", "lane_id": "tenant", "type": "action", "order": 5, "label": "保存标记并在列表及充值管理展示，不改计费规则", "step_ref": 3},
+      {"id": "N-SUCCESS", "lane_id": "admin", "type": "end", "order": 6, "label": "标签展示成功"},
+      {"id": "N-FAIL", "lane_id": "admin", "type": "end", "order": 5, "label": "提示选择有效标记"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003"},
+      {"from": "N-003", "to": "N-004", "label": "是"},
+      {"from": "N-003", "to": "N-FAIL", "label": "否", "type": "failure", "path_id": "ALT-001"},
+      {"from": "N-004", "to": "N-SUCCESS", "path_id": "ALT-002"}
+    ]
+  }
+}

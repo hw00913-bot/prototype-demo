@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-002",
+  "name": "为租户开通标准版年包",
+  "summary": "充值管理员在不关联外部充值单号的情况下，以标准版默认值为起点，可按天编辑使用时长和入账分钟数，将实际分钟计入大/小模型共用的统一分钟池并生成完整内部流水。",
+  "actors": [
+    "充值管理员",
+    "充值管理",
+    "内部额度账本"
+  ],
+  "trigger": "租户需要开通 AI 智能外呼标准版服务",
+  "preconditions": [
+    "租户对应同一营业执照下的单店",
+    "操作人具备充值管理权限"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理员",
+      "action": "选择租户并发起标准版年包开通",
+      "system_response": "展示套餐价格、服务内容、话术规则及默认服务参数",
+      "rule_ids": [
+        "BR-002",
+        "BR-003",
+        "BR-004"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "充值管理",
+      "action": "带入标准版默认值",
+      "system_response": "按一年有效期计算并带入默认使用天数，同时带入 10,000 分钟",
+      "rule_ids": [
+        "BR-002",
+        "BR-011",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "充值管理员",
+      "action": "根据实际商务结果保留默认值或手工编辑使用时长与入账分钟数",
+      "system_response": "校验两个值均为大于 0 的整数；偏离默认值时要求填写原因并展示预计生效结果",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "充值管理员",
+      "action": "确认并提交开通",
+      "system_response": "不要求外部充值单号，以提交值更新租户有效期并将分钟计入统一分钟池，校验通过后无需额外审批",
+      "rule_ids": [
+        "BR-008",
+        "BR-011",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "内部额度账本",
+      "action": "记录本次开通",
+      "system_response": "自动生成内部流水号，记录租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态",
+      "rule_ids": [
+        "BR-008"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "使用时长或入账分钟数不是大于 0 的整数，或偏离默认值但未填写原因",
+      "steps": [
+        "阻止提交",
+        "在对应字段提示可操作的修正方式"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "租户已在有效服务期内",
+      "steps": [
+        "不静默覆盖现有有效期",
+        "按 ISSUE-006 待确认的续费与叠加规则处理"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "账本更新失败",
+      "steps": [
+        "本次开通不得标记为成功",
+        "保留失败原因并允许安全重试"
+      ]
+    }
+  ],
+  "postconditions": [
+    "租户的实际有效期和统一分钟池可用分钟数已更新",
+    "本次开通已生成内部可追溯记录",
+    "入账额度继续参与原有冻结与消耗闭环"
+  ],
+  "acceptance_points": [
+    "AC-004",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-016",
+    "AC-017",
+    "AC-018",
+    "AC-027",
+    "AC-028",
+    "AC-029",
+    "AC-030",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-002",
+    "US-004",
+    "US-006",
+    "US-008"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "充值管理员", "kind": "actor"},
+      {"id": "recharge", "name": "充值管理", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "发起标准版开通"},
+      {"id": "N-001", "lane_id": "admin", "type": "action", "order": 2, "label": "选择租户与标准版", "step_ref": 1},
+      {"id": "N-002", "lane_id": "recharge", "type": "action", "order": 3, "label": "按天带入一年与1万分钟默认值", "step_ref": 2},
+      {"id": "N-003", "lane_id": "admin", "type": "action", "order": 4, "label": "编辑或保留时长/分钟，偏离默认值填写原因", "step_ref": 3},
+      {"id": "N-004", "lane_id": "admin", "type": "action", "order": 5, "label": "确认提交开通", "step_ref": 4},
+      {"id": "N-RENEW", "lane_id": "recharge", "type": "decision", "order": 6, "label": "租户已在有效服务期？"},
+      {"id": "N-005", "lane_id": "recharge", "type": "decision", "order": 7, "label": "正整数与偏离原因校验通过？"},
+      {"id": "N-006", "lane_id": "ledger", "type": "action", "order": 8, "label": "更新有效期并将分钟计入统一分钟池"},
+      {"id": "N-007", "lane_id": "ledger", "type": "decision", "order": 9, "label": "账本写入成功？"},
+      {"id": "N-008", "lane_id": "recharge", "type": "action", "order": 10, "label": "自动生成完整内部充值流水", "step_ref": 5},
+      {"id": "N-SUCCESS", "lane_id": "admin", "type": "end", "order": 11, "label": "标准版开通成功"},
+      {"id": "N-RENEW-PENDING", "lane_id": "admin", "type": "end", "order": 7, "label": "提示续费叠加规则待确认"},
+      {"id": "N-INVALID", "lane_id": "admin", "type": "end", "order": 8, "label": "提示修正数值或填写原因"},
+      {"id": "N-FAIL", "lane_id": "admin", "type": "end", "order": 10, "label": "开通失败，可安全重试"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003"},
+      {"from": "N-003", "to": "N-004"},
+      {"from": "N-004", "to": "N-RENEW"},
+      {"from": "N-RENEW", "to": "N-RENEW-PENDING", "label": "是", "type": "failure", "path_id": "ALT-002"},
+      {"from": "N-RENEW", "to": "N-005", "label": "否"},
+      {"from": "N-005", "to": "N-006", "label": "通过"},
+      {"from": "N-005", "to": "N-INVALID", "label": "不通过", "type": "failure", "path_id": "ALT-001"},
+      {"from": "N-006", "to": "N-007"},
+      {"from": "N-007", "to": "N-008", "label": "是"},
+      {"from": "N-007", "to": "N-FAIL", "label": "否", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-008", "to": "N-SUCCESS"}
+    ]
+  }
+}

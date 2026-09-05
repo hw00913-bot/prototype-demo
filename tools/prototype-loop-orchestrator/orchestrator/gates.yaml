@@ -32,6 +32,7 @@
     "输入资料未整理为 memory/source-materials.md 的 SRC-*，不进入拆分和标注提示词准备。",
     "CLAUDE.md 未写入项目执行边界和记忆引用，不进入实现。",
     "执行步骤缺少 Expected Change、Verification Skill 或 Annotation Impact，不进入实现。",
+    "S6 未拆出业务流程图与时序交互图任务，或 S7 未生成可直接阅读的本地 HTML 图，不进入全局验证；关联系统展示页必须存在，但没有关联系统时允许保持明确空态。",
     "verification-log.md 缺少结构化 step/global pass 记录，不进入后续阶段。",
     "S9 不强制自动写入 annotations/annotations.js；必须先生成 memory/annotation-prompt.md，让 PM 手动投喂标注生成器。若 annotations/annotations.js 已被手动回写，则标注 id 必须全局唯一；每条标注必须引用 sourceRefs，并与源码锚点的 page/label/kind/fieldRefs 语义合同一致；字段说明必须按 FLD-* 独立换行解释定义、逻辑、格式和异常。"
   ],

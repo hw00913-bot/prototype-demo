@@ -58,6 +58,9 @@ description: PM 原型 loop 的项目结构读取技能。Use at S5, after proje
 - 源码锚点：业务页面或组件中的 `data-anno`。
 - 标注运行时：`annotations/`。
 - 交互说明：`docs/interaction.html`。
+- 业务流程图：`flowcharts/business-process.html`。
+- 时序交互图：`flowcharts/sequence-interaction.html`。
+- 关联系统展示：`related-systems/index.html`（页面壳必选，内容可为空）。
 
 ## 不纳入实现/交付的目录
 - `tools/prototype-loop-orchestrator/`：总控工具包，不作为业务实现范围。

@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-003",
+  "scenario_id": "SC-003",
+  "name": "购买话费充值包时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "充值管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "recharge_ui",
+      "name": "充值界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "recharge_service",
+      "name": "充值服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "recharge_ui",
+      "message": "为选定租户发起话费充值包购买",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "recharge_ui",
+      "to": "recharge_service",
+      "message": "查询租户服务有效状态和充值包默认规则",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "recharge_service",
+      "to": "recharge_ui",
+      "message": "返回服务期及每包 1,000 元、3,500 分钟的默认规则",
+      "type": "response",
+      "api_id": null,
+      "condition": "租户服务期有效"
+    },
+    {
+      "step": 4,
+      "from": "admin",
+      "to": "recharge_ui",
+      "message": "选择包数并可按天修改使用时长与入账分钟数，偏离默认值时填写原因",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "recharge_ui",
+      "to": "recharge_service",
+      "message": "提交充值包数量、实际生效值及必要的偏离原因，不包含外部充值单号",
+      "type": "request",
+      "api_id": null,
+      "condition": "基础校验通过"
+    },
+    {
+      "step": 6,
+      "from": "recharge_service",
+      "to": "ledger",
+      "message": "校验正整数与偏离原因，将提交分钟原子计入统一分钟池并记录使用期限",
+      "type": "request",
+      "api_id": null,
+      "condition": "服务期、权限和数值校验通过"
+    },
+    {
+      "step": 7,
+      "from": "ledger",
+      "to": "recharge_service",
+      "message": "自动生成内部流水号，保存完整字段并返回统一分钟池充值后余额",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "recharge_service",
+      "to": "recharge_ui",
+      "message": "返回充值成功并刷新账户状态",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "租户服务期无效时，充值服务拒绝购买并提示先开通或续费。",
+    "手工修改后以提交值入账，默认包数乘 3,500 仅作为表单初始值；偏离默认值必须填写原因，校验通过后无需额外审批。",
+    "大模型与小模型共同使用统一分钟池；成功流水包含租户、充值类型、数量、价格、实际时长/分钟、前后值、操作人与时间、原因和状态。",
+    "幂等重试使用内部操作识别，不使用外部充值单号。"
+  ]
+}

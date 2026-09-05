@@ -61,12 +61,20 @@ description: PM 原型 loop 的 S7 实现 owner。Use at S7 to implement executi
 
 1. 只选择当前未完成的一个执行步骤，不并行修改多个无关步骤。
 2. 读取该步骤的目标、文件、输入、工作、验收、验证方式和标注影响。
-3. 根据项目记忆和项目级规则修改业务原型文件。
+3. 根据项目记忆和项目级规则修改业务原型文件，并按拆分步骤生成本地 HTML 业务流程图与时序交互图。
 4. 每个新增或关键可解释区域优先在最小可解释业务元素上补稳定 data-anno 锚点；锚点值在本轮全部业务源码中必须全局唯一，并在同一元素声明 data-anno-page、data-anno-label、data-anno-kind，涉及字段时声明逗号分隔的 data-anno-fields="FLD-001,..."，但不写标注数据。不能把按钮功能挂到父级布局容器。
-5. 保留并验证统一交付视图：`index.html`、`docs/interaction.html`、`flowcharts/index.html` 都必须加载 `js/delivery-nav.js`，让 PM 在当前页面内切换“原型页面 / 说明文档 / 流程图集”；业务导航重构不能移除该入口，也不能改回整页跳转。
+5. 保留并验证统一交付视图：`index.html`、`docs/interaction.html`、`flowcharts/business-process.html`、`flowcharts/sequence-interaction.html`、`related-systems/index.html` 都必须加载 `js/delivery-nav.js`，让 PM 在当前页面内切换“原型页面 / 说明文档 / 业务流程图 / 时序交互图 / 关联系统展示”；业务导航重构不能移除该入口，也不能改回整页跳转。
 6. 完成当前步骤后，调用 `prototype-verifier` 的 step 单步验证模式；需要浏览器或 DOM 检查时，由 `prototype-verifier` 决定是否使用工具型 `playwright-cli` 采集证据。
 7. 验证通过后由 builder 追加 `memory/change-log.md`，并调用 `prototype-verifier` 追加 `memory/verification-log.md`；验证失败时由 `prototype-verifier` 更新 `memory/circuit-state.json` 并按错误类型修复或回流。
 8. 所有步骤都有 pass 记录后，把“S7 产物已就绪”反馈给总控，由总控运行阶段边界脚本。
+
+## 交付图 HTML 合同
+
+- `flowcharts/business-process.html` 是必选产物。根节点保持 `data-delivery-diagram="business-process"`，完成后把 `data-diagram-state` 改为 `ready`；至少使用一个唯一 `data-flow-lane`、两个唯一 `data-flow-node` 和一个唯一 `data-flow-edge` 表达角色泳道、业务节点和流转关系。
+- `flowcharts/sequence-interaction.html` 是必选产物。根节点保持 `data-delivery-diagram="sequence-interaction"`，完成后把 `data-diagram-state` 改为 `ready`；至少使用两个唯一 `data-sequence-participant` 和一个唯一 `data-sequence-message` 表达参与者和按时间顺序发生的交互。
+- `related-systems/index.html` 页面壳必选、内容可选。没有关联系统时保持 `data-related-systems-state="empty"` 和 `data-related-systems-empty`；存在关联系统时改为 `ready`，每个系统使用全局唯一 `data-related-system`。
+- 三类页面必须直接包含可阅读的 HTML 内容，不使用 ProcessOn 链接、远程 iframe、图片截图或外部流程图作为正文。
+- 图内容必须来自本轮项目记忆和执行步骤，不读取底座旧图作为事实来源；图节点文案应说明真实业务动作、条件或交互，不使用“步骤一/系统处理”等无语义占位文字。
 
 ## 支持技能
 
@@ -100,6 +108,7 @@ description: PM 原型 loop 的 S7 实现 owner。Use at S7 to implement executi
 ### 本 Agent 负责
 
 - 按执行步骤实现当前业务原型页面、样式、mock、配置和交互。
+- 生成本轮业务流程图、时序交互图，并在存在外部系统事实时生成关联系统展示。
 - 为本轮新增或关键可解释区域补稳定源码锚点。
 - 调用验证支持；builder 记录单步变更，`prototype-verifier` 记录单步验证和熔断状态。
 

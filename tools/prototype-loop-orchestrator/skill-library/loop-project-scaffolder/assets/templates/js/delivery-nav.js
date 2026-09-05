@@ -29,13 +29,19 @@
   var pathname = window.location.pathname.toLowerCase();
   var hostKey = pathname.indexOf('/docs/') >= 0
     ? 'docs'
-    : pathname.indexOf('/flowcharts/') >= 0
-      ? 'flowcharts'
-      : 'prototype';
+    : pathname.indexOf('/flowcharts/business-process.html') >= 0
+      ? 'business-flow'
+      : pathname.indexOf('/flowcharts/sequence-interaction.html') >= 0
+        ? 'sequence-flow'
+        : pathname.indexOf('/related-systems/') >= 0
+          ? 'related-systems'
+          : 'prototype';
   var items = [
     { key: 'prototype', label: '原型页面', href: new URL('index.html', root).href },
     { key: 'docs', label: '说明文档', href: new URL('docs/interaction.html', root).href },
-    { key: 'flowcharts', label: '流程图集', href: new URL('flowcharts/index.html', root).href }
+    { key: 'business-flow', label: '业务流程图', href: new URL('flowcharts/business-process.html', root).href },
+    { key: 'sequence-flow', label: '时序交互图', href: new URL('flowcharts/sequence-interaction.html', root).href },
+    { key: 'related-systems', label: '关联系统展示', href: new URL('related-systems/index.html', root).href }
   ];
   var itemMap = {};
   items.forEach(function (item) { itemMap[item.key] = item; });
@@ -53,7 +59,7 @@
       ':root{--delivery-nav-height:48px}',
       'body.has-delivery-nav{padding-top:var(--delivery-nav-height)!important}',
       'body.has-delivery-frame{overflow:hidden!important}',
-      '.delivery-nav{position:fixed;z-index:10000;top:0;left:0;right:0;height:var(--delivery-nav-height);display:flex;align-items:center;gap:24px;padding:0 20px;background:#fff;border-bottom:1px solid #e5e7eb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
+      '.delivery-nav{position:fixed;z-index:10000;top:0;left:0;right:0;height:var(--delivery-nav-height);display:flex;align-items:center;gap:24px;padding:0 20px 0 72px;background:#fff;border-bottom:1px solid #e5e7eb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
       '.delivery-nav__brand{flex:0 0 auto;font-size:13px;font-weight:600;color:#374151;letter-spacing:0}',
       '.delivery-nav__tabs{align-self:stretch;display:flex;align-items:stretch;gap:4px;min-width:0;overflow-x:auto}',
       '.delivery-nav__link{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:0 14px;color:#4b5563;text-decoration:none!important;font-size:14px;font-weight:500;white-space:nowrap}',
@@ -64,9 +70,9 @@
       '.delivery-nav__frame.is-visible{display:block}',
       'body.has-delivery-nav>.main-layout{height:calc(100vh - var(--delivery-nav-height) - 52px)!important}',
       'body.has-delivery-nav>.app-layout{height:calc(100vh - var(--delivery-nav-height))!important;min-height:calc(100vh - var(--delivery-nav-height))!important}',
-      'body.has-delivery-nav>.flow-layout,body.has-delivery-nav>.docs-layout{min-height:calc(100vh - var(--delivery-nav-height))!important}',
+      'body.has-delivery-nav>.diagram-layout,body.has-delivery-nav>.flow-layout,body.has-delivery-nav>.docs-layout{min-height:calc(100vh - var(--delivery-nav-height))!important}',
       'body.has-delivery-nav .flow-main{min-height:calc(100vh - var(--delivery-nav-height))!important}',
-      '@media(max-width:640px){.delivery-nav{gap:8px;padding:0 8px}.delivery-nav__brand{display:none}.delivery-nav__tabs{width:100%}.delivery-nav__link{flex:1 0 auto;min-width:92px;padding:0 10px}}'
+      '@media(max-width:640px){.delivery-nav{gap:8px;padding:0 8px 0 64px}.delivery-nav__brand{display:none}.delivery-nav__tabs{width:100%}.delivery-nav__link{flex:1 0 auto;min-width:92px;padding:0 10px}}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -145,7 +151,7 @@
   });
 
   window.addEventListener('popstate', function (event) {
-    var hashMatch = window.location.hash.match(/^#delivery=(prototype|docs|flowcharts)$/);
+    var hashMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
     setView(event.state && event.state.deliveryKey ? event.state.deliveryKey : (hashMatch ? hashMatch[1] : hostKey), false);
   });
 
@@ -153,6 +159,6 @@
   document.body.insertBefore(nav, document.body.firstChild);
   document.body.appendChild(frame);
 
-  var initialMatch = window.location.hash.match(/^#delivery=(prototype|docs|flowcharts)$/);
+  var initialMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
   setView(initialMatch ? initialMatch[1] : hostKey, false);
 })();

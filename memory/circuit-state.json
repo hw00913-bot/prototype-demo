@@ -1,4 +1,5 @@
 {
   "threshold": 3,
-  "failures": []
+  "failures": [],
+  "lastPassed": {"step":"global","checkpoint":"four-fixes-with-formal-annotations","at":"2026-09-05 14:41:30","consecutiveFailures":0}
 }

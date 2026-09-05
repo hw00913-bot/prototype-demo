@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-008",
+  "name": "租户用户从右上角查看当前租户用量及按日/任务明细",
+  "summary": "非超级管理员的租户用户从右上角查看当前登录租户的有效期、统一分钟池可用分钟数和按日消耗，并下钻查看当日任务明细。",
+  "actors": [
+    "租户用户",
+    "使用情况",
+    "内部额度账本"
+  ],
+  "trigger": "租户用户需要了解当前服务期、余额和消耗变化",
+  "preconditions": [
+    "用户已登录中台",
+    "用户不是超级管理员",
+    "系统能识别当前登录租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户用户",
+      "action": "点击顶部右侧的使用情况入口",
+      "system_response": "按当前登录租户加载使用数据",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "使用情况",
+      "action": "展示使用概览",
+      "system_response": "展示有效期起止时间、有效状态和以分钟为单位的统一分钟池可用分钟数",
+      "rule_ids": [
+        "BR-009",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "使用情况",
+      "action": "加载一级使用明细",
+      "system_response": "按日期展示当日消耗的通话分钟数",
+      "rule_ids": [
+        "BR-010"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "租户用户",
+      "action": "选择某日记录查看任务明细",
+      "system_response": "进入二级页面，展示当日每个任务及其消耗的通话分钟数",
+      "rule_ids": [
+        "BR-010"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "使用情况",
+      "action": "校验当日任务消耗合计",
+      "system_response": "任务明细合计与一级页面当日汇总值一致",
+      "rule_ids": [
+        "BR-010"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "当前账号是超级管理员",
+      "steps": [
+        "不展示或提供使用情况及明细入口"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "当前租户没有按日或任务消耗记录",
+      "steps": [
+        "在对应页面展示明确空状态"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "数据加载失败",
+      "steps": [
+        "展示失败提示和重试入口"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "请求的租户与当前登录租户不一致",
+      "steps": [
+        "拒绝返回其他租户数据并记录越权尝试"
+      ]
+    }
+  ],
+  "postconditions": [
+    "用户只查看到当前登录租户的使用数据",
+    "查看操作不改变租户有效期或可用分钟"
+  ],
+  "acceptance_points": [
+    "AC-019",
+    "AC-020",
+    "AC-021",
+    "AC-022",
+    "AC-023",
+    "AC-024",
+    "AC-025",
+    "AC-026",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-004",
+    "US-007"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "user", "name": "租户用户", "kind": "actor"},
+      {"id": "usage", "name": "使用情况", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "user", "type": "start", "order": 1, "label": "进入右上角使用情况"},
+      {"id": "N-001", "lane_id": "usage", "type": "decision", "order": 2, "label": "是超级管理员？"},
+      {"id": "N-002", "lane_id": "usage", "type": "action", "order": 3, "label": "按登录态确定当前租户", "step_ref": 1},
+      {"id": "N-003", "lane_id": "usage", "type": "decision", "order": 4, "label": "租户上下文合法？"},
+      {"id": "N-004", "lane_id": "ledger", "type": "action", "order": 5, "label": "查询有效期、统一分钟池余额与按日消耗"},
+      {"id": "N-005", "lane_id": "usage", "type": "decision", "order": 6, "label": "概览加载成功？"},
+      {"id": "N-OVERVIEW", "lane_id": "usage", "type": "action", "order": 7, "label": "展示有效期与统一分钟池余额", "step_ref": 2},
+      {"id": "N-DAY-CHECK", "lane_id": "usage", "type": "decision", "order": 8, "label": "存在按日消耗记录？"},
+      {"id": "N-006", "lane_id": "usage", "type": "action", "order": 9, "label": "展示按日消耗明细", "step_ref": 3},
+      {"id": "N-007", "lane_id": "user", "type": "action", "order": 10, "label": "选择某日查看任务明细", "step_ref": 4},
+      {"id": "N-008", "lane_id": "ledger", "type": "action", "order": 11, "label": "查询任务消耗"},
+      {"id": "N-009", "lane_id": "usage", "type": "decision", "order": 12, "label": "任务明细查询结果？"},
+      {"id": "N-010", "lane_id": "usage", "type": "action", "order": 13, "label": "展示任务明细并核对当日合计", "step_ref": 5},
+      {"id": "N-SUCCESS", "lane_id": "user", "type": "end", "order": 15, "label": "查看完成"},
+      {"id": "N-SUPER", "lane_id": "user", "type": "end", "order": 3, "label": "超管不提供入口"},
+      {"id": "N-DENIED", "lane_id": "user", "type": "end", "order": 5, "label": "拒绝返回其他租户数据"},
+      {"id": "N-FAIL", "lane_id": "user", "type": "end", "order": 7, "label": "概览加载失败，可重试"},
+      {"id": "N-DAY-EMPTY", "lane_id": "user", "type": "end", "order": 9, "label": "展示按日明细空状态"},
+      {"id": "N-DETAIL-EMPTY", "lane_id": "user", "type": "end", "order": 13, "label": "展示任务明细空状态"},
+      {"id": "N-DETAIL-FAIL", "lane_id": "user", "type": "end", "order": 14, "label": "明细加载失败，可重试"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-SUPER", "label": "是", "path_id": "ALT-001"},
+      {"from": "N-001", "to": "N-002", "label": "否"},
+      {"from": "N-002", "to": "N-003"},
+      {"from": "N-003", "to": "N-004", "label": "是"},
+      {"from": "N-003", "to": "N-DENIED", "label": "否", "type": "failure", "path_id": "ALT-004"},
+      {"from": "N-004", "to": "N-005"},
+      {"from": "N-005", "to": "N-OVERVIEW", "label": "是"},
+      {"from": "N-005", "to": "N-FAIL", "label": "否", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-OVERVIEW", "to": "N-DAY-CHECK"},
+      {"from": "N-DAY-CHECK", "to": "N-006", "label": "是"},
+      {"from": "N-DAY-CHECK", "to": "N-DAY-EMPTY", "label": "否", "path_id": "ALT-002"},
+      {"from": "N-006", "to": "N-007"},
+      {"from": "N-007", "to": "N-008"},
+      {"from": "N-008", "to": "N-009"},
+      {"from": "N-009", "to": "N-010", "label": "成功且有数据"},
+      {"from": "N-009", "to": "N-DETAIL-EMPTY", "label": "成功但无数据", "path_id": "ALT-002"},
+      {"from": "N-009", "to": "N-DETAIL-FAIL", "label": "失败", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-010", "to": "N-SUCCESS"}
+    ]
+  }
+}

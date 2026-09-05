@@ -5,20 +5,20 @@
   "entry": "index.html",
   "stage": "none",
   "currentIteration": {
-    "name": "大众任务详情精简重呼追溯",
+    "name": "充值功能迭代",
     "status": "active",
     "planConfirmed": true,
     "projectRulesWritten": true,
     "memoryInitialized": true,
-    "confirmedAt": "2026-09-03T16:01:15",
-    "pmApprovedAt": "2026-09-03T16:01:15",
-    "pmApprovedBy": "PM",
-    "pmApprovalEvidence": "用户于2026-09-03提供截图并明确要求去掉红框中的确认记录、当前呼叫轮次、是否最后一次计划呼叫",
-    "approvedStartupPlanSha256": "06607f1b39abdc7e25b0eff6d7c6f890ed7d1bfea4e524d14a09ad1ba111cd5c",
-    "approvedClaudeSha256": "ff44419c9d2533015c0ffb85b6d39d30b4b1c58e1b0d551cbdd4aba5e249727f",
+    "confirmedAt": "2026-09-04T19:21:25",
+    "pmApprovedAt": "2026-09-04T19:21:25",
+    "pmApprovedBy": "用户",
+    "pmApprovalEvidence": "用户在查看 S1 启动规划摘要后明确回复“是”，确认按该规划进入后续阶段",
+    "approvedStartupPlanSha256": "e1d704b284b90c35982eb1e7ec8f9b7ba367a06a198ed23e98f92eacb6e7e906",
+    "approvedClaudeSha256": "b2cc60f96a26e5c80b4efdb1b340be51fabb07aa6edff13015615a79fc5f9865",
     "planApprovalVersion": "plan-approval-v1",
-    "planApprovalId": "7f7266d906b78ff2",
-    "startupPlanFrozenAt": "2026-09-03T16:01:15"
+    "planApprovalId": "4faf021e5d80cbdd",
+    "startupPlanFrozenAt": "2026-09-04T19:21:25"
   },
   "artifacts": {
     "decisions": "docs/decisions.md",
@@ -36,7 +36,10 @@
     "changeLog": "memory/change-log.md",
     "navigation": "config/nav.json",
     "annotations": "annotations/annotations.js",
-    "interactionDoc": "docs/interaction.html"
+    "interactionDoc": "docs/interaction.html",
+    "businessProcess": "flowcharts/business-process.html",
+    "sequenceInteraction": "flowcharts/sequence-interaction.html",
+    "relatedSystems": "related-systems/index.html"
   },
   "verification": {
     "serveOverHttp": true,
@@ -73,9 +76,9 @@
   },
   "frozenArtifacts": {
     "memory/project-startup-plan.md": {
-      "sha256": "06607f1b39abdc7e25b0eff6d7c6f890ed7d1bfea4e524d14a09ad1ba111cd5c",
+      "sha256": "e1d704b284b90c35982eb1e7ec8f9b7ba367a06a198ed23e98f92eacb6e7e906",
       "frozenAtStage": "S2",
-      "frozenAt": "2026-09-03T16:01:15"
+      "frozenAt": "2026-09-04T19:21:25"
     }
   }
 }

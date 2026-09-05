@@ -317,7 +317,7 @@
       row('拨打时间段', periodText) +
       row('AI坐席数', escapeHtml(seatsValue) + ' 个（总并发：' + escapeHtml(d.maximumcall) + '，弹性坐席：' + (d.elasticity_task ? '开启' : '关闭') + '）') +
       row('自动重拨设置', redialText) +
-      '<div class="dz-redial-trace" data-anno="scene-list-dazhong-redial" data-anno-page="scene-list" data-anno-label="大众通信重呼追溯" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004">' +
+      '<div class="dz-redial-trace" data-anno-page="scene-list" data-anno-label="大众通信重呼追溯" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-004">' +
         '<div class="dz-redial-trace-title">大众通信重呼追溯</div>' +
         row('重呼方式', redialModeText) +
         scheduledTrace +

@@ -4,11 +4,6 @@
       "key": "index",
       "label": "首页",
       "icon": "🏠"
-    },
-    {
-      "label": "流程图集",
-      "icon": "流",
-      "href": "flowcharts/index.html"
     }
   ]
 }

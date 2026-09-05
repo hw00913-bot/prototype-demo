@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "interfaces": [
+    {
+      "id": "API-001",
+      "name": "D智链外部充值单读取与关联",
+      "provider": "D智链",
+      "used_by_sequence_ids": [],
+      "verification_status": "not_required",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-002",
+        "inputs/user-stories.md#批次-ua-20260904-008",
+        "inputs/current-feature-baseline.md#可核对的现有事实"
+      ],
+      "request_fields": [],
+      "response_fields": [],
+      "auth": null,
+      "timeout": null,
+      "idempotency": null,
+      "rate_limit": null,
+      "errors": [],
+      "notes": [
+        "用户已明确未来所有新充值不依赖外部充值单号。",
+        "本期时序不读取、不反显、不关联 D智链充值单，因此不需要核验端点、字段、认证和错误码。",
+        "历史外部充值单数据的展示或迁移方式由 ISSUE-007 单独跟踪，不恢复新充值的外部接口依赖。"
+      ]
+    }
+  ]
+}

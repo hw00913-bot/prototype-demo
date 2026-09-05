@@ -20,6 +20,9 @@
   "allowed_write": [
     "index.html",
     "pages/**/*.html",
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
     "assets/css/**/*.css",
     "js/**/*.js",
     "mock/**/*.js",

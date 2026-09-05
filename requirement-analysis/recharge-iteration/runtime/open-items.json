@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0",
+  "items": [
+    {
+      "id": "ISSUE-001",
+      "title": "本轮充值功能迭代的具体目标尚未提供",
+      "severity": "high",
+      "status": "resolved",
+      "description": "当前只能确认分析对象为充值功能，尚无法确定需要新增、修改、删除或修复的内容。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-002"
+      ],
+      "resolution_needed": "用户已提供套餐图及新增租户标记、保留冻结/消耗和取消外部充值单号依赖的要求。"
+    },
+    {
+      "id": "ISSUE-002",
+      "title": "历史充值单渲染错误是否纳入迭代范围待确认",
+      "severity": "medium",
+      "status": "accepted_risk",
+      "description": "现有原型在有历史充值单的租户上无法打开充值管理抽屉。",
+      "source_refs": [
+        "inputs/current-feature-baseline.md#现场观察非新需求"
+      ],
+      "resolution_needed": "用户在 G2 确认允许需求分析继续；该现有原型缺陷作为非阻断风险保留，是否纳入实现阶段后续确认。"
+    },
+    {
+      "id": "ISSUE-003",
+      "title": "D智链接口资料尚未提供",
+      "severity": "medium",
+      "status": "resolved",
+      "description": "现有功能说明将 D智链作为充值单外部来源，但当前无法核对端点、字段、认证、错误码和幂等。",
+      "source_refs": [
+        "inputs/current-feature-baseline.md#可核对的现有事实"
+      ],
+      "resolution_needed": "用户明确未来所有充值不依赖外部充值单号；本轮将 D智链充值单查询与关联能力视为不再需要。"
+    },
+    {
+      "id": "ISSUE-004",
+      "title": "大小模型是否共享同一分钟池待确认",
+      "severity": "high",
+      "status": "resolved",
+      "description": "新套餐同时提供大/小模型外呼，但只描述了一个 10,000 分钟额度和每包 3,500 分钟额度。",
+      "source_refs": [
+        "inputs/user-stories.md#待确认问题",
+        "inputs/attachments/recharge-pricing-rules-20260904.png"
+      ],
+      "resolution_needed": "用户已确认采用统一分钟池，大模型与小模型外呼共同冻结、释放和消耗。"
+    },
+    {
+      "id": "ISSUE-005",
+      "title": "内部充值操作与审计字段待确认",
+      "severity": "high",
+      "status": "resolved",
+      "description": "取消外部充值单号后，需要重新确定充值的发起方式、必填项、内部流水号、操作人和时间等追溯要求。",
+      "source_refs": [
+        "inputs/user-stories.md#已确认的新需求事实",
+        "inputs/user-stories.md#待确认问题"
+      ],
+      "resolution_needed": "用户已确认系统自动生成内部流水号，并记录租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态。"
+    },
+    {
+      "id": "ISSUE-006",
+      "title": "标准版续费和有效期叠加规则待确认",
+      "severity": "medium",
+      "status": "accepted_risk",
+      "description": "新资料规定自 AI 功能开通之日起一年有效，但未定义续费时的新有效期起点。",
+      "source_refs": [
+        "inputs/user-stories.md#待确认问题",
+        "inputs/attachments/recharge-pricing-rules-20260904.png"
+      ],
+      "resolution_needed": "用户在 G2 确认允许带风险继续；实现前仍需确认续费从原到期日顺延、从新生效日重算，还是禁止未到期叠加。"
+    },
+    {
+      "id": "ISSUE-007",
+      "title": "历史外部充值单数据处置方式待确认",
+      "severity": "medium",
+      "status": "accepted_risk",
+      "description": "新充值不再依赖外部单号，但已有充值历史中仍存在外部充值单号。",
+      "source_refs": [
+        "inputs/user-stories.md#待确认问题",
+        "inputs/current-feature-baseline.md#可核对的现有事实"
+      ],
+      "resolution_needed": "用户在 G2 确认允许带风险继续；实现前仍需确认历史单号继续展示、仅存档隐藏，还是需要迁移。"
+    },
+    {
+      "id": "ISSUE-008",
+      "title": "话术修改幅度正好 50% 时的规则待确认",
+      "severity": "medium",
+      "status": "accepted_risk",
+      "description": "附图同时写明“50% 以上算新话术场景”和“50% 以内免费维护”，在正好 50% 时产生重叠。",
+      "source_refs": [
+        "inputs/user-stories.md#附图可见规则原文转录",
+        "inputs/attachments/recharge-pricing-rules-20260904.png"
+      ],
+      "resolution_needed": "用户在 G2 确认允许带风险继续；实现前仍需确认正好 50% 按新话术场景计算，还是纳入免费维护。"
+    },
+    {
+      "id": "ISSUE-009",
+      "title": "右上角使用情况的余额口径待确认",
+      "severity": "high",
+      "status": "resolved",
+      "description": "用户要求展示当前租户余额，但尚未确认是金额余额、统一分钟余额，还是按大/小模型分开的余额。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-003",
+        "inputs/user-stories.md#待确认问题"
+      ],
+      "resolution_needed": "用户已确认余额展示统一分钟池的可用分钟数，不展示金额余额；ISSUE-004 已进一步确认大/小模型共用该分钟池。"
+    },
+    {
+      "id": "ISSUE-010",
+      "title": "使用明细的记录粒度待确认",
+      "severity": "medium",
+      "status": "resolved",
+      "description": "使用明细可以按每通通话、外呼任务、日期或账期展示，不同粒度的字段和数据量差异较大。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-003"
+      ],
+      "resolution_needed": "用户已确认一级按日展示通话分钟数消耗，并通过二级页面展示某日各具体任务的消耗分钟数。"
+    },
+    {
+      "id": "ISSUE-011",
+      "title": "无明确当前租户时的入口行为待确认",
+      "severity": "medium",
+      "status": "resolved",
+      "description": "超级管理员或多租户账号可能没有唯一当前租户上下文。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-003"
+      ],
+      "resolution_needed": "用户已确认多租户账号展示当前登录租户的数据；超级管理员不提供该功能。"
+    },
+    {
+      "id": "ISSUE-012",
+      "title": "充值表单手工编辑字段的校验与审计规则待确认",
+      "severity": "high",
+      "status": "resolved",
+      "description": "已确认使用时长和入账分钟数可手工编辑，但尚未定义时长单位或起止日期形式、取值上下限、步长，以及偏离套餐默认值时的修改原因和授权要求。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-005"
+      ],
+      "resolution_needed": "用户已确认使用时长按天填写，使用时长和入账分钟数均为大于 0 的整数；偏离套餐默认值时必须填写原因，且无需额外审批。"
+    },
+    {
+      "id": "ISSUE-013",
+      "title": "手工调增与调减的调整对象和口径待确认",
+      "severity": "high",
+      "status": "resolved",
+      "description": "用户已确认本轮必须同时考虑手工调增和调减；但现有说明和原型只能核对到按金额手工调减，而新方案前台余额已改为可用分钟数。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-006",
+        "inputs/current-feature-baseline.md#可核对的现有事实",
+        "docs/功能说明文档.md#14-系统管理---租户管理---充值管理抽屉"
+      ],
+      "resolution_needed": "用户已确认调增和调减均可调整使用时长与可用分钟数；历史金额调整数据的处置单独由 ISSUE-014 跟踪。"
+    },
+    {
+      "id": "ISSUE-014",
+      "title": "历史金额调整记录的展示与迁移口径待确认",
+      "severity": "medium",
+      "status": "accepted_risk",
+      "description": "现有底座的手工调减以金额记录，新方案的手工调整对象已确认为使用时长和可用分钟数。",
+      "source_refs": [
+        "inputs/user-stories.md#批次-ua-20260904-006",
+        "inputs/user-stories.md#批次-ua-20260904-007",
+        "inputs/current-feature-baseline.md#可核对的现有事实"
+      ],
+      "resolution_needed": "用户在 G2 确认允许带风险继续；实现前仍需确认历史金额调整记录继续按原口径展示、仅存档隐藏，还是需要迁移或折算。"
+    }
+  ]
+}

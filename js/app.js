@@ -16,6 +16,50 @@
     tenantRole: '超级管理组-超级管理员'
   };
 
+  function getDemoAuth() {
+    var data = window.MockRechargeIteration || {};
+    return data.authContexts && data.authContexts[data.activeAuthKey] || null;
+  }
+
+  function refreshDemoAuthUI() {
+    var auth = getDemoAuth();
+    var usageEntry = document.getElementById('usageEntry');
+    var roleSelect = document.getElementById('demoAuthSelect');
+    var userName = document.querySelector('#userRoleTrigger .user-name');
+    var canViewUsage = !!(auth && auth.role === 'tenant_user' && auth.currentTenantId);
+    if (usageEntry) usageEntry.style.display = canViewUsage ? 'flex' : 'none';
+    if (roleSelect && window.MockRechargeIteration) roleSelect.value = window.MockRechargeIteration.activeAuthKey;
+    if (userName && auth) userName.textContent = auth.displayName;
+    if (auth) {
+      CurrentUser.nickname = auth.displayName;
+      CurrentUser.tenantRole = auth.role + (auth.currentTenantId ? ' · ' + auth.currentTenantId : '');
+    }
+  }
+
+  function setDemoAuth(authKey) {
+    var data = window.MockRechargeIteration || {};
+    if (!data.authContexts || !data.authContexts[authKey]) return false;
+    data.activeAuthKey = authKey;
+    var tenantPage = window.Pages && window.Pages['sys-tenant'];
+    if (tenantPage && tenantPage.onAuthChanged) tenantPage.onAuthChanged();
+    refreshDemoAuthUI();
+    closeUserMenu();
+    if (document.querySelector('.usage-page') && window.Nav) window.Nav.navigateTo('usage', 'usage');
+    if (document.querySelector('.home-page') && window.Nav) window.Nav.navigateTo('home', 'nav-home');
+    if (document.querySelector('.tenant-page') && window.Nav) window.Nav.navigateTo('sys-tenant', 'sys-tenant');
+    return true;
+  }
+
+  function navigateToUsage() {
+    closeUserMenu();
+    var auth = getDemoAuth();
+    if (!auth || auth.role !== 'tenant_user' || !auth.currentTenantId) {
+      if (window.showToast) window.showToast('当前账号无使用情况查看权限', 'warning');
+      return;
+    }
+    if (window.Nav) window.Nav.navigateTo('usage', 'usage');
+  }
+
   /* ===== 公共工具函数 ===== */
   function formatNumber(num) {
     return num ? num.toLocaleString() : '0';
@@ -348,6 +392,16 @@
     }
   });
 
+  document.addEventListener('DOMContentLoaded', function () {
+    var data = window.MockRechargeIteration || {};
+    var demoAccount = new URLSearchParams(window.location.search).get('demoAccount');
+    var contexts = data.authContexts || {};
+    if (Object.prototype.hasOwnProperty.call(contexts, demoAccount) && ['tenant_user', 'recharge_admin'].indexOf(contexts[demoAccount].role) !== -1) {
+      data.activeAuthKey = demoAccount;
+    }
+    refreshDemoAuthUI();
+  });
+
   window.formatNumber = formatNumber;
   window.formatDate = formatDate;
   window.formatDateTime = formatDateTime;
@@ -368,6 +422,9 @@
   window.switchLoginTab = switchLoginTab;
   window.drawCaptchaCanvas = drawCaptchaCanvas;
   window.doLoginSubmit = doLoginSubmit;
+  window.getDemoAuth = getDemoAuth;
+  window.setDemoAuth = setDemoAuth;
+  window.refreshDemoAuthUI = refreshDemoAuthUI;
+  window.navigateToUsage = navigateToUsage;
 
 })();
-

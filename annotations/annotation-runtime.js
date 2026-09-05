@@ -39,8 +39,11 @@
     if (cfg.dataKey && Array.isArray(window[cfg.dataKey])) {
       return window[cfg.dataKey].filter(function (item) { return item.page === page; });
     }
-    if (window.AnnotationData && Array.isArray(window.AnnotationData[page])) {
-      return window.AnnotationData[page];
+    if (window.AnnotationData) {
+      var pages = [page].concat(cfg.globalPages || []).filter(function (key, index, all) { return all.indexOf(key) === index; });
+      return pages.reduce(function (items, key) {
+        return items.concat(Array.isArray(window.AnnotationData[key]) ? window.AnnotationData[key] : []);
+      }, []);
     }
     return [];
   }
@@ -134,10 +137,22 @@
     ensureToggle();
     var overlay = ensureOverlay();
     overlay.innerHTML = '';
-    if (!visible) return;
+    var deliveryView = document.body.classList.contains('has-delivery-frame');
+    document.getElementById('anno-toggle-btn').style.display = deliveryView ? 'none' : '';
+    if (deliveryView) closePopup();
+    if (!visible || deliveryView) return;
+    var frontLayer = null;
+    var frontZ = -Infinity;
+    document.querySelectorAll('.modal-overlay, .biz-drawer-backdrop, [role="dialog"]').forEach(function (layer) {
+      var rect = layer.getBoundingClientRect();
+      var style = window.getComputedStyle(layer);
+      if (!rect.width || !rect.height || style.display === 'none' || style.visibility === 'hidden') return;
+      var z = Number(style.zIndex) || 0;
+      if (z >= frontZ) { frontZ = z; frontLayer = layer; }
+    });
     getAnnotations().forEach(function (anno, index) {
       var target = resolveTarget(anno.target);
-      if (!target) return;
+      if (!target || (frontLayer && !frontLayer.contains(target))) return;
       var marker = document.createElement('button');
       marker.type = 'button';
       marker.className = 'anno-marker';
@@ -184,7 +199,12 @@
       if (nodes.length > 1) {
         console.warn('[AnnotationRuntime] target selector is not unique:', selector, nodes.length);
       }
-      return nodes.length === 1 ? nodes[0] : null;
+      if (nodes.length !== 1) return null;
+      var target = nodes[0];
+      var rect = target.getBoundingClientRect();
+      var style = window.getComputedStyle(target);
+      if (!target.getClientRects().length || !rect.width || !rect.height || style.visibility === 'hidden' || style.display === 'none') return null;
+      return target;
     } catch (err) {
       return null;
     }
@@ -515,8 +535,7 @@
     }
 
     observer = new MutationObserver(function (mutations) {
-      // Skip entirely when annotations are hidden.
-      if (!visible) return;
+      // Even while markers are hidden, delivery-view changes must update the toggle.
 
       var shouldRender = false;
       for (var i = 0; i < mutations.length; i++) {
@@ -532,7 +551,7 @@
       window.clearTimeout(observer._debounceTimer);
       observer._debounceTimer = window.setTimeout(scheduleRender, 300);
     });
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
   }
 
   function init() {

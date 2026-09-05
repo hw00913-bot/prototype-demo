@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-04T18:30:56+08:00",
+  "status": "pass",
+  "summary": {
+    "user_stories": {
+      "in_scope": 9,
+      "covered": 9
+    },
+    "business_scenarios": {
+      "in_scope": 7,
+      "with_sequence": 7
+    },
+    "swimlane_diagrams": {
+      "required": 7,
+      "valid": 7
+    },
+    "interfaces": {
+      "referenced": 0,
+      "resolved": 1
+    },
+    "ui_scenarios": {
+      "required": 6,
+      "with_page": 6
+    },
+    "pages": 6,
+    "actions": 15,
+    "trace_links": 117,
+    "blocking_open_items": []
+  },
+  "errors": [],
+  "warnings": []
+}

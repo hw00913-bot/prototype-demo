@@ -29,6 +29,12 @@
 - 标注运行时位置：`annotations/`。
 - 交互说明位置：`docs/interaction.html`。
 
+## 交付图页面
+
+- 业务流程图：`flowcharts/business-process.html`。
+- 时序交互图：`flowcharts/sequence-interaction.html`。
+- 关联系统展示：`related-systems/index.html`，内容可为空但页面壳必须保留。
+
 ## 不纳入实现/交付的目录
 
 - `tools/prototype-loop-orchestrator/`：项目内总控工具包，不作为业务实现、验证对账、标注覆盖或交付统计范围。

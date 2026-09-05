@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-005",
+  "name": "充值管理员查看套餐、额度与内部充值记录",
+  "summary": "充值管理员从租户维度查看标记、有效期、统一分钟池的可用与冻结分钟、完整内部充值记录和手工调整流水。",
+  "actors": [
+    "充值管理员",
+    "充值管理",
+    "内部额度账本"
+  ],
+  "trigger": "充值管理员需要核对某租户的充值与额度状态",
+  "preconditions": [
+    "操作人具备充值管理查看权限",
+    "已选定需查看的租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理员",
+      "action": "从租户列表打开该租户的充值管理",
+      "system_response": "展示租户名称及商用/试用标记",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "充值管理",
+      "action": "读取当前账户状态",
+      "system_response": "展示有效期、统一分钟池可用分钟数、冻结额度及呼叫可用状态",
+      "rule_ids": [
+        "BR-007",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "充值管理员",
+      "action": "查看充值历史",
+      "system_response": "按时间展示内部流水号、租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "充值管理员",
+      "action": "查看手工调整历史",
+      "system_response": "展示调增/调减、调整对象、调整前后值、原因和操作信息",
+      "rule_ids": [
+        "BR-012"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "暂无充值或手工调整记录",
+      "steps": [
+        "对应列表展示明确空状态，不伪造历史数据"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "历史金额调整记录存在",
+      "steps": [
+        "在 ISSUE-014 确认前保持历史口径，不自动折算成分钟"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "数据加载失败",
+      "steps": [
+        "展示失败原因和重试入口"
+      ]
+    }
+  ],
+  "postconditions": [
+    "管理员能核对租户当前额度状态与历史变动来源",
+    "查看操作不改变账户或冻结状态"
+  ],
+  "acceptance_points": [
+    "AC-002",
+    "AC-018",
+    "AC-029",
+    "AC-033",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-001",
+    "US-002",
+    "US-003",
+    "US-004",
+    "US-005",
+    "US-006",
+    "US-008",
+    "US-009"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "充值管理员", "kind": "actor"},
+      {"id": "recharge", "name": "充值管理", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "查看租户充值管理"},
+      {"id": "N-001", "lane_id": "admin", "type": "action", "order": 2, "label": "打开选定租户充值管理", "step_ref": 1},
+      {"id": "N-002", "lane_id": "recharge", "type": "action", "order": 3, "label": "请求统一分钟池账户概览与历史", "step_ref": 2},
+      {"id": "N-003", "lane_id": "ledger", "type": "decision", "order": 4, "label": "数据加载成功？"},
+      {"id": "N-004", "lane_id": "recharge", "type": "decision", "order": 5, "label": "存在充值/调整记录？"},
+      {"id": "N-MONEY-CHECK", "lane_id": "recharge", "type": "decision", "order": 7, "label": "包含历史金额调整记录？"},
+      {"id": "N-MONEY", "lane_id": "recharge", "type": "action", "order": 8, "label": "历史金额记录保持原口径展示", "step_ref": 3},
+      {"id": "N-005", "lane_id": "admin", "type": "action", "order": 8, "label": "查看完整内部充值流水", "step_ref": 3},
+      {"id": "N-007", "lane_id": "admin", "type": "action", "order": 9, "label": "查看手工调增/调减流水", "step_ref": 4},
+      {"id": "N-006", "lane_id": "admin", "type": "end", "order": 7, "label": "历史为空"},
+      {"id": "N-SUCCESS", "lane_id": "admin", "type": "end", "order": 10, "label": "核对完成"},
+      {"id": "N-FAIL", "lane_id": "admin", "type": "end", "order": 5, "label": "加载失败，显示重试"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003"},
+      {"from": "N-003", "to": "N-004", "label": "是"},
+      {"from": "N-003", "to": "N-FAIL", "label": "否", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-004", "to": "N-MONEY-CHECK", "label": "是"},
+      {"from": "N-004", "to": "N-006", "label": "否", "path_id": "ALT-001"},
+      {"from": "N-MONEY-CHECK", "to": "N-MONEY", "label": "是", "path_id": "ALT-002"},
+      {"from": "N-MONEY-CHECK", "to": "N-005", "label": "否"},
+      {"from": "N-MONEY", "to": "N-007"},
+      {"from": "N-005", "to": "N-007"},
+      {"from": "N-007", "to": "N-SUCCESS"}
+    ]
+  }
+}

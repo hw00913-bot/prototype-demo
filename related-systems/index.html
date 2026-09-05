@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>充值功能迭代 - 关联系统展示</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/delivery-diagrams.css?v=3">
+</head>
+<body>
+  <div class="diagram-layout" data-related-systems data-related-systems-state="empty">
+    <header class="diagram-header">
+      <div>
+        <p class="diagram-kicker">RELATED SYSTEMS · RECHARGE ITERATION</p>
+        <h1 class="diagram-title">关联系统展示</h1>
+        <p class="diagram-summary">本页只表达已确认的迭代边界，不为未核实的外部系统伪造卡片或接口关系。</p>
+      </div>
+      <div class="diagram-meta"><span class="diagram-meta__label">State: empty</span><span class="diagram-meta__label">External API: not_required</span></div>
+    </header>
+    <main class="diagram-main">
+      <section class="diagram-canvas related-empty-canvas">
+        <div class="related-empty" data-related-systems-empty>
+          <div class="related-empty__mark" aria-hidden="true">−</div>
+          <div class="related-empty__content">
+            <span class="related-empty__status">已确认：无新增外部系统依赖</span>
+            <h2>新充值流程不读取、不关联外部充值单号</h2>
+            <p>充值管理直接使用租户、商品和实际入账值生成系统内部流水，并更新有效期与统一分钟池。本轮不需要 D智链或其他外部充值、支付、对账接口。</p>
+          </div>
+          <dl class="related-empty__facts">
+            <div><dt>D智链读取/关联</dt><dd><code>not_required</code><small>不在新充值前置链路中</small></dd></div>
+            <div><dt>首次生产发布</dt><dd>无需历史兼容<small>旧功能未上线，仅保留内部充值记录与手工调整流水</small></dd></div>
+            <div><dt>本轮核心账务</dt><dd>内部处理<small>内部流水、统一分钟池、冻结结算</small></dd></div>
+          </dl>
+          <aside class="related-empty__boundary">
+            <strong>何时需要重新补充本页？</strong>
+            <span>只有后续明确引入外部支付、合同、对账或充值单校验系统时，才应将状态从 empty 改为 ready 并补入真实依赖。</span>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="../js/delivery-nav.js"></script>
+</body>
+</html>

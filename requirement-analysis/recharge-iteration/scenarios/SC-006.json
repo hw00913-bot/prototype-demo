@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-006",
+  "name": "读取并关联外部充值单",
+  "summary": "新充值流程已明确不依赖外部充值单号，因此该场景作为本期排除项保留。",
+  "actors": [
+    "充值管理员",
+    "外部充值系统"
+  ],
+  "trigger": "用户尝试通过外部充值单号发起新充值",
+  "preconditions": [
+    "本场景已被 G1 确认为本期范围外"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理员",
+      "action": "发起新套餐或充值包操作",
+      "system_response": "不要求输入、读取或关联外部充值单号",
+      "rule_ids": [
+        "BR-008"
+      ]
+    }
+  ],
+  "alternate_flows": [],
+  "postconditions": [
+    "新充值流程不产生外部充值单查询与关联依赖"
+  ],
+  "acceptance_points": [
+    "AC-016",
+    "AC-017"
+  ],
+  "source_story_ids": [
+    "US-006"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "充值管理员", "kind": "actor"},
+      {"id": "recharge", "name": "充值管理", "kind": "system"},
+      {"id": "external", "name": "D智链", "kind": "external_system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "发起新充值"},
+      {"id": "N-001", "lane_id": "recharge", "type": "action", "order": 2, "label": "使用中台内部充值流程", "step_ref": 1},
+      {"id": "N-002", "lane_id": "external", "type": "event", "order": 3, "label": "不发起外部单号读取/关联"},
+      {"id": "N-END", "lane_id": "admin", "type": "end", "order": 4, "label": "外部依赖已排除"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-END"}
+    ]
+  }
+}

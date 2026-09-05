@@ -78,8 +78,10 @@ RUNTIME_PACKAGE_COPY_GLOBS = [
 REQUIRED_FRAMEWORK_PATHS = [
     "annotations/annotation-runtime.js",
     "annotations/annotation.css",
-    "flowcharts/index.html",
-    "flowcharts/processon-links.txt",
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
+    "assets/css/delivery-diagrams.css",
     "js/delivery-nav.js",
     ".clauderules",
     "tools/loop_preflight.py",
@@ -123,6 +125,9 @@ BASE_STATE_RESET_PATHS = {
     "config/workflow.json",
     "docs/decisions.md",
     "docs/interaction.html",
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
     "memory/acceptance-map.md",
     "memory/annotation-coverage.md",
     "memory/annotation-prompt.md",
@@ -146,28 +151,31 @@ BASE_STATE_RESET_DIRECTORIES = {
     "annotations",
     "flowcharts",
     "memory",
+    "related-systems",
 }
 
 BASE_STATE_REMOVE_PATHS = {
     "docs/index.html",
-}
-
-# Flowchart viewer code is framework-owned, while its ProcessOn links are
-# project-specific. Refresh both when starting a new iteration so links from a
-# base project cannot leak into the new project.
-FLOWCHART_TEMPLATE_PATHS = {
     "flowcharts/index.html",
     "flowcharts/processon-links.txt",
 }
 
+# These HTML pages contain project-specific content. Runtime refresh creates
+# missing pages but never overwrites diagrams already produced for the project.
+DELIVERY_CONTENT_TEMPLATE_PATHS = {
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
+}
+
 DELIVERY_SHELL_TEMPLATE_PATHS = {
+    "assets/css/delivery-diagrams.css",
     "js/delivery-nav.js",
 }
 
-FLOWCHART_NAV_ITEM = {
-    "label": "流程图集",
-    "icon": "流",
-    "href": "flowcharts/index.html",
+LEGACY_DELIVERY_PATHS = {
+    "flowcharts/index.html",
+    "flowcharts/processon-links.txt",
 }
 
 SEED_COPY_PATHS = [
@@ -377,7 +385,9 @@ def reset_base_state(target: Path, name: str) -> list[str]:
     generated = load_templates(name, target)
     reset: list[str] = []
     for relative_path in sorted(
-        BASE_STATE_RESET_PATHS | FLOWCHART_TEMPLATE_PATHS | DELIVERY_SHELL_TEMPLATE_PATHS
+        BASE_STATE_RESET_PATHS
+        | DELIVERY_CONTENT_TEMPLATE_PATHS
+        | DELIVERY_SHELL_TEMPLATE_PATHS
     ):
         content = generated.get(relative_path)
         if content is None:
@@ -474,76 +484,44 @@ def _write_json_file(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def ensure_flowchart_navigation(target: Path) -> tuple[list[str], list[str]]:
-    """Add the flowchart entry without replacing custom navigation code."""
+def remove_legacy_delivery_assets(target: Path) -> list[str]:
+    """Remove the retired ProcessOn viewer and its generated business-nav entry."""
     changed: list[str] = []
-    warnings: list[str] = []
-    nav_script = target / "js" / "nav.js"
-    href_marker = "var href = item.href || '#';"
-    if nav_script.exists():
-        text = nav_script.read_text(encoding="utf-8", errors="ignore")
-        if href_marker not in text:
-            old_fragment = """      var icon = item.icon ? '<span class=\"nav-icon\">' + item.icon + '</span>' : '';
-      return '<li class=\"nav-item' + (hasChildren ? ' nav-item--group' : '') + '\">' +
-        '<a href=\"#\" class=\"' + linkCls + '\" data-page=\"' + (item.key || '') + '\">' +"""
-            new_fragment = """      var icon = item.icon ? '<span class=\"nav-icon\">' + item.icon + '</span>' : '';
-      var href = item.href || '#';
-      var pageAttr = item.href ? '' : ' data-page=\"' + (item.key || '') + '\"';
-      return '<li class=\"nav-item' + (hasChildren ? ' nav-item--group' : '') + '\">' +
-        '<a href=\"' + href + '\" class=\"' + linkCls + '\"' + pageAttr + '>' +"""
-            if old_fragment in text:
-                nav_script.write_text(text.replace(old_fragment, new_fragment, 1), encoding="utf-8")
-                changed.append("js/nav.js")
-            else:
-                warnings.append(
-                    "js/nav.js 是自定义导航，未自动改写；请确认它支持 config/nav.json 的 href 字段"
-                )
+    for relative in sorted(LEGACY_DELIVERY_PATHS):
+        path = target / relative
+        if path.is_file() or path.is_symlink():
+            path.unlink()
+            changed.append(f"removed:{relative}")
 
     nav_path = target / "config" / "nav.json"
-    if not nav_path.exists():
-        warnings.append("缺少 config/nav.json，未自动加入流程图集导航入口")
-        return changed, warnings
-    try:
-        nav_data = json.loads(nav_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        warnings.append("config/nav.json 不是有效 JSON，未自动加入流程图集导航入口")
-        return changed, warnings
+    nav_data = _load_json_file(nav_path)
     menu = nav_data.get("menu")
-    if not isinstance(menu, list):
-        warnings.append("config/nav.json.menu 不是数组，未自动加入流程图集导航入口")
-        return changed, warnings
-
-    existing = next(
-        (
+    if isinstance(menu, list):
+        filtered = [
             item
             for item in menu
-            if isinstance(item, dict)
-            and (
-                item.get("href") == FLOWCHART_NAV_ITEM["href"]
-                or item.get("label") == FLOWCHART_NAV_ITEM["label"]
+            if not (
+                isinstance(item, dict)
+                and item.get("href") == "flowcharts/index.html"
             )
-        ),
-        None,
-    )
-    if existing is None:
-        menu.append(dict(FLOWCHART_NAV_ITEM))
-        _write_json_file(nav_path, nav_data)
-        changed.append("config/nav.json")
-    elif existing.get("href") != FLOWCHART_NAV_ITEM["href"]:
-        existing.pop("key", None)
-        existing["href"] = FLOWCHART_NAV_ITEM["href"]
-        _write_json_file(nav_path, nav_data)
-        changed.append("config/nav.json")
-    return changed, warnings
+        ]
+        if len(filtered) != len(menu):
+            nav_data["menu"] = filtered
+            _write_json_file(nav_path, nav_data)
+            changed.append("config/nav.json")
+    return changed
 
 
 def ensure_delivery_navigation(target: Path) -> tuple[list[str], list[str]]:
-    """Attach the internal three-view switcher without replacing page content."""
+    """Attach the internal five-view switcher without replacing page content."""
     changed: list[str] = []
     warnings: list[str] = []
     pages = {
         "index.html": "js/delivery-nav.js",
         "docs/interaction.html": "../js/delivery-nav.js",
+        "flowcharts/business-process.html": "../js/delivery-nav.js",
+        "flowcharts/sequence-interaction.html": "../js/delivery-nav.js",
+        "related-systems/index.html": "../js/delivery-nav.js",
     }
     for relative, script_ref in pages.items():
         page_path = target / relative
@@ -571,30 +549,38 @@ def ensure_delivery_navigation(target: Path) -> tuple[list[str], list[str]]:
     return changed, warnings
 
 
-def sync_flowchart_assets(target: Path, name: str) -> tuple[list[str], list[str], list[str]]:
-    """Refresh delivery pages while preserving project ProcessOn links."""
+def sync_delivery_assets(target: Path, name: str) -> tuple[list[str], list[str], list[str]]:
+    """Refresh five-view delivery infrastructure without replacing page content."""
     if not target.is_dir():
         raise FileNotFoundError(f"Target project does not exist: {target}")
     templates = load_templates(name, target)
     updated: list[str] = []
     preserved: list[str] = []
+    updated.extend(remove_legacy_delivery_assets(target))
     obsolete_docs_index = target / "docs" / "index.html"
     if obsolete_docs_index.exists():
         obsolete_docs_index.unlink()
         updated.append("removed:docs/index.html")
-    for relative in sorted(FLOWCHART_TEMPLATE_PATHS | DELIVERY_SHELL_TEMPLATE_PATHS):
+    for relative in sorted(DELIVERY_SHELL_TEMPLATE_PATHS):
         destination = target / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
-        if relative == "flowcharts/processon-links.txt" and destination.exists():
+        content = templates.get(relative)
+        if content is None:
+            raise FileNotFoundError(f"Missing delivery template: {relative}")
+        destination.write_text(content, encoding="utf-8")
+        updated.append(relative)
+    for relative in sorted(DELIVERY_CONTENT_TEMPLATE_PATHS):
+        destination = target / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.exists():
             preserved.append(relative)
             continue
         content = templates.get(relative)
         if content is None:
-            raise FileNotFoundError(f"Missing flowchart template: {relative}")
+            raise FileNotFoundError(f"Missing delivery template: {relative}")
         destination.write_text(content, encoding="utf-8")
         updated.append(relative)
-    nav_changed, warnings = ensure_flowchart_navigation(target)
-    updated.extend(nav_changed)
+    warnings: list[str] = []
     delivery_changed, delivery_warnings = ensure_delivery_navigation(target)
     updated.extend(delivery_changed)
     warnings.extend(delivery_warnings)
@@ -606,7 +592,7 @@ def sync_runtime_assets(
 ) -> tuple[list[str], list[str], list[str], list[str]]:
     """Refresh loop runtime and delivery shells without touching project content."""
     synced_tools = sync_loop_tools(target)
-    updated_delivery, preserved, warnings = sync_flowchart_assets(target, name)
+    updated_delivery, preserved, warnings = sync_delivery_assets(target, name)
     return synced_tools, updated_delivery, preserved, warnings
 
 
@@ -835,7 +821,7 @@ def migrate_project(
             copy_script_asset(source_name, target, relative_path, merge=True)
             created.append(relative_path)
 
-    flowchart_nav_changed, flowchart_warnings = ensure_flowchart_navigation(target)
+    legacy_delivery_changed = remove_legacy_delivery_assets(target)
     delivery_nav_changed, delivery_nav_warnings = ensure_delivery_navigation(target)
     runtime_synced = sync_runtime_package(target)
 
@@ -848,12 +834,10 @@ def migrate_project(
     print("Migration applied.")
     print(f"Moved files: {len(moves)}")
     print(f"Created missing framework files: {len(created)}")
-    if flowchart_nav_changed:
-        print("Flowchart navigation updated: " + ", ".join(flowchart_nav_changed))
+    if legacy_delivery_changed:
+        print("Legacy delivery assets removed: " + ", ".join(legacy_delivery_changed))
     if delivery_nav_changed:
         print("Delivery pagination updated: " + ", ".join(delivery_nav_changed))
-    for warning in flowchart_warnings:
-        print(f"Flowchart warning: {warning}", file=sys.stderr)
     for warning in delivery_nav_warnings:
         print(f"Delivery pagination warning: {warning}", file=sys.stderr)
     print(f"Synced runtime package files: {len(runtime_synced)}")
@@ -915,9 +899,9 @@ def main() -> int:
         help="Refresh tools, readable stage skills, and delivery-page shells before continuing an existing project",
     )
     parser.add_argument(
-        "--sync-flowcharts",
+        "--sync-delivery-pages",
         action="store_true",
-        help="Install or refresh docs/flowchart delivery pages and pagination while preserving processon-links.txt",
+        help="Install or refresh the five local-HTML delivery pages without replacing existing page content",
     )
     args = parser.parse_args()
 
@@ -935,8 +919,8 @@ def main() -> int:
         for warning in warnings:
             print(f"- warning: {warning}", file=sys.stderr)
         return 0
-    if args.sync_flowcharts:
-        updated, preserved, warnings = sync_flowchart_assets(target, name)
+    if args.sync_delivery_pages:
+        updated, preserved, warnings = sync_delivery_assets(target, name)
         print(f"Delivery pages synced at: {target}")
         for item in updated:
             print(f"- updated: {item}")
@@ -1019,7 +1003,7 @@ def main() -> int:
         elif status == "skipped":
             skipped.append(relative_path)
 
-    flowchart_nav_changed, flowchart_warnings = ensure_flowchart_navigation(target)
+    legacy_delivery_changed = remove_legacy_delivery_assets(target)
     delivery_nav_changed, delivery_nav_warnings = ensure_delivery_navigation(target)
     runtime_synced = sync_runtime_package(target)
 
@@ -1037,12 +1021,10 @@ def main() -> int:
     if stripped_data_anno_from_base[1]:
         print(f"Removed stale data-anno anchors: {stripped_data_anno_from_base[1]} attrs in {stripped_data_anno_from_base[0]} files")
     print(f"Created files: {len(created)}")
-    if flowchart_nav_changed:
-        print("Flowchart navigation updated: " + ", ".join(flowchart_nav_changed))
+    if legacy_delivery_changed:
+        print("Legacy delivery assets removed: " + ", ".join(legacy_delivery_changed))
     if delivery_nav_changed:
         print("Delivery pagination updated: " + ", ".join(delivery_nav_changed))
-    for warning in flowchart_warnings:
-        print(f"Flowchart warning: {warning}", file=sys.stderr)
     for warning in delivery_nav_warnings:
         print(f"Delivery pagination warning: {warning}", file=sys.stderr)
     print(f"Synced runtime package files: {len(runtime_synced)}")

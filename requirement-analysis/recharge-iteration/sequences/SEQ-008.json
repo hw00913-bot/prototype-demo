@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-008",
+  "scenario_id": "SC-008",
+  "name": "查看当前租户使用情况时序",
+  "participants": [
+    {
+      "id": "tenant_user",
+      "name": "租户用户",
+      "kind": "actor"
+    },
+    {
+      "id": "usage_ui",
+      "name": "使用情况界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "usage_service",
+      "name": "使用情况服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "tenant_user",
+      "to": "usage_ui",
+      "message": "点击右上角使用情况",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前账号不是超级管理员"
+    },
+    {
+      "step": 2,
+      "from": "usage_ui",
+      "to": "usage_service",
+      "message": "按当前登录租户请求有效期、统一分钟池可用分钟和按日消耗",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "usage_service",
+      "to": "ledger",
+      "message": "使用服务端当前租户上下文查询账户与按日汇总",
+      "type": "request",
+      "api_id": null,
+      "condition": "角色与租户权限校验通过"
+    },
+    {
+      "step": 4,
+      "from": "ledger",
+      "to": "usage_service",
+      "message": "返回当前租户有效期、统一分钟池可用分钟和按日消耗",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "usage_service",
+      "to": "usage_ui",
+      "message": "返回使用概览与一级按日列表",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "tenant_user",
+      "to": "usage_ui",
+      "message": "选择某日查看任务明细",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "usage_ui",
+      "to": "usage_service",
+      "message": "请求当前租户指定日期的任务级消耗",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "usage_service",
+      "to": "ledger",
+      "message": "查询指定日期的任务消耗并校验日汇总",
+      "type": "request",
+      "api_id": null,
+      "condition": "日期参数合法"
+    },
+    {
+      "step": 9,
+      "from": "ledger",
+      "to": "usage_service",
+      "message": "返回任务消耗与当日合计",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 10,
+      "from": "usage_service",
+      "to": "usage_ui",
+      "message": "返回二级任务明细并标识汇总一致性",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "租户上下文由服务端登录态确定，不信任前端传入的任意租户标识。",
+    "超级管理员不展示入口，同时服务端也应拒绝对应请求。",
+    "余额统一表示大模型与小模型共用分钟池的当前可用分钟，不展示金额。",
+    "空数据返回空列表；加载失败返回可重试错误。"
+  ]
+}

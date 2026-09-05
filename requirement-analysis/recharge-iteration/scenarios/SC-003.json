@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-003",
+  "name": "在服务期内购买话费充值包",
+  "summary": "充值管理员在租户有效服务期内购买一个或多个话费充值包，可按天编辑使用时长和入账分钟数，将实际分钟计入大/小模型共用的统一分钟池并生成完整内部流水。",
+  "actors": [
+    "充值管理员",
+    "充值管理",
+    "内部额度账本"
+  ],
+  "trigger": "有效服务期内的租户需要补充可用通讯分钟",
+  "preconditions": [
+    "租户处于有效服务期",
+    "操作人具备充值管理权限"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理员",
+      "action": "选择租户并发起话费充值包购买",
+      "system_response": "核对服务有效状态，展示每包 1,000 元、默认 3,500 分钟的规则",
+      "rule_ids": [
+        "BR-005"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "充值管理员",
+      "action": "选择购买数量",
+      "system_response": "按包数与 3,500 相乘带入默认入账分钟数",
+      "rule_ids": [
+        "BR-005",
+        "BR-011",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "充值管理员",
+      "action": "保留默认值或手工编辑使用时长与入账分钟数",
+      "system_response": "校验两个值均为大于 0 的整数；偏离默认值时要求填写原因并预览生效结果",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "充值管理员",
+      "action": "确认并提交购买",
+      "system_response": "不要求外部充值单号，以提交值增加统一分钟池可用分钟数并更新对应使用期限，校验通过后无需额外审批",
+      "rule_ids": [
+        "BR-005",
+        "BR-008",
+        "BR-011",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "内部额度账本",
+      "action": "记录充值包购买结果",
+      "system_response": "自动生成内部流水号，记录租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态",
+      "rule_ids": [
+        "BR-008"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "租户不在有效服务期",
+      "steps": [
+        "拒绝话费充值包生效",
+        "提示先开通或续费服务套餐"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "使用时长或入账分钟数不是大于 0 的整数，或偏离默认值但未填写原因",
+      "steps": [
+        "阻止提交并对应提示字段错误"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "内部账本更新失败",
+      "steps": [
+        "不生成成功充值记录",
+        "返回失败原因并允许安全重试"
+      ]
+    }
+  ],
+  "postconditions": [
+    "租户统一分钟池的可用分钟数已按实际提交值增加",
+    "充值包所增分钟只在租户服务期内使用",
+    "本次购买已生成内部可追溯记录"
+  ],
+  "acceptance_points": [
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-016",
+    "AC-017",
+    "AC-018",
+    "AC-027",
+    "AC-028",
+    "AC-029",
+    "AC-030",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-003",
+    "US-004",
+    "US-006",
+    "US-008"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "充值管理员", "kind": "actor"},
+      {"id": "recharge", "name": "充值管理", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "发起充值包购买"},
+      {"id": "N-001", "lane_id": "admin", "type": "action", "order": 2, "label": "选择租户并发起充值包购买", "step_ref": 1},
+      {"id": "N-002", "lane_id": "recharge", "type": "decision", "order": 3, "label": "租户服务期有效？"},
+      {"id": "N-003", "lane_id": "admin", "type": "action", "order": 5, "label": "选择购买包数", "step_ref": 2},
+      {"id": "N-004", "lane_id": "recharge", "type": "action", "order": 6, "label": "按包数带入默认分钟"},
+      {"id": "N-005", "lane_id": "admin", "type": "action", "order": 7, "label": "按天编辑或保留时长/分钟，偏离默认值填写原因", "step_ref": 3},
+      {"id": "N-006", "lane_id": "admin", "type": "action", "order": 8, "label": "确认提交购买", "step_ref": 4},
+      {"id": "N-007", "lane_id": "recharge", "type": "decision", "order": 9, "label": "正整数与偏离原因校验通过？"},
+      {"id": "N-008", "lane_id": "ledger", "type": "action", "order": 10, "label": "将分钟计入统一分钟池并记录使用期限"},
+      {"id": "N-009", "lane_id": "ledger", "type": "decision", "order": 11, "label": "账本写入成功？"},
+      {"id": "N-010", "lane_id": "recharge", "type": "action", "order": 12, "label": "自动生成完整内部充值流水", "step_ref": 5},
+      {"id": "N-SUCCESS", "lane_id": "admin", "type": "end", "order": 13, "label": "充值包购买成功"},
+      {"id": "N-EXPIRED", "lane_id": "admin", "type": "end", "order": 4, "label": "提示先开通或续费"},
+      {"id": "N-INVALID", "lane_id": "admin", "type": "end", "order": 10, "label": "提示修正字段或填写原因"},
+      {"id": "N-FAIL", "lane_id": "admin", "type": "end", "order": 12, "label": "充值失败，可安全重试"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003", "label": "是"},
+      {"from": "N-002", "to": "N-EXPIRED", "label": "否", "type": "failure", "path_id": "ALT-001"},
+      {"from": "N-003", "to": "N-004"},
+      {"from": "N-004", "to": "N-005"},
+      {"from": "N-005", "to": "N-006"},
+      {"from": "N-006", "to": "N-007"},
+      {"from": "N-007", "to": "N-008", "label": "通过"},
+      {"from": "N-007", "to": "N-INVALID", "label": "不通过", "type": "failure", "path_id": "ALT-002"},
+      {"from": "N-008", "to": "N-009"},
+      {"from": "N-009", "to": "N-010", "label": "是"},
+      {"from": "N-009", "to": "N-FAIL", "label": "否", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-010", "to": "N-SUCCESS"}
+    ]
+  }
+}

@@ -1,0 +1,743 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "智能外呼中台充值功能迭代",
+    "version": "0.1.0"
+  },
+  "run": {
+    "mode": "incremental",
+    "status": "complete",
+    "current_stage": "S9",
+    "started_at": "2026-09-04T15:24:12+08:00",
+    "updated_at": "2026-09-04T18:32:00+08:00"
+  },
+  "stages": {
+    "S0": {
+      "name": "输入接收",
+      "status": "passed",
+      "started_at": "2026-09-04T15:24:12+08:00",
+      "completed_at": "2026-09-04T15:35:15+08:00",
+      "evidence": [
+        "inputs/user-stories.md",
+        "inputs/current-feature-baseline.md",
+        "inputs/attachments/recharge-pricing-rules-20260904.png"
+      ],
+      "issues": []
+    },
+    "S1": {
+      "name": "用户故事规范化",
+      "status": "passed",
+      "started_at": "2026-09-04T16:46:16+08:00",
+      "completed_at": "2026-09-04T16:47:18+08:00",
+      "evidence": [
+        "inputs/user-stories.md",
+        "inputs/glossary.md",
+        "memory/normalized-user-stories.json",
+        "runtime/open-items.json"
+      ],
+      "issues": []
+    },
+    "S2": {
+      "name": "业务场景清单",
+      "status": "passed",
+      "started_at": "2026-09-04T16:47:24+08:00",
+      "completed_at": "2026-09-04T16:47:59+08:00",
+      "evidence": [
+        "scenarios/scenario-index.json",
+        "outputs/business-scenario-list.md"
+      ],
+      "issues": []
+    },
+    "S3": {
+      "name": "场景细化与场景图",
+      "status": "passed",
+      "started_at": "2026-09-04T18:25:46+08:00",
+      "completed_at": "2026-09-04T18:28:27+08:00",
+      "evidence": [
+        "scenarios/SC-003.json",
+        "scenarios/SC-004.json",
+        "scenarios/SC-008.json",
+        "outputs/business-scenario-atlas.html"
+      ],
+      "issues": []
+    },
+    "S4": {
+      "name": "交互时序分析",
+      "status": "passed",
+      "started_at": "2026-09-04T18:28:34+08:00",
+      "completed_at": "2026-09-04T18:29:00+08:00",
+      "evidence": [
+        "sequences/sequence-index.json",
+        "outputs/interaction-sequence-atlas.html"
+      ],
+      "issues": []
+    },
+    "S5": {
+      "name": "外部接口核验",
+      "status": "passed",
+      "started_at": "2026-09-04T18:29:09+08:00",
+      "completed_at": "2026-09-04T18:29:28+08:00",
+      "evidence": [
+        "interfaces/interface-index.json",
+        "outputs/system-sequence-interface-verification-matrix.md"
+      ],
+      "issues": []
+    },
+    "S6": {
+      "name": "产品结构与业务流程基线",
+      "status": "passed",
+      "started_at": "2026-09-04T18:29:50+08:00",
+      "completed_at": "2026-09-04T18:30:04+08:00",
+      "evidence": [
+        "memory/project-facts.json",
+        "memory/business-rules.json",
+        "outputs/product-structure-and-business-process-baseline.md"
+      ],
+      "issues": []
+    },
+    "S7": {
+      "name": "菜单与页面规划",
+      "status": "passed",
+      "started_at": "2026-09-04T18:30:10+08:00",
+      "completed_at": "2026-09-04T18:30:23+08:00",
+      "evidence": [
+        "planning/page-index.json",
+        "outputs/menu-and-page-planning-reference.md"
+      ],
+      "issues": []
+    },
+    "S8": {
+      "name": "全局一致性核验",
+      "status": "passed",
+      "started_at": "2026-09-04T18:30:30+08:00",
+      "completed_at": "2026-09-04T18:31:18+08:00",
+      "evidence": [
+        "runtime/traceability.json",
+        "runtime/verification-report.json",
+        "outputs/business-scenario-atlas.html",
+        "outputs/interaction-sequence-atlas.html"
+      ],
+      "issues": []
+    },
+    "S9": {
+      "name": "冻结交付",
+      "status": "passed",
+      "started_at": "2026-09-04T18:31:32+08:00",
+      "completed_at": "2026-09-04T18:32:00+08:00",
+      "evidence": [
+        "deliverables/delivery-manifest.json",
+        "deliverables/智能外呼中台充值功能迭代-prototype-input-v0.1.0-20260904-183144.zip"
+      ],
+      "issues": []
+    }
+  },
+  "gates": {
+    "G1": {
+      "name": "场景范围确认",
+      "after_stage": "S2",
+      "status": "approved",
+      "approved_by": "用户",
+      "approved_at": "2026-09-04T17:01:49+08:00",
+      "note": "确认本期7个场景及2个范围外场景，按已确认的统一分钟池、内部流水和手工编辑校验规则继续"
+    },
+    "G2": {
+      "name": "业务与接口冲突确认",
+      "after_stage": "S5",
+      "status": "approved",
+      "approved_by": "用户",
+      "approved_at": "2026-09-04T18:29:43+08:00",
+      "note": "复用本会话此前明确的 G2 确认；本次仅规范泳道图 order 与自动布局，业务规则和接口边界未变化"
+    },
+    "G3": {
+      "name": "最终基线冻结",
+      "after_stage": "S8",
+      "status": "approved",
+      "approved_by": "用户",
+      "approved_at": "2026-09-04T18:31:25+08:00",
+      "note": "用户确认最终基线冻结；新版泳道布局规则下已重新生成并通过全局与几何核验"
+    }
+  },
+  "history": [
+    {
+      "at": "2026-09-04T15:24:12+08:00",
+      "event": "initialized"
+    },
+    {
+      "at": "2026-09-04T15:24:12+08:00",
+      "event": "stage_started",
+      "stage": "S0"
+    },
+    {
+      "at": "2026-09-04T15:35:15+08:00",
+      "event": "stage_completed",
+      "stage": "S0",
+      "next_stage": "S1"
+    },
+    {
+      "at": "2026-09-04T15:35:39+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T15:39:50+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:40:10+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:40:57+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T15:41:23+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-002"
+      ],
+      "restart_stage": "S1",
+      "reason": "附图对修改幅度正好50%的新话术与免费维护边界存在重叠，需要标记为待确认而非自动解释"
+    },
+    {
+      "at": "2026-09-04T15:41:23+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T15:41:59+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:41:59+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:41:59+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T15:45:41+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-007"
+      ],
+      "restart_stage": "S1",
+      "reason": "新增右上角使用情况入口，展示当前租户有效期、余额和使用明细"
+    },
+    {
+      "at": "2026-09-04T15:45:41+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T15:47:19+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:47:19+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:47:42+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T15:53:36+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-007"
+      ],
+      "restart_stage": "S1",
+      "reason": "明确余额、按日汇总、任务二级明细、超管排除和多租户当前租户规则"
+    },
+    {
+      "at": "2026-09-04T15:53:42+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T15:55:52+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:55:57+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T15:56:14+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T15:58:26+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-002"
+      ],
+      "restart_stage": "S1",
+      "reason": "充值界面的使用时长和分钟数支持手工编辑"
+    },
+    {
+      "at": "2026-09-04T15:58:32+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-003"
+      ],
+      "restart_stage": "S1",
+      "reason": "充值界面的使用时长和分钟数支持手工编辑"
+    },
+    {
+      "at": "2026-09-04T15:58:39+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-006"
+      ],
+      "restart_stage": "S1",
+      "reason": "充值界面的使用时长和分钟数支持手工编辑"
+    },
+    {
+      "at": "2026-09-04T15:58:45+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T16:01:01+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:01:08+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:01:23+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T16:05:02+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-008"
+      ],
+      "restart_stage": "S1",
+      "reason": "保留并覆盖原有手工调增和手工调减功能"
+    },
+    {
+      "at": "2026-09-04T16:05:09+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T16:07:07+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:07:14+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:07:29+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T16:08:52+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-009"
+      ],
+      "restart_stage": "S1",
+      "reason": "明确手工调增和调减均可调整使用时长与可用分钟数"
+    },
+    {
+      "at": "2026-09-04T16:08:59+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T16:10:26+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:10:33+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:10:46+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T16:11:27+08:00",
+      "event": "gate_approved",
+      "gate": "G1",
+      "by": "用户",
+      "next_stage": "S3"
+    },
+    {
+      "at": "2026-09-04T16:11:37+08:00",
+      "event": "stage_started",
+      "stage": "S3"
+    },
+    {
+      "at": "2026-09-04T16:19:38+08:00",
+      "event": "stage_completed",
+      "stage": "S3",
+      "next_stage": "S4"
+    },
+    {
+      "at": "2026-09-04T16:20:03+08:00",
+      "event": "stage_started",
+      "stage": "S4"
+    },
+    {
+      "at": "2026-09-04T16:24:32+08:00",
+      "event": "stage_completed",
+      "stage": "S4",
+      "next_stage": "S5"
+    },
+    {
+      "at": "2026-09-04T16:24:52+08:00",
+      "event": "stage_started",
+      "stage": "S5"
+    },
+    {
+      "at": "2026-09-04T16:25:23+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S5",
+      "gate": "G2"
+    },
+    {
+      "at": "2026-09-04T16:29:49+08:00",
+      "event": "gate_approved",
+      "gate": "G2",
+      "by": "用户",
+      "next_stage": "S6"
+    },
+    {
+      "at": "2026-09-04T16:30:01+08:00",
+      "event": "stage_started",
+      "stage": "S6"
+    },
+    {
+      "at": "2026-09-04T16:32:05+08:00",
+      "event": "stage_completed",
+      "stage": "S6",
+      "next_stage": "S7"
+    },
+    {
+      "at": "2026-09-04T16:32:27+08:00",
+      "event": "stage_started",
+      "stage": "S7"
+    },
+    {
+      "at": "2026-09-04T16:35:11+08:00",
+      "event": "stage_completed",
+      "stage": "S7",
+      "next_stage": "S8"
+    },
+    {
+      "at": "2026-09-04T16:35:21+08:00",
+      "event": "stage_started",
+      "stage": "S8"
+    },
+    {
+      "at": "2026-09-04T16:45:44+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-004"
+      ],
+      "restart_stage": "S1",
+      "reason": "确认统一分钟池、内部充值流水字段和手工编辑校验规则"
+    },
+    {
+      "at": "2026-09-04T16:45:44+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-006"
+      ],
+      "restart_stage": "S1",
+      "reason": "确认统一分钟池、内部充值流水字段和手工编辑校验规则"
+    },
+    {
+      "at": "2026-09-04T16:45:44+08:00",
+      "event": "invalidated",
+      "changed_ids": [
+        "US-008"
+      ],
+      "restart_stage": "S1",
+      "reason": "确认统一分钟池、内部充值流水字段和手工编辑校验规则"
+    },
+    {
+      "at": "2026-09-04T16:46:16+08:00",
+      "event": "stage_started",
+      "stage": "S1"
+    },
+    {
+      "at": "2026-09-04T16:47:18+08:00",
+      "event": "stage_completed",
+      "stage": "S1",
+      "next_stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:47:24+08:00",
+      "event": "stage_started",
+      "stage": "S2"
+    },
+    {
+      "at": "2026-09-04T16:47:59+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S2",
+      "gate": "G1"
+    },
+    {
+      "at": "2026-09-04T17:01:49+08:00",
+      "event": "gate_approved",
+      "gate": "G1",
+      "by": "用户",
+      "next_stage": "S3"
+    },
+    {
+      "at": "2026-09-04T17:01:49+08:00",
+      "event": "stage_started",
+      "stage": "S3"
+    },
+    {
+      "at": "2026-09-04T17:11:05+08:00",
+      "event": "stage_completed",
+      "stage": "S3",
+      "next_stage": "S4"
+    },
+    {
+      "at": "2026-09-04T17:11:12+08:00",
+      "event": "stage_started",
+      "stage": "S4"
+    },
+    {
+      "at": "2026-09-04T17:12:14+08:00",
+      "event": "stage_completed",
+      "stage": "S4",
+      "next_stage": "S5"
+    },
+    {
+      "at": "2026-09-04T17:12:14+08:00",
+      "event": "stage_started",
+      "stage": "S5"
+    },
+    {
+      "at": "2026-09-04T17:12:41+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S5",
+      "gate": "G2"
+    },
+    {
+      "at": "2026-09-04T17:15:08+08:00",
+      "event": "invalidated",
+      "changed_ids": [],
+      "restart_stage": "S3",
+      "reason": "修复SC-004泳道图分支标签、连线与节点重叠"
+    },
+    {
+      "at": "2026-09-04T17:15:08+08:00",
+      "event": "stage_started",
+      "stage": "S3"
+    },
+    {
+      "at": "2026-09-04T17:22:32+08:00",
+      "event": "stage_completed",
+      "stage": "S3",
+      "next_stage": "S4"
+    },
+    {
+      "at": "2026-09-04T17:22:32+08:00",
+      "event": "stage_started",
+      "stage": "S4"
+    },
+    {
+      "at": "2026-09-04T17:22:32+08:00",
+      "event": "stage_completed",
+      "stage": "S4",
+      "next_stage": "S5"
+    },
+    {
+      "at": "2026-09-04T17:22:32+08:00",
+      "event": "stage_started",
+      "stage": "S5"
+    },
+    {
+      "at": "2026-09-04T17:22:32+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S5",
+      "gate": "G2"
+    },
+    {
+      "at": "2026-09-04T17:27:33+08:00",
+      "event": "gate_approved",
+      "gate": "G2",
+      "by": "用户",
+      "next_stage": "S6"
+    },
+    {
+      "at": "2026-09-04T17:27:33+08:00",
+      "event": "stage_started",
+      "stage": "S6"
+    },
+    {
+      "at": "2026-09-04T17:28:47+08:00",
+      "event": "stage_completed",
+      "stage": "S6",
+      "next_stage": "S7"
+    },
+    {
+      "at": "2026-09-04T17:28:47+08:00",
+      "event": "stage_started",
+      "stage": "S7"
+    },
+    {
+      "at": "2026-09-04T17:29:37+08:00",
+      "event": "stage_completed",
+      "stage": "S7",
+      "next_stage": "S8"
+    },
+    {
+      "at": "2026-09-04T17:29:38+08:00",
+      "event": "stage_started",
+      "stage": "S8"
+    },
+    {
+      "at": "2026-09-04T17:30:38+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S8",
+      "gate": "G3"
+    },
+    {
+      "at": "2026-09-04T18:25:25+08:00",
+      "event": "invalidated",
+      "changed_ids": [],
+      "restart_stage": "S3",
+      "reason": "按新版技能移除用于版式微调的小数 order，并重新执行泳道几何核验"
+    },
+    {
+      "at": "2026-09-04T18:25:46+08:00",
+      "event": "stage_started",
+      "stage": "S3"
+    },
+    {
+      "at": "2026-09-04T18:28:27+08:00",
+      "event": "stage_completed",
+      "stage": "S3",
+      "next_stage": "S4"
+    },
+    {
+      "at": "2026-09-04T18:28:34+08:00",
+      "event": "stage_started",
+      "stage": "S4"
+    },
+    {
+      "at": "2026-09-04T18:29:00+08:00",
+      "event": "stage_completed",
+      "stage": "S4",
+      "next_stage": "S5"
+    },
+    {
+      "at": "2026-09-04T18:29:09+08:00",
+      "event": "stage_started",
+      "stage": "S5"
+    },
+    {
+      "at": "2026-09-04T18:29:28+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S5",
+      "gate": "G2"
+    },
+    {
+      "at": "2026-09-04T18:29:43+08:00",
+      "event": "gate_approved",
+      "gate": "G2",
+      "by": "用户",
+      "next_stage": "S6"
+    },
+    {
+      "at": "2026-09-04T18:29:50+08:00",
+      "event": "stage_started",
+      "stage": "S6"
+    },
+    {
+      "at": "2026-09-04T18:30:04+08:00",
+      "event": "stage_completed",
+      "stage": "S6",
+      "next_stage": "S7"
+    },
+    {
+      "at": "2026-09-04T18:30:10+08:00",
+      "event": "stage_started",
+      "stage": "S7"
+    },
+    {
+      "at": "2026-09-04T18:30:23+08:00",
+      "event": "stage_completed",
+      "stage": "S7",
+      "next_stage": "S8"
+    },
+    {
+      "at": "2026-09-04T18:30:30+08:00",
+      "event": "stage_started",
+      "stage": "S8"
+    },
+    {
+      "at": "2026-09-04T18:31:18+08:00",
+      "event": "stage_completed_waiting_gate",
+      "stage": "S8",
+      "gate": "G3"
+    },
+    {
+      "at": "2026-09-04T18:31:25+08:00",
+      "event": "gate_approved",
+      "gate": "G3",
+      "by": "用户",
+      "next_stage": "S9"
+    },
+    {
+      "at": "2026-09-04T18:31:32+08:00",
+      "event": "stage_started",
+      "stage": "S9"
+    },
+    {
+      "at": "2026-09-04T18:32:00+08:00",
+      "event": "loop_completed",
+      "stage": "S9"
+    }
+  ]
+}

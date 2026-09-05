@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-007",
+  "name": "按商用/试用实施差异化计费",
+  "summary": "商用与试用在本期只是展示标记，不实施差异化套餐、充值、冻结或消耗规则。",
+  "actors": [
+    "平台管理员",
+    "充值管理"
+  ],
+  "trigger": "系统识别到租户的商用或试用标记",
+  "preconditions": [
+    "本场景已被 G1 确认为本期范围外"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理",
+      "action": "读取租户商用/试用标记",
+      "system_response": "只用于界面展示，不选择差异化计费分支",
+      "rule_ids": [
+        "BR-001"
+      ]
+    }
+  ],
+  "alternate_flows": [],
+  "postconditions": [
+    "商用与试用租户继续遵循同一套充值、冻结和消耗规则"
+  ],
+  "acceptance_points": [
+    "AC-003",
+    "AC-015"
+  ],
+  "source_story_ids": [
+    "US-001"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "平台管理员", "kind": "actor"},
+      {"id": "billing", "name": "充值与计费系统", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "查看商用/试用租户"},
+      {"id": "N-001", "lane_id": "billing", "type": "action", "order": 2, "label": "仅展示租户标记", "step_ref": 1},
+      {"id": "N-002", "lane_id": "billing", "type": "action", "order": 3, "label": "应用相同套餐、冻结与消耗规则"},
+      {"id": "N-END", "lane_id": "admin", "type": "end", "order": 4, "label": "不产生差异化计费"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-END"}
+    ]
+  }
+}

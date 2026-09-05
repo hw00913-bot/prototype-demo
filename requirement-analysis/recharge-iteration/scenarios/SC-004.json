@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-004",
+  "name": "冻结、释放并结算通讯额度",
+  "summary": "大模型与小模型外呼任务共同使用租户统一分钟池，并继续沿用原有的额度预冻结、接通后通话分钟计量、实际消耗结算和未使用额度释放闭环。",
+  "actors": [
+    "租户运营人员",
+    "外呼任务系统",
+    "内部额度账本"
+  ],
+  "trigger": "外呼任务提交、执行、完成或终止",
+  "preconditions": [
+    "租户统一分钟池具有可用通讯分钟",
+    "原有冻结、释放和消耗规则可用"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "外呼任务系统",
+      "action": "在任务执行前计算需占用的预估通讯额度",
+      "system_response": "核对统一分钟池当前可用分钟并创建任务冻结记录",
+      "rule_ids": [
+        "BR-007",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "外呼任务系统",
+      "action": "执行外呼并接收通话结果",
+      "system_response": "只将已接通通话纳入分钟计量",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "内部额度账本",
+      "action": "按通话计量规则计算实际消耗",
+      "system_response": "单次接通通话不满 1 分钟按 1 分钟，其余沿用现有计量规则",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "内部额度账本",
+      "action": "在任务完成或终止时结算",
+      "system_response": "从统一分钟池扣减实际消耗，释放未使用的冻结额度并更新可用分钟",
+      "rule_ids": [
+        "BR-007",
+        "BR-014"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "可用分钟不足以完成预冻结",
+      "steps": [
+        "不启动任务",
+        "向租户运营人员提示额度不足"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "呼叫未接通",
+      "steps": [
+        "不计入已接通通讯分钟消耗"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "任务终止或触发原有解冻条件",
+      "steps": [
+        "按原有规则释放未结算的冻结额度",
+        "保证重复触发不会重复释放"
+      ]
+    }
+  ],
+  "postconditions": [
+    "任务实际消耗与通话计量结果一致",
+    "任务冻结额度已结算或释放",
+    "商用/试用标记不影响本闭环"
+  ],
+  "acceptance_points": [
+    "AC-011",
+    "AC-012",
+    "AC-013",
+    "AC-014",
+    "AC-015",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-004",
+    "US-005"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "operator", "name": "租户运营人员", "kind": "actor"},
+      {"id": "task", "name": "外呼任务系统", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "operator", "type": "start", "order": 1, "label": "提交外呼任务"},
+      {"id": "N-001", "lane_id": "task", "type": "action", "order": 2, "label": "计算预估通讯额度", "step_ref": 1},
+      {"id": "N-002", "lane_id": "ledger", "type": "decision", "order": 3, "label": "统一分钟池余额足够冻结？"},
+      {"id": "N-003", "lane_id": "ledger", "type": "action", "order": 4, "label": "创建任务冻结记录"},
+      {"id": "N-004", "lane_id": "task", "type": "event", "order": 5, "label": "接收呼叫结果", "step_ref": 2},
+      {"id": "N-005", "lane_id": "task", "type": "decision", "order": 6, "label": "呼叫已接通？"},
+      {"id": "N-006", "lane_id": "ledger", "type": "action", "order": 7, "label": "按分钟规则计量实际消耗", "step_ref": 3},
+      {"id": "N-007", "lane_id": "task", "type": "action", "order": 7, "label": "标记未接通，不计通讯分钟"},
+      {"id": "N-008", "lane_id": "task", "type": "decision", "order": 8, "label": "任务正常完成？"},
+      {"id": "N-009", "lane_id": "ledger", "type": "action", "order": 10, "label": "结算消耗并释放余额", "step_ref": 4},
+      {"id": "N-TERM", "lane_id": "task", "type": "event", "order": 10, "label": "任务终止/触发解冻"},
+      {"id": "N-RELEASE", "lane_id": "ledger", "type": "action", "order": 12, "label": "按原规则幂等释放冻结"},
+      {"id": "N-SUCCESS", "lane_id": "operator", "type": "end", "order": 13, "label": "额度闭环完成"},
+      {"id": "N-INSUFFICIENT", "lane_id": "operator", "type": "end", "order": 4, "label": "额度不足，任务不启动"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003", "label": "是"},
+      {"from": "N-002", "to": "N-INSUFFICIENT", "label": "否", "type": "failure", "path_id": "ALT-001"},
+      {"from": "N-003", "to": "N-004"},
+      {"from": "N-004", "to": "N-005"},
+      {"from": "N-005", "to": "N-006", "label": "是"},
+      {"from": "N-005", "to": "N-007", "label": "否", "path_id": "ALT-002"},
+      {"from": "N-006", "to": "N-008"},
+      {"from": "N-007", "to": "N-008"},
+      {"from": "N-008", "to": "N-009", "label": "是"},
+      {"from": "N-008", "to": "N-TERM", "label": "否/触发解冻", "path_id": "ALT-003"},
+      {"from": "N-TERM", "to": "N-RELEASE"},
+      {"from": "N-009", "to": "N-SUCCESS"},
+      {"from": "N-RELEASE", "to": "N-SUCCESS"}
+    ]
+  }
+}

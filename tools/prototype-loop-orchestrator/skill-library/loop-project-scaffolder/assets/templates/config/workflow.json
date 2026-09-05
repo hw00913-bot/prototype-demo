@@ -36,7 +36,10 @@
     "changeLog": "memory/change-log.md",
     "navigation": "config/nav.json",
     "annotations": "annotations/annotations.js",
-    "interactionDoc": "docs/interaction.html"
+    "interactionDoc": "docs/interaction.html",
+    "businessProcess": "flowcharts/business-process.html",
+    "sequenceInteraction": "flowcharts/sequence-interaction.html",
+    "relatedSystems": "related-systems/index.html"
   },
   "verification": {
     "serveOverHttp": true,

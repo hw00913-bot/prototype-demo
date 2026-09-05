@@ -658,6 +658,277 @@ var MockTenantFrozenTasks = [
   { id: 6, tenantName: '东风日产-燃油车', modelType: '大模型', vendorCode: 'ZKJ', vendorName: '中科金', taskNo: 'CALL20260612005', sceneName: '已终止演示任务', frozenMinutes: 200, unitPriceSnapshot: 0.40, taskStatus: '已终止', status: '冻结中', createdAt: '2026-06-12 14:00:00', releasedAt: '', releaseReason: '' }
 ];
 
+/* ===== 充值功能迭代 Mock（新方案事实源） =====
+ * 新充值、手工调整、冻结与消耗均以租户级 unifiedMinutePool 为唯一余额事实源。
+ */
+var MockRechargeIteration = {
+  simulatedNow: '2026-09-04 10:20:00',
+
+  products: {
+    trial_package: {
+      code: 'trial_package',
+      name: '试用套餐',
+      unitPrice: 0,
+      unit: '个',
+      defaultDurationDays: 30,
+      defaultCreditMinutes: 500,
+      usageRule: '仅试用租户可开通，默认 0 元、30 天、500 分钟。价格、使用时长及入账分钟均可手工编辑；开通保留试用标记，分钟进入统一分钟池。'
+    },
+    standard_annual: {
+      code: 'standard_annual',
+      name: '标准版年包',
+      unitPrice: 5000,
+      unit: '店',
+      defaultDurationDays: 365,
+      defaultCreditMinutes: 10000,
+      serviceItems: ['系统平台使用', '外呼线路/号码', '外呼场景话术设计', '流程搭建', '效果调优', '数据看板', '运营/运维服务'],
+      scriptAllowance: 2,
+      scriptChangeRule: '修改幅度高于 50% 按新话术场景处理，低于 50% 免费维护；正好 50% 需人工确认。'
+    },
+    call_credit_pack: {
+      code: 'call_credit_pack',
+      name: '话费充值包',
+      unitPrice: 1000,
+      unit: '包',
+      defaultDurationMode: 'remaining_service_period',
+      defaultCreditMinutesPerPack: 3500,
+      usageRule: '仅限当前服务有效期内购买和使用，支持多包、多次叠加。'
+    }
+  },
+
+  tenants: [
+    {
+      id: '2054055500566778899',
+      name: '宁波海达京汉店',
+      type: '门店',
+      commercialFlag: 'trial',
+      commercialFlagLabel: '试用',
+      entitlement: { productType: '', status: 'not_opened', effectiveAt: '', expiresAt: '', durationDays: 0 },
+      unifiedMinutePool: { availableMinutes: 0, frozenMinutes: 0, consumedMinutes: 0, accountVersion: 'JH-MP-001' },
+      rechargeState: 'empty_history',
+      usageState: 'empty'
+    },
+    {
+      id: '2054080803329462274',
+      name: '重庆东风南方渝兴',
+      type: '门店',
+      commercialFlag: 'commercial',
+      commercialFlagLabel: '商用',
+      entitlement: { productType: 'standard_annual', status: 'active', effectiveAt: '2026-06-12 08:00:00', expiresAt: '2027-06-11 23:59:59', durationDays: 365 },
+      unifiedMinutePool: { availableMinutes: 28500, frozenMinutes: 1200, consumedMinutes: 6840, accountVersion: 'YX-MP-018' },
+      rechargeState: 'loaded',
+      usageState: 'loaded'
+    },
+    {
+      id: '2054073731284819970',
+      name: '重庆东风南方渝发',
+      type: '门店',
+      commercialFlag: 'trial',
+      commercialFlagLabel: '试用',
+      entitlement: { productType: 'trial_package', status: 'active', effectiveAt: '2026-08-01 09:00:00', expiresAt: '2026-11-29 23:59:59', durationDays: 120 },
+      unifiedMinutePool: { availableMinutes: 7800, frozenMinutes: 300, consumedMinutes: 1970, accountVersion: 'YF-MP-007' },
+      rechargeState: 'loaded',
+      usageState: 'loaded'
+    },
+    {
+      id: '2054091001122334455',
+      name: '海南海粤店',
+      type: '门店',
+      commercialFlag: 'trial',
+      commercialFlagLabel: '试用',
+      entitlement: { productType: 'trial_package', status: 'expired', effectiveAt: '2026-05-01 09:00:00', expiresAt: '2026-07-30 23:59:59', durationDays: 90 },
+      unifiedMinutePool: { availableMinutes: 0, frozenMinutes: 0, consumedMinutes: 3500, accountVersion: 'HY-MP-003' },
+      rechargeState: 'empty_history',
+      usageState: 'expired'
+    },
+    {
+      id: '2054082200233445566',
+      name: '海南儋州海星店',
+      type: '门店',
+      commercialFlag: 'commercial',
+      commercialFlagLabel: '商用',
+      entitlement: { productType: 'standard_annual', status: 'active', effectiveAt: '2026-09-01 09:00:00', expiresAt: '2027-08-31 23:59:59', durationDays: 365 },
+      unifiedMinutePool: { availableMinutes: 10000, frozenMinutes: 0, consumedMinutes: 0, accountVersion: 'HX-MP-001' },
+      rechargeState: 'loaded',
+      usageState: 'empty'
+    },
+    {
+      id: '2054073300344556677',
+      name: '昆明东风南方三住专营店',
+      type: '门店',
+      commercialFlag: 'commercial',
+      commercialFlagLabel: '商用',
+      entitlement: { productType: 'standard_annual', status: 'active', effectiveAt: '2026-03-01 09:00:00', expiresAt: '2027-02-28 23:59:59', durationDays: 365 },
+      unifiedMinutePool: { availableMinutes: 16600, frozenMinutes: 420, consumedMinutes: 2980, accountVersion: 'SZ-MP-009' },
+      rechargeState: 'error',
+      usageState: 'error'
+    }
+  ],
+
+  authContexts: {
+    unopenedTrialUser: {
+      id: 'AUTH-TENANT-TRIAL-NEW', displayName: '京汉试用用户', role: 'tenant_user',
+      currentTenantId: '2054055500566778899', accessibleTenantIds: ['2054055500566778899']
+    },
+    tenantUser: {
+      id: 'AUTH-TENANT-YX',
+      displayName: '渝兴租户用户',
+      role: 'tenant_user',
+      currentTenantId: '2054080803329462274',
+      accessibleTenantIds: ['2054080803329462274']
+    },
+    multiTenantUser: {
+      id: 'AUTH-MULTI-YF',
+      displayName: '区域租户用户',
+      role: 'tenant_user',
+      currentTenantId: '2054073731284819970',
+      accessibleTenantIds: ['2054080803329462274', '2054073731284819970']
+    },
+    emptyTenantUser: {
+      id: 'AUTH-TENANT-EMPTY', displayName: '海星租户用户', role: 'tenant_user',
+      currentTenantId: '2054082200233445566', accessibleTenantIds: ['2054082200233445566']
+    },
+    expiredTenantUser: {
+      id: 'AUTH-TENANT-EXPIRED', displayName: '海粤租户用户', role: 'tenant_user',
+      currentTenantId: '2054091001122334455', accessibleTenantIds: ['2054091001122334455']
+    },
+    errorTenantUser: {
+      id: 'AUTH-TENANT-ERROR', displayName: '三住租户用户', role: 'tenant_user',
+      currentTenantId: '2054073300344556677', accessibleTenantIds: ['2054073300344556677']
+    },
+    rechargeAdmin: {
+      id: 'AUTH-RECHARGE-01',
+      displayName: '其他管理员',
+      role: 'recharge_admin',
+      currentTenantId: '2054073731284819970',
+      accessibleTenantIds: ['2054073731284819970']
+    },
+    superAdmin: {
+      id: 'AUTH-SUPER-01',
+      displayName: '超级管理员',
+      role: 'super_admin',
+      currentTenantId: null,
+      accessibleTenantIds: ['*']
+    }
+  },
+  activeAuthKey: 'superAdmin',
+
+  rechargeRecords: [
+    {
+      internalNo: 'RC202609010001', tenantId: '2054082200233445566', tenantName: '海南儋州海星店',
+      productType: 'standard_annual', productName: '标准版年包', quantity: 1, price: 5000,
+      actualDurationDays: 365, actualCreditMinutes: 10000,
+      beforeValue: 0, afterValue: 10000, valueUnit: '分钟', operatorName: '超级管理员',
+      operatedAt: '2026-09-01 09:00:00', reason: '使用默认值', status: 'effective'
+    },
+    {
+      internalNo: 'RC202608260002', tenantId: '2054080803329462274', tenantName: '重庆东风南方渝兴',
+      productType: 'call_credit_pack', productName: '话费充值包', quantity: 2, price: 2000,
+      actualDurationDays: 289, actualCreditMinutes: 7000,
+      beforeValue: 21500, afterValue: 28500, valueUnit: '分钟', operatorName: '超级管理员',
+      operatedAt: '2026-08-26 14:32:18', reason: '使用默认值', status: 'effective'
+    },
+    {
+      internalNo: 'RC202608010003', tenantId: '2054073731284819970', tenantName: '重庆东风南方渝发',
+      productType: 'trial_package', productName: '试用套餐', quantity: 1, price: 0, defaultPrice: 0,
+      actualDurationDays: 120, actualCreditMinutes: 8000,
+      beforeValue: 0, afterValue: 8000, valueUnit: '分钟', operatorName: '超级管理员',
+      operatedAt: '2026-08-01 09:00:00', reason: '试运营周期按合同调整为 120 天、8,000 分钟', status: 'effective'
+    }
+  ],
+
+  adjustmentRecords: [
+    {
+      adjustmentNo: 'ADJ202608280001', tenantId: '2054080803329462274', tenantName: '重庆东风南方渝兴',
+      direction: 'increase', target: 'available_minutes', value: 500, beforeValue: 28000, afterValue: 28500,
+      valueUnit: '分钟', reason: '活动补偿分钟', operatorName: '超级管理员', operatedAt: '2026-08-28 11:05:20',
+      accountVersion: 'YX-MP-018', status: 'effective'
+    },
+    {
+      adjustmentNo: 'ADJ202608150002', tenantId: '2054073731284819970', tenantName: '重庆东风南方渝发',
+      direction: 'decrease', target: 'duration_days', value: 10, beforeValue: 130, afterValue: 120,
+      valueUnit: '天', reason: '合同服务周期更正', operatorName: '超级管理员', operatedAt: '2026-08-15 16:18:03',
+      accountVersion: 'YF-MP-007', status: 'effective'
+    }
+  ],
+
+  dailyUsage: {
+    '2054080803329462274': [
+      { date: '2026-09-03', dailyConsumedMinutes: 326 },
+      { date: '2026-09-02', dailyConsumedMinutes: 248 },
+      { date: '2026-09-01', dailyConsumedMinutes: 195 }
+    ],
+    '2054073731284819970': [
+      { date: '2026-09-03', dailyConsumedMinutes: 176 },
+      { date: '2026-09-02', dailyConsumedMinutes: 132 }
+    ],
+    '2054082200233445566': []
+  },
+
+  taskUsage: {
+    '2054080803329462274': {
+      '2026-09-03': [
+        { taskId: 'TASK-YX-0903-A', taskName: '渝兴店新线索首访', modelType: '大模型', connectedCalls: 142, unconnectedCalls: 86, consumedMinutes: 180 },
+        { taskId: 'TASK-YX-0903-B', taskName: '渝兴店售后满意度回访', modelType: '小模型', connectedCalls: 78, unconnectedCalls: 35, consumedMinutes: 96 },
+        { taskId: 'TASK-YX-0903-C', taskName: '渝兴店临保邀约', modelType: '小模型', connectedCalls: 42, unconnectedCalls: 19, consumedMinutes: 50 }
+      ],
+      '2026-09-02': [
+        { taskId: 'TASK-YX-0902-A', taskName: '渝兴店冷线索激活', modelType: '大模型', connectedCalls: 136, unconnectedCalls: 72, consumedMinutes: 168 },
+        { taskId: 'TASK-YX-0902-B', taskName: '渝兴店保客关怀', modelType: '小模型', connectedCalls: 65, unconnectedCalls: 31, consumedMinutes: 80 }
+      ],
+      '2026-09-01': [
+        { taskId: 'TASK-YX-0901-A', taskName: '渝兴店新线索首访', modelType: '大模型', connectedCalls: 96, unconnectedCalls: 48, consumedMinutes: 120 },
+        { taskId: 'TASK-YX-0901-B', taskName: '渝兴店流失招揽', modelType: '小模型', connectedCalls: 58, unconnectedCalls: 27, consumedMinutes: 75 }
+      ]
+    },
+    '2054073731284819970': {
+      '2026-09-03': [
+        { taskId: 'TASK-YF-0903-A', taskName: '渝发店售前邀约', modelType: '大模型', connectedCalls: 91, unconnectedCalls: 40, consumedMinutes: 112 },
+        { taskId: 'TASK-YF-0903-B', taskName: '渝发店售后回访', modelType: '小模型', connectedCalls: 51, unconnectedCalls: 25, consumedMinutes: 64 }
+      ],
+      '2026-09-02': [
+        { taskId: 'TASK-YF-0902-A', taskName: '渝发店冷线索激活', modelType: '大模型', connectedCalls: 106, unconnectedCalls: 58, consumedMinutes: 132 }
+      ]
+    }
+  },
+
+  taskUsageStates: {
+    '2054080803329462274': {
+      '2026-09-03': 'loaded',
+      '2026-09-02': 'loaded',
+      '2026-09-01': 'error'
+    },
+    '2054073731284819970': {
+      '2026-09-03': 'loaded',
+      '2026-09-02': 'loaded'
+    }
+  },
+
+  freezeLedger: [
+    { taskId: 'TASK-YX-LIVE-01', tenantId: '2054080803329462274', sceneName: '渝兴店实时外呼', estimatedMinutes: 1200, actualConsumedMinutes: 0, releasedMinutes: 0, status: 'frozen', taskStatus: 'running' },
+    { taskId: 'TASK-YX-0903-A', tenantId: '2054080803329462274', sceneName: '渝兴店新线索首访', estimatedMinutes: 260, actualConsumedMinutes: 180, releasedMinutes: 80, status: 'settled', taskStatus: 'completed' },
+    { taskId: 'TASK-YF-LIVE-01', tenantId: '2054073731284819970', sceneName: '渝发店实时外呼', estimatedMinutes: 300, actualConsumedMinutes: 0, releasedMinutes: 0, status: 'frozen', taskStatus: 'running' },
+    { taskId: 'TASK-YF-CANCEL-01', tenantId: '2054073731284819970', sceneName: '渝发店已终止任务', estimatedMinutes: 300, actualConsumedMinutes: 0, releasedMinutes: 300, status: 'released', taskStatus: 'terminated' }
+  ],
+
+  freezeExamples: {
+    insufficient: { tenantId: '2054073731284819970', taskId: 'DEMO-INSUFFICIENT', estimatedMinutes: 8001 },
+    connectedUnderMinute: { connected: true, durationSeconds: 28, expectedBilledMinutes: 1 },
+    connectedOverMinute: { connected: true, durationSeconds: 86, expectedBilledMinutes: 2 },
+    unconnected: { connected: false, durationSeconds: 130, expectedBilledMinutes: 0 }
+  },
+
+  demoStates: {
+    loadedTenantId: '2054080803329462274',
+    expiredTenantId: '2054091001122334455',
+    emptyTenantId: '2054082200233445566',
+    errorTenantId: '2054073300344556677',
+    conflictAccountVersion: 'YX-MP-017',
+    latestAccountVersion: 'YX-MP-018',
+    failNextRecharge: false
+  }
+};
+
 /* ===== 外呼拦截（黑名单）Mock ===== */
 var MockBlockGroups = [
   { id: 'harass', name: '骚扰电话', desc: '客户明确投诉或拒绝后续外呼', expire: '永久', count: 0, platformBindings: [binding('电声', 'NISSAN_HARASS', 'DSG100238', '骚扰电话', '已同步', 3, '2026-07-17 10:32', '')] },

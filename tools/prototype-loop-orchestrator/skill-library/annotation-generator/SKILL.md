@@ -101,7 +101,7 @@ description: PM 原型 loop 的手动标注提示词准备技能。Use after glo
 
 1. `一. 版本说明`：表头固定为“版本号 / 更新时间 / 更新内容”。
 2. `二. 项目范围`：表头固定为“系统名称 / 涉及板块 / 功能范围 / 对接系统范围”，每个本轮板块至少一行。
-3. `三. 逻辑说明`：表头固定为“流程名称 / 跳转地址”，只引用 `flowcharts/processon-links.txt` 中真实存在的 ProcessOn 链接；没有链接时明确写“本期未提供 ProcessOn 流程链接”，不得编造 URL。
+3. `三. 逻辑说明`：表头固定为“流程名称 / 跳转地址”，使用项目内相对路径链接 `../flowcharts/business-process.html`、`../flowcharts/sequence-interaction.html` 和 `../related-systems/index.html`；不得引用 ProcessOn 或其它外部流程图地址。关联系统内容为空时仍保留该本地分页入口。
 4. `四. 功能说明`：按页面或完整业务功能拆分编号小节。每个小节固定写“1）功能名称、2）交互说明、3）数据来源、4）逻辑说明、5）功能明细”，功能明细表头固定为“功能名称 / 功能说明 / 数据来源 / 取值逻辑 / 数据格式 / 默认值 / 异常处理”。
 5. `五. 其他说明`：记录状态枚举、权限、跨页对账、演示限制、未接真实接口和待确认事项；无内容时也要明确写“本期无其他说明”，不能留占位符。
 
@@ -134,7 +134,7 @@ description: PM 原型 loop 的手动标注提示词准备技能。Use after glo
 - 如果 PM 手动生成并要求回写 `annotations/annotations.js`，每个 `target` 都必须逐字匹配锚点清单中的 `selector`。
 - `memory/annotation-coverage.md` 只记录本轮提示词覆盖情况；不得把底座旧标注或历史 Annotation ID 记为本轮覆盖。
 - 不把 `tools/prototype-loop-orchestrator/` 纳入标注范围。
-- 不把 `docs/` 或 `flowcharts/` 纳入页面标注范围。
+- 不把 `docs/`、`flowcharts/` 或 `related-systems/` 纳入页面标注范围。
 
 ## 禁止事项
 

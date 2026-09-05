@@ -90,7 +90,7 @@
     {
       "id": "S6",
       "name": "需求实现拆分",
-      "purpose": "按真实项目结构把确认需求拆成可执行、可验证、可标注追溯的步骤。",
+      "purpose": "按真实项目结构把确认需求拆成可执行、可验证、可标注追溯的步骤，并为业务流程图、时序交互图及可选关联系统页明确生成任务。",
       "primary_worker": "project-decomposer",
       "outputs": [
         "memory/task-plan.md",
@@ -106,9 +106,12 @@
     {
       "id": "S7",
       "name": "实现与单步验证循环",
-      "purpose": "由 prototype-builder 按执行步骤实现业务页面、样式、mock 和交互；每步完成后调用 prototype-verifier 做单步验证，并记录变更、验证和熔断状态。",
+      "purpose": "由 prototype-builder 按执行步骤实现业务页面、样式、mock、交互、业务流程图、时序交互图和可选关联系统展示；每步完成后调用 prototype-verifier 做单步验证，并记录变更、验证和熔断状态。",
       "primary_worker": "prototype-builder",
       "outputs": [
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
         "memory/change-log.md",
         "memory/verification-log.md",
         "memory/circuit-state.json"

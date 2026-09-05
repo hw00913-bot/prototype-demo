@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "analysis_engine": {
+    "name": "requirement-analysis-loop",
+    "version": "legacy"
+  },
+  "project": {
+    "name": "智能外呼中台充值功能迭代",
+    "version": "0.1.0"
+  },
+  "frozen_at": "2026-09-04T18:31:44+08:00",
+  "verification_status": "pass",
+  "package_file": "deliverables/智能外呼中台充值功能迭代-prototype-input-v0.1.0-20260904-183144.zip",
+  "files": [
+    {
+      "path": "inputs/attachments/recharge-pricing-rules-20260904.png",
+      "bytes": 325185,
+      "sha256": "65da92d29ae6ed059dab3957879f4357119d75f00c3aae1230bfb18f9879f97e"
+    },
+    {
+      "path": "inputs/current-feature-baseline.md",
+      "bytes": 1593,
+      "sha256": "78c33ec83501a5f1364d0392dd0a1a3f90ed88cfd6e7f21eed1036bf31cad5f4"
+    },
+    {
+      "path": "inputs/glossary.md",
+      "bytes": 3606,
+      "sha256": "89801f8b75bc97cc47e52416b8f31c77b5aef97c92d04370b1d3bb1b3130795f"
+    },
+    {
+      "path": "inputs/user-stories.md",
+      "bytes": 9262,
+      "sha256": "1f10d286ab3070d62e646ee36574a08b23c5dd10e948b351947d231a2e26573b"
+    },
+    {
+      "path": "interfaces/interface-index.json",
+      "bytes": 1013,
+      "sha256": "e50a7aa21d2c1c08a450c199b261516713352a8deb0964ce2327f5211516f9f0"
+    },
+    {
+      "path": "memory/business-rules.json",
+      "bytes": 6461,
+      "sha256": "22c8d30b9b4494fe1fde8e59fc3014cbfe6fd7169a0b7322da60ceb17113073c"
+    },
+    {
+      "path": "memory/normalized-user-stories.json",
+      "bytes": 14242,
+      "sha256": "1e0984de67566efd7c71112770caa4a0098e25dd63ecbe22bc53ba57f64e2d98"
+    },
+    {
+      "path": "memory/project-facts.json",
+      "bytes": 6419,
+      "sha256": "a5621762b7fcc3e30b1b307c5bb0b7dbf35190b4523e6862fdc168df3b83b8ab"
+    },
+    {
+      "path": "outputs/business-scenario-atlas.html",
+      "bytes": 134601,
+      "sha256": "a32458abff277a6a089aeef4c64c00fdfd0ff906971c5e9e247c454a264332d3"
+    },
+    {
+      "path": "outputs/business-scenario-list.md",
+      "bytes": 1503,
+      "sha256": "c242f0a31d93136a5dffe5b90878082c9422ed275fa1af6fe551ff8fa40f080d"
+    },
+    {
+      "path": "outputs/interaction-sequence-atlas.html",
+      "bytes": 49349,
+      "sha256": "ae401859cfd634e21369807ea343712107c034dcaaf05ae6f6ab636915944575"
+    },
+    {
+      "path": "outputs/menu-and-page-planning-reference.md",
+      "bytes": 8885,
+      "sha256": "f206a47c3a9df9c880cbf1b6b94949e62b6ac8a3e9ffb1f791fffd738c66106e"
+    },
+    {
+      "path": "outputs/product-structure-and-business-process-baseline.md",
+      "bytes": 10465,
+      "sha256": "9a6415478309569ae1f3ba1360177f311e3990097ceb9847ba92288ed10f159e"
+    },
+    {
+      "path": "outputs/system-sequence-interface-verification-matrix.md",
+      "bytes": 649,
+      "sha256": "968aa90bf97f34b23bd5049d35ae4c9634aa2660b424eb9becb559affff37a6a"
+    },
+    {
+      "path": "planning/page-index.json",
+      "bytes": 13072,
+      "sha256": "f0ff86c6b317db34b80620dd3988c4c552bce856b3d13d3c9168749f48fc9775"
+    },
+    {
+      "path": "runtime/open-items.json",
+      "bytes": 8650,
+      "sha256": "6f51cf2be0fed1aefdd467d2bfb117454c13531552c82580a276167aef2a6b8f"
+    },
+    {
+      "path": "runtime/traceability.json",
+      "bytes": 10733,
+      "sha256": "f8c372761bf94bb393b3101f99de3c926bc232d2463f4d825b18901564f05be9"
+    },
+    {
+      "path": "runtime/verification-report.json",
+      "bytes": 603,
+      "sha256": "cfb9a7dddf4cf32f21087d6844aceea45233e3fc592d29fa453b60ee43b00663"
+    },
+    {
+      "path": "scenarios/SC-001.json",
+      "bytes": 3221,
+      "sha256": "d770c3a2e2d64f8e21f140a034eb2792f4aa4dcace9783fba9764c0d9b419fbe"
+    },
+    {
+      "path": "scenarios/SC-002.json",
+      "bytes": 6308,
+      "sha256": "7723861bafc579fe23db7b0252913fa200b4783e3e74136a22b99026db6fc77e"
+    },
+    {
+      "path": "scenarios/SC-003.json",
+      "bytes": 6298,
+      "sha256": "33b54af028f37243f5f84d02e5c4a485171721107c3cecffc4d97326f91c895e"
+    },
+    {
+      "path": "scenarios/SC-004.json",
+      "bytes": 5436,
+      "sha256": "d72d67ad7658bf5b2d8ed6316f086a41a4bf81765814caba845cee469a3178f7"
+    },
+    {
+      "path": "scenarios/SC-005.json",
+      "bytes": 5103,
+      "sha256": "1c0c9a20362918670776274f8c00fdcf7e63a20df46fd4de36b6a322d14ddc3a"
+    },
+    {
+      "path": "scenarios/SC-006.json",
+      "bytes": 1778,
+      "sha256": "373bab294287a0dd47db1a2665a21beac546e1ce52a0256d7e2e8b8200eb0347"
+    },
+    {
+      "path": "scenarios/SC-007.json",
+      "bytes": 1736,
+      "sha256": "a2e1b55c643d05470dc78be8403bdb3e65d2f249663072f1383d19cad1119e8a"
+    },
+    {
+      "path": "scenarios/SC-008.json",
+      "bytes": 6841,
+      "sha256": "43891add5c806806a16194a4227992dba25c4cf9a5b6fad011b3f95917fb9b6a"
+    },
+    {
+      "path": "scenarios/SC-009.json",
+      "bytes": 6375,
+      "sha256": "4564178c915628e23468f6fb59176f1ba6e5610486b1eb7840ce83c28bb764f6"
+    },
+    {
+      "path": "scenarios/scenario-index.json",
+      "bytes": 3115,
+      "sha256": "a7776a01a30e50df8a644f074f8ba5ece6f8727599110b8fea354490104d22a2"
+    },
+    {
+      "path": "sequences/SEQ-001.json",
+      "bytes": 2490,
+      "sha256": "51660371a1186a9c00b61f100065fe1f4db05dbdb859e068ba815c4267985cb9"
+    },
+    {
+      "path": "sequences/SEQ-002.json",
+      "bytes": 3220,
+      "sha256": "1746544a70fd29b80ec823bf7470d390f4a0916b1d9efade29eb6b3cc3aef6a3"
+    },
+    {
+      "path": "sequences/SEQ-003.json",
+      "bytes": 3170,
+      "sha256": "056b335449eb7bfa78819e9bff88305950b1de7754790a8ea58705d5e1918fe9"
+    },
+    {
+      "path": "sequences/SEQ-004.json",
+      "bytes": 2680,
+      "sha256": "cec12221fb19c62f341e37515f891a9340abcf6d0adcd0259fed3a27138bd22d"
+    },
+    {
+      "path": "sequences/SEQ-005.json",
+      "bytes": 2428,
+      "sha256": "377e9048913054b1ac0c75c281481a41df5c33459af7404286e2e874d529c918"
+    },
+    {
+      "path": "sequences/SEQ-008.json",
+      "bytes": 3279,
+      "sha256": "b41ffeb00c7409a18579fe77e48b2b38d1920636e01da19d5d67de63b43d3a13"
+    },
+    {
+      "path": "sequences/SEQ-009.json",
+      "bytes": 3314,
+      "sha256": "e85058fad91debb5a267c17b9e82114b1384a5d83fe865bb77cc570bcb22521a"
+    },
+    {
+      "path": "sequences/sequence-index.json",
+      "bytes": 1373,
+      "sha256": "71d3c9b68930b5ffb3fb6e9935edc2067d4334842fc93ddbda30e2d891be7516"
+    }
+  ]
+}

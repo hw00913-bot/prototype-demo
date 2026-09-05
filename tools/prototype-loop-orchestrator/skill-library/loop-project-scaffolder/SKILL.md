@@ -22,7 +22,7 @@ description: 创建、迁移或确认静态原型项目结构。Use from the loo
 当技能位于 `tools/prototype-loop-orchestrator/`，或当前目录已有 `config/workflow.json` 时，S4 只做结构确认：
 
 1. 不创建外部项目，不复制底座，不迁移业务目录。
-2. 确认 `.clauderules`、`index.html`、`CLAUDE.md`、`assets/`、`js/`、`mock/`、`docs/`、`flowcharts/`、`memory/`、`config/`、`annotations/` 和 `tools/` 存在。
+2. 确认 `.clauderules`、`index.html`、`CLAUDE.md`、`assets/`、`js/`、`mock/`、`docs/`、`flowcharts/`、`related-systems/`、`memory/`、`config/`、`annotations/` 和 `tools/` 存在。
 3. 确认 S1-S3 产物存在，包括启动规划、项目规则、项目记忆、业务规则、来源记录、字段映射和开放问题。
 4. 运行 `python3 tools/loop_run.py check . --preflight-stage s4`，把结果交回总控。
 
@@ -67,12 +67,12 @@ python3 skill-library/loop-project-scaffolder/scripts/create_project.py "/absolu
 python3 skill-library/loop-project-scaffolder/scripts/create_project.py "/absolute/project" --sync-runtime
 ```
 
-它刷新确定性脚本、项目内阶段技能和三视图壳，保留业务文件、当前 memory、标注数据、说明正文和 ProcessOn 链接。
+它刷新确定性脚本、项目内阶段技能和五视图导航壳，保留业务文件、当前 memory、标注数据、说明正文以及已经生成的本地 HTML 业务流程图、时序交互图和关联系统内容。
 
 其它定点命令：
 
 - `--sync-tools`：刷新工具脚本和项目内可读运行包。
-- `--sync-flowcharts`：刷新说明文档/流程图交付壳，保留 ProcessOn 链接。
+- `--sync-delivery-pages`：刷新五视图导航和共用样式；内容页已存在时只保留、不覆盖。
 - `--help`：查看完整参数，不在本说明重复脚本参数表。
 
 旧项目越过 S2 后缺少新审批记录时，必须由 PM 重新核对当前启动规划和 `CLAUDE.md`，再使用 `tools/loop_run.py approve-plan ... --reapprove-existing` 显式确认；不得从历史日志自动推定。
@@ -85,14 +85,15 @@ python3 skill-library/loop-project-scaffolder/scripts/create_project.py "/absolu
 - 旧 `CLAUDE.md`、`.clauderules`、workflow/project 配置。
 - 旧 `memory/`、阶段日志、验证日志、终态快照和熔断状态。
 - 旧标注数据、浏览器标注状态、源码 `data-anno*` 锚点。
-- 旧说明正文、决策记录和 ProcessOn 链接。
+- 旧说明正文、决策记录、旧流程图内容和旧关联系统内容。
 
 S1 启动规划必须记录底座路径、保留项、重置项和禁止修改项。
 
 ## 结构和安全保证
 
 - 新项目始终以 `stage: "s0"` 启动。
-- 原型、说明文档和流程图集通过 `js/delivery-nav.js` 在同一宿主页面切换。
+- 原型、说明文档、业务流程图、时序交互图和关联系统展示通过 `js/delivery-nav.js` 在同一宿主页面切换。
+- 新建或新迭代会清除旧 `flowcharts/index.html`、`flowcharts/processon-links.txt`，流程图只接受本地 HTML 内容。
 - Mock 数据与页面逻辑分离；默认不引入前端框架、npm 或构建工具。
 - `annotations/annotations.js` 使用空对象初始化，不生成历史或示例标注。
 - 目标非空时先分析迁移；未经预览不应用破坏性迁移。

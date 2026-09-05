@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-009",
+  "scenario_id": "SC-009",
+  "name": "手工调增/调减使用时长与分钟时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "充值管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "adjust_ui",
+      "name": "手工调整界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "adjust_service",
+      "name": "账户调整服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "adjust_ui",
+      "message": "打开租户手工调整",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "adjust_ui",
+      "to": "adjust_service",
+      "message": "请求当前使用时长、统一分钟池可用分钟与冻结状态",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "adjust_service",
+      "to": "ledger",
+      "message": "查询租户账户当前值与版本",
+      "type": "request",
+      "api_id": null,
+      "condition": "调整权限校验通过"
+    },
+    {
+      "step": 4,
+      "from": "ledger",
+      "to": "adjust_service",
+      "message": "返回当前值、冻结边界和账户版本",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "adjust_service",
+      "to": "adjust_ui",
+      "message": "返回可选调增/调减、使用时长/统一分钟池可用分钟及当前值",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "admin",
+      "to": "adjust_ui",
+      "message": "选择方向与对象，输入调整值和原因后确认",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "adjust_ui",
+      "to": "adjust_service",
+      "message": "提交调整请求与账户版本，不包含外部充值单号",
+      "type": "request",
+      "api_id": null,
+      "condition": "必填字段完整"
+    },
+    {
+      "step": 8,
+      "from": "adjust_service",
+      "to": "ledger",
+      "message": "按账户版本原子更新使用时长或统一分钟池并写入调整流水",
+      "type": "request",
+      "api_id": null,
+      "condition": "不超过调减边界且账户版本未变"
+    },
+    {
+      "step": 9,
+      "from": "ledger",
+      "to": "adjust_service",
+      "message": "返回调整后值与内部调整单号",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 10,
+      "from": "adjust_service",
+      "to": "adjust_ui",
+      "message": "返回调整成功并刷新账户与流水列表",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "调减不得直接修改已有任务冻结记录，也不得将可调整值减到系统下限以下。",
+    "账户版本冲突时返回冲突错误，刷新当前值后要求管理员重新确认。",
+    "分钟调整直接作用于大模型与小模型共用的统一分钟池；使用时长调整以天为单位记录。"
+  ]
+}

@@ -1,0 +1,598 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-04T18:30:37+08:00",
+  "generated_from": [
+    "scenarios/scenario-index.json",
+    "sequences/sequence-index.json",
+    "memory/business-rules.json",
+    "planning/page-index.json",
+    "runtime/open-items.json"
+  ],
+  "links": [
+    {
+      "from": "PAGE-001",
+      "to": "ACTION-001",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-001",
+      "to": "ACTION-002",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-002",
+      "to": "ACTION-003",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-002",
+      "to": "ACTION-004",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-002",
+      "to": "ACTION-005",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-002",
+      "to": "ACTION-006",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-003",
+      "to": "ACTION-007",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-003",
+      "to": "ACTION-008",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-004",
+      "to": "ACTION-009",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-004",
+      "to": "ACTION-010",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-005",
+      "to": "ACTION-011",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-005",
+      "to": "ACTION-012",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-005",
+      "to": "ACTION-013",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-006",
+      "to": "ACTION-014",
+      "type": "contains"
+    },
+    {
+      "from": "PAGE-006",
+      "to": "ACTION-015",
+      "type": "contains"
+    },
+    {
+      "from": "SC-001",
+      "to": "ACTION-001",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-001",
+      "to": "BR-001",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-001",
+      "to": "FLOW-001",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-001",
+      "to": "PAGE-001",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-001",
+      "to": "SEQ-001",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "ACTION-002",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "ACTION-003",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "ACTION-007",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "ACTION-008",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-002",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-003",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-004",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-008",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-011",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "FLOW-001",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-002",
+      "to": "PAGE-001",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "PAGE-002",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "PAGE-003",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-002",
+      "to": "SEQ-002",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "ACTION-002",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "ACTION-004",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "ACTION-007",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "ACTION-008",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "BR-005",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "BR-008",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "BR-011",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "FLOW-001",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-003",
+      "to": "PAGE-001",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "PAGE-002",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "PAGE-003",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-003",
+      "to": "SEQ-003",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-004",
+      "to": "BR-006",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-004",
+      "to": "BR-007",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-004",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-004",
+      "to": "FLOW-002",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-004",
+      "to": "SEQ-004",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "ACTION-002",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "ACTION-006",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "BR-001",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "BR-007",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "BR-008",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "BR-012",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "FLOW-001",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-005",
+      "to": "FLOW-003",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-005",
+      "to": "PAGE-001",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "PAGE-002",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-005",
+      "to": "SEQ-005",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-006",
+      "to": "BR-008",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-007",
+      "to": "BR-001",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "ACTION-011",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "ACTION-012",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "ACTION-013",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "ACTION-014",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "ACTION-015",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "BR-009",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "BR-010",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "FLOW-002",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-008",
+      "to": "PAGE-005",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "PAGE-006",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-008",
+      "to": "SEQ-008",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "ACTION-002",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "ACTION-005",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "ACTION-009",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "ACTION-010",
+      "type": "performed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "BR-012",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "BR-013",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "BR-014",
+      "type": "governed_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "FLOW-003",
+      "type": "part_of_flow"
+    },
+    {
+      "from": "SC-009",
+      "to": "PAGE-001",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "PAGE-002",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "PAGE-004",
+      "type": "surfaced_by"
+    },
+    {
+      "from": "SC-009",
+      "to": "SEQ-009",
+      "type": "sequenced_by"
+    },
+    {
+      "from": "US-001",
+      "to": "SC-001",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-001",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-001",
+      "to": "SC-007",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-002",
+      "to": "SC-002",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-002",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-003",
+      "to": "SC-003",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-003",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-002",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-003",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-004",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-008",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-004",
+      "to": "SC-009",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-005",
+      "to": "SC-004",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-005",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-005",
+      "to": "SC-009",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-006",
+      "to": "SC-002",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-006",
+      "to": "SC-003",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-006",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-006",
+      "to": "SC-006",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-007",
+      "to": "SC-008",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-008",
+      "to": "SC-002",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-008",
+      "to": "SC-003",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-008",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-009",
+      "to": "SC-005",
+      "type": "decomposes_to"
+    },
+    {
+      "from": "US-009",
+      "to": "SC-009",
+      "type": "decomposes_to"
+    }
+  ]
+}

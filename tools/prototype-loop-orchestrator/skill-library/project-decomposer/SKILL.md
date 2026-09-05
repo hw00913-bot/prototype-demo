@@ -86,6 +86,9 @@ description: 面向 PM 原型循环的需求实现拆分技能。Use after the p
 - `js/pages/`
 - `mock/data.js`
 - `config/nav.json`
+- `flowcharts/business-process.html`
+- `flowcharts/sequence-interaction.html`
+- `related-systems/index.html`
 
 如果需要创建新文件，必须说明为什么已有结构不足。
 
@@ -110,6 +113,13 @@ description: 面向 PM 原型循环的需求实现拆分技能。Use after the p
 7. 跨页面流程。
 8. 空状态、加载状态、错误状态。
 9. 单步验证补强。
+
+无论业务页面数量多少，S6 都必须拆出两个独立交付步骤：
+
+- 根据项目记忆中的角色、核心流程、判断条件、异常和回流生成 `flowcharts/business-process.html`。
+- 根据核心用户路径中的参与者、请求、响应和状态变化生成 `flowcharts/sequence-interaction.html`。
+
+如果 `memory/project.md`、`memory/business-rules.md` 或 `memory/source-materials.md` 明确存在外部平台、上下游或依赖系统，再增加 `related-systems/index.html` 内容生成步骤；没有关联系统时保留脚手架空态，不把它伪造为业务步骤。
 
 ### 4. 每一步必须可验证且写明验证技能
 
@@ -211,6 +221,7 @@ description: 面向 PM 原型循环的需求实现拆分技能。Use after the p
 - 每个实现步骤都排除了 `tools/prototype-loop-orchestrator/` 等总控工具目录。
 - 每个实现步骤都能独立验证。
 - 每个实现步骤都声明验证技能。
+- 业务流程图与时序交互图各有独立实现步骤和验收项；关联系统内容按项目事实决定是否生成。
 - 涉及字段、枚举、状态、筛选、表单或详情的步骤都引用 `FLD-*`。
 - 步骤之间依赖清晰。
 - 没有把全局验证、标注提示词准备和最终交付混入普通实现步骤。

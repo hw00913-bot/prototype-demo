@@ -9,9 +9,9 @@ import json
 import re
 import subprocess
 from datetime import datetime
+from html.parser import HTMLParser
 import sys
 from pathlib import Path
-from urllib.parse import urlsplit
 
 
 def trusted_control_config_root() -> Path | None:
@@ -57,14 +57,17 @@ DEFAULT_REQUIRED_PATHS = [
     "CLAUDE.md",
     "assets/css/global.css",
     "assets/css/app.css",
+    "assets/css/delivery-diagrams.css",
     "js/app.js",
     "js/common.js",
+    "js/delivery-nav.js",
     "js/nav.js",
     "mock/data.js",
     "docs/decisions.md",
     "docs/interaction.html",
-    "flowcharts/index.html",
-    "flowcharts/processon-links.txt",
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
     "memory/project.md",
     "memory/project-startup-plan.md",
     "memory/business-rules.md",
@@ -99,9 +102,9 @@ DEFAULT_CONTENT_REQUIRED_BY_STAGE = {
         "assets/css/global.css",
         "assets/css/app.css",
         "js/app.js",
-    "js/common.js",
-    "js/delivery-nav.js",
-    "js/nav.js",
+        "js/common.js",
+        "js/delivery-nav.js",
+        "js/nav.js",
         "mock/data.js",
         "config/nav.json",
         "config/workflow.json",
@@ -134,6 +137,9 @@ DEFAULT_CONTENT_REQUIRED_BY_STAGE = {
     ],
     "final": [
         "docs/interaction.html",
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
         "memory/project.md",
         "memory/project-startup-plan.md",
         "memory/source-materials.md",
@@ -247,6 +253,9 @@ DEFAULT_MIN_CONTENT_CHARS = {
     "memory/annotation-coverage.md": 120,
     "memory/open-items.md": 80,
     "docs/interaction.html": 160,
+    "flowcharts/business-process.html": 240,
+    "flowcharts/sequence-interaction.html": 240,
+    "related-systems/index.html": 160,
 }
 
 DEFAULT_REQUIRED_STAGE_LOGS_BY_STAGE = {
@@ -1345,7 +1354,9 @@ def source_annotation_anchor_contracts(target: Path) -> dict[str, list[dict[str,
         for suffix in ("*.html", "*.js")
         for path in target.rglob(suffix)
         if not any(part in {".git", ".loop-history", "node_modules", "tools", "annotations"} for part in path.parts)
-        and not path.relative_to(target).as_posix().startswith(("docs/", "flowcharts/"))
+        and not path.relative_to(target).as_posix().startswith(
+            ("docs/", "flowcharts/", "related-systems/")
+        )
     ]
     for path in sorted(set(source_files)):
         text = read_text(path)
@@ -1408,7 +1419,7 @@ def source_annotation_anchors(target: Path) -> dict[str, set[str]]:
 def check_source_annotation_anchor_uniqueness(
     target: Path, stage: str, errors: list[str]
 ) -> None:
-    if stage != "final":
+    if stage not in {"s8", "s9", "final"}:
         return
     _, duplicates = source_annotation_anchor_inventory(target)
     for anchor, locations in sorted(duplicates.items()):
@@ -1640,6 +1651,9 @@ def check_interaction_document(target: Path, stage: str, errors: list[str]) -> N
         "对接系统范围",
         "流程名称",
         "跳转地址",
+        "../flowcharts/business-process.html",
+        "../flowcharts/sequence-interaction.html",
+        "../related-systems/index.html",
         "1）功能名称：",
         "2）交互说明：",
         "3）数据来源：",
@@ -1652,6 +1666,8 @@ def check_interaction_document(target: Path, stage: str, errors: list[str]) -> N
     for marker in required_markers:
         if marker not in text:
             errors.append(f"功能说明文档缺少固定结构：{marker}")
+    if "processon" in text.lower():
+        errors.append("功能说明文档不得引用已停用的 ProcessOn 流程图")
 
     structural_patterns = [
         (r'class=["\']container["\']', "container 主容器"),
@@ -1819,44 +1835,130 @@ def check_delivery_pollution(target: Path, stage: str, errors: list[str]) -> Non
             errors.append(f"静态原型交付目录不应包含依赖或测试产物：{rel}")
 
 
-def check_flowchart_links(target: Path, stage: str, errors: list[str]) -> None:
-    if stage != "final":
-        return
-    path = target / "flowcharts" / "processon-links.txt"
-    if not path.exists():
-        return
-    for line_number, raw_line in enumerate(read_text(path).splitlines(), 1):
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
+class DeliveryHtmlInspector(HTMLParser):
+    """Collect start-tag attributes for deterministic delivery-page checks."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.elements: list[tuple[str, dict[str, str | None]]] = []
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        self.elements.append(
+            (tag.lower(), {name.lower(): value for name, value in attrs})
+        )
+
+
+def inspect_delivery_html(path: Path) -> DeliveryHtmlInspector:
+    inspector = DeliveryHtmlInspector()
+    inspector.feed(read_text(path))
+    return inspector
+
+
+def attribute_values(inspector: DeliveryHtmlInspector, name: str) -> list[str]:
+    values: list[str] = []
+    for _, attrs in inspector.elements:
+        if name not in attrs:
             continue
-        parts = [part.strip() for part in line.split("|")]
-        if len(parts) == 1:
-            raw_url = parts[0]
-        elif len(parts) == 2:
-            raw_url = parts[1]
-        else:
-            raw_url = "|".join(parts[2:]).strip()
-        parsed = urlsplit(raw_url)
-        host = (parsed.hostname or "").lower()
-        if (
-            parsed.scheme not in {"http", "https"}
-            or not host
-            or (host != "processon.com" and not host.endswith(".processon.com"))
-        ):
+        value = attrs.get(name)
+        values.append("" if value is None else value.strip())
+    return values
+
+
+def check_delivery_diagrams(target: Path, stage: str, errors: list[str]) -> None:
+    """Require two real local HTML diagrams and one optional related-system page."""
+    if stage not in {"s8", "s9", "final"}:
+        return
+
+    legacy_paths = ["flowcharts/index.html", "flowcharts/processon-links.txt"]
+    for relative in legacy_paths:
+        if (target / relative).exists():
+            errors.append(f"仍存在已停用的 ProcessOn 流程图资产：{relative}")
+
+    diagram_contracts = {
+        "flowcharts/business-process.html": {
+            "type": "business-process",
+            "required": {"data-flow-lane": 1, "data-flow-node": 2, "data-flow-edge": 1},
+            "label": "业务流程图",
+        },
+        "flowcharts/sequence-interaction.html": {
+            "type": "sequence-interaction",
+            "required": {"data-sequence-participant": 2, "data-sequence-message": 1},
+            "label": "时序交互图",
+        },
+    }
+    for relative, contract in diagram_contracts.items():
+        path = target / relative
+        if not path.exists():
+            errors.append(f"缺失{contract['label']}：{relative}")
+            continue
+        text = read_text(path)
+        inspector = inspect_delivery_html(path)
+        if "processon" in text.lower() or any(tag == "iframe" for tag, _ in inspector.elements):
+            errors.append(f"{contract['label']}必须直接写入本地 HTML，不能嵌入外部流程图：{relative}")
+        roots = [
+            attrs
+            for _, attrs in inspector.elements
+            if attrs.get("data-delivery-diagram") == contract["type"]
+        ]
+        if len(roots) != 1:
             errors.append(
-                "流程图链接清单包含无效 ProcessOn 链接："
-                f"flowcharts/processon-links.txt:{line_number}"
+                f"{contract['label']}缺少唯一图类型声明：{relative} -> "
+                f'data-delivery-diagram="{contract["type"]}"'
             )
+            continue
+        if roots[0].get("data-diagram-state") != "ready":
+            errors.append(f"{contract['label']}仍为空壳，data-diagram-state 必须为 ready：{relative}")
+        for attribute, minimum in contract["required"].items():
+            values = [value for value in attribute_values(inspector, attribute) if value]
+            if len(values) < minimum:
+                errors.append(
+                    f"{contract['label']}结构不足：{relative} 至少需要 {minimum} 个 {attribute}"
+                )
+            elif len(values) != len(set(values)):
+                errors.append(f"{contract['label']}存在重复结构 ID：{relative} -> {attribute}")
+
+    related_path = target / "related-systems" / "index.html"
+    if not related_path.exists():
+        errors.append("缺失关联系统展示分页：related-systems/index.html")
+        return
+    related_text = read_text(related_path)
+    related = inspect_delivery_html(related_path)
+    if "processon" in related_text.lower() or any(tag == "iframe" for tag, _ in related.elements):
+        errors.append("关联系统展示必须直接写入本地 HTML，不能嵌入外部页面")
+    roots = [
+        attrs for _, attrs in related.elements if "data-related-systems" in attrs
+    ]
+    if len(roots) != 1:
+        errors.append("关联系统展示缺少唯一页面声明：data-related-systems")
+        return
+    state = roots[0].get("data-related-systems-state")
+    if state == "empty":
+        if not attribute_values(related, "data-related-systems-empty"):
+            errors.append("关联系统为空时必须提供明确空态：data-related-systems-empty")
+    elif state == "ready":
+        systems = [
+            value for value in attribute_values(related, "data-related-system") if value
+        ]
+        if not systems:
+            errors.append("关联系统标记为 ready 时至少需要一个 data-related-system")
+        elif len(systems) != len(set(systems)):
+            errors.append("关联系统展示存在重复 data-related-system ID")
+    else:
+        errors.append("关联系统展示状态必须为 empty 或 ready：data-related-systems-state")
 
 
 def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> None:
-    if stage != "final":
+    if stage not in {"s8", "s9", "final"}:
         return
 
     page_scripts = {
         "index.html": "js/delivery-nav.js",
         "docs/interaction.html": "../js/delivery-nav.js",
-        "flowcharts/index.html": "../js/delivery-nav.js",
+        "flowcharts/business-process.html": "../js/delivery-nav.js",
+        "flowcharts/sequence-interaction.html": "../js/delivery-nav.js",
+        "related-systems/index.html": "../js/delivery-nav.js",
     }
     for relative, script_ref in page_scripts.items():
         path = target / relative
@@ -1887,17 +1989,21 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
     required_markers = [
         "原型页面",
         "说明文档",
-        "流程图集",
+        "业务流程图",
+        "时序交互图",
+        "关联系统展示",
         "index.html",
         "docs/interaction.html",
-        "flowcharts/index.html",
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
         "delivery_embed",
         "data-delivery-frame",
         "delivery-switch",
         "data-delivery-switch",
         "postMessage",
         "history.pushState",
-        "#delivery=(prototype|docs|flowcharts)",
+        "#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)",
     ]
     for marker in required_markers:
         if marker not in nav_text:
@@ -1926,7 +2032,7 @@ def check_stage_specific(target: Path, stage: str, errors: list[str]) -> None:
     check_annotations(target, stage, errors)
     check_interaction_document(target, stage, errors)
     check_annotation_coverage(target, stage, errors)
-    check_flowchart_links(target, stage, errors)
+    check_delivery_diagrams(target, stage, errors)
     check_delivery_navigation(target, stage, errors)
     check_delivery_pollution(target, stage, errors)
 

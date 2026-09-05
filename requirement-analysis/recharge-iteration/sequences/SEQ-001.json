@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-001",
+  "scenario_id": "SC-001",
+  "name": "维护租户商用/试用标记时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "平台管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "tenant_ui",
+      "name": "租户管理界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "tenant_service",
+      "name": "租户管理服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "tenant_store",
+      "name": "租户数据库",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "tenant_ui",
+      "message": "打开租户新建或编辑界面",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "tenant_ui",
+      "to": "tenant_service",
+      "message": "读取租户详情和商用/试用标记",
+      "type": "request",
+      "api_id": null,
+      "condition": "编辑或查看现有租户"
+    },
+    {
+      "step": 3,
+      "from": "tenant_service",
+      "to": "tenant_ui",
+      "message": "返回租户详情与当前标记",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "admin",
+      "to": "tenant_ui",
+      "message": "选择商用或试用并保存",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "tenant_ui",
+      "to": "tenant_service",
+      "message": "提交租户标记变更",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "tenant_service",
+      "to": "tenant_store",
+      "message": "保存商用/试用标记，不改变计费与额度数据",
+      "type": "request",
+      "api_id": null,
+      "condition": "标记取值有效"
+    },
+    {
+      "step": 7,
+      "from": "tenant_store",
+      "to": "tenant_service",
+      "message": "返回保存结果",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "tenant_service",
+      "to": "tenant_ui",
+      "message": "返回成功并刷新标签展示",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "非法标记由租户管理服务拒绝并返回字段错误。",
+    "商用/试用只是展示属性，时序中不调用充值、冻结或消耗分支。"
+  ]
+}

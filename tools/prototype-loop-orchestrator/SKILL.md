@@ -31,7 +31,7 @@ S0 只判断是否启动或继续 loop，不产出需求结论。
 
 - 用户表达“开始计划项目 / 新建原型 / 基于底座迭代 / 继续生成原型”时，进入 S0。
 - 目标目录不存在或没有 `config/workflow.json`：先在 loop 源仓库调用 create-project 脚手架创建最小结构，但生成项目状态仍必须从 S0 开始写日志。
-- 目标目录已有 `config/workflow.json`：**在读取项目内任何工具前**，先从当前总控技能包调用 `skill-library/loop-project-scaffolder/scripts/create_project.py "目标目录" --sync-runtime`。该动作幂等刷新项目内确定性脚本、阶段技能和三视图内部切换壳，不覆盖业务文件、memory、annotations、`docs/interaction.html` 正文或已有 ProcessOn 链接；旧说明页仅在缺失时追加统一导航脚本。随后再读取 `python3 tools/loop_run.py status .` 和 `python3 tools/loop_run.py dispatch .`；不能因为缓存存在跳过 S0-S3。
+- 目标目录已有 `config/workflow.json`：**在读取项目内任何工具前**，先从当前总控技能包调用 `skill-library/loop-project-scaffolder/scripts/create_project.py "目标目录" --sync-runtime`。该动作幂等刷新项目内确定性脚本、阶段技能和五视图内部切换壳，不覆盖业务文件、memory、annotations、`docs/interaction.html` 正文或已经生成的本地 HTML 图内容；它会移除已停用的 ProcessOn 聚合页和链接清单。随后再读取 `python3 tools/loop_run.py status .` 和 `python3 tools/loop_run.py dispatch .`；不能因为缓存存在跳过 S0-S3。
 - 用户只是询问、审计、维护 loop 本身或修改技能库时，不进入业务项目 loop。
 - 已有项目处于 none 终态且需要继续一轮迭代时，先确认 final 快照无漂移，再运行 begin-iteration 并提供本轮名称。该动作归档上一轮控制状态、重置 loop-owned 记忆和标注并回到 S0，不能用强制完成 S0 伪装新一轮。
 - S0 完成后必须进入 S1 项目讨论，由 S1 澄清目的、范围、非范围、资料、迭代方式、标注策略和验收方向。

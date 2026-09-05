@@ -190,6 +190,7 @@ FINAL_SNAPSHOT_PATTERNS = [
     "memory/source-materials.md",
     "memory/field-map.md",
     "flowcharts/**/*",
+    "related-systems/**/*.html",
     "docs/**/*.html",
     "index.html",
     "pages/**/*.html",
@@ -735,17 +736,28 @@ def classify_error(error: str) -> tuple[str, str, str]:
             "资料来源未整理",
             "让 Agent 把输入资料、文档、截图、历史项目和口述内容整理为 SRC-* 来源记录。",
         )
+    if any(
+        marker in error
+        for marker in [
+            "业务流程图",
+            "时序交互图",
+            "关联系统展示",
+            "data-flow-",
+            "data-sequence-",
+            "data-related-system",
+            "已停用的 ProcessOn",
+        ]
+    ):
+        return (
+            "agent",
+            "交付图页面未完成",
+            "让 S7 prototype-builder 基于项目记忆生成本地 HTML 业务流程图和时序交互图；有关联系统时同步生成关联系统展示，否则保留明确空态。",
+        )
     if any(marker in error for marker in ["interaction.html", "交互说明"]):
         return (
             "agent",
             "交互说明未生成",
             "让 Agent 基于已验证原型、验收映射和标注内容生成 docs/interaction.html。",
-        )
-    if "流程图链接" in error:
-        return (
-            "pm",
-            "ProcessOn 流程图链接无效",
-            "修正 flowcharts/processon-links.txt 中对应行，使用有效的 ProcessOn HTTP(S) 分享或嵌入链接。",
         )
     if any(marker in error for marker in ["task-plan", "execution-steps", "acceptance-map", "执行步骤", "验收映射"]):
         return (
@@ -815,6 +827,19 @@ def suggest_backflow(error: str) -> tuple[str, str, str] | None:
         return ("S4", STAGE_DISPATCH["S4"]["owner"], "修复或迁移标准项目结构")
     if any(marker in error for marker in ["project-structure", "项目结构"]):
         return ("S5", STAGE_DISPATCH["S5"]["owner"], "重新生成结构摘要")
+    if any(
+        marker in error
+        for marker in [
+            "业务流程图",
+            "时序交互图",
+            "关联系统展示",
+            "data-flow-",
+            "data-sequence-",
+            "data-related-system",
+            "已停用的 ProcessOn",
+        ]
+    ):
+        return ("S7", STAGE_DISPATCH["S7"]["owner"], "生成或修复本地 HTML 交付图页面")
     if any(marker in error for marker in ["task-plan", "execution-steps", "acceptance-map", "执行步骤", "验收映射", "步骤 ID"]):
         return ("S6", STAGE_DISPATCH["S6"]["owner"], "修订拆分颗粒度和验收映射")
     if any(marker in error for marker in ["data-anno", "锚点", "target", "change-log"]):
@@ -825,8 +850,6 @@ def suggest_backflow(error: str) -> tuple[str, str, str] | None:
         return ("S7", STAGE_DISPATCH["S7"]["owner"], "重跑单步验证并补证据")
     if any(marker in error for marker in ["annotation-prompt", "annotation-coverage", "interaction.html", "annotations.js", "标注", "sourceRefs", "fieldRefs", "final 交付快照", "final-snapshot", "重新运行 final"]):
         return ("S9", STAGE_DISPATCH["S9"]["owner"], "重新生成标注提示词、覆盖清单或重跑收尾终检")
-    if "流程图链接" in error:
-        return ("PM", "PM", "修正 ProcessOn 链接清单后重新运行 final")
     if "熔断" in error:
         return ("PM", "PM", "暂停自动重试并选择继续、回流或终止")
     return None

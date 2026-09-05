@@ -1,213 +1,81 @@
 /**
- * js/pages/home.js — 首页用量余额
- * 合并充值方案 home 与中科金首页，展示统一工作台入口与用量概览。
+ * 首页：当前租户套餐、服务期与统一分钟池。
+ * 与充值管理、使用情况共用 MockRechargeIteration，不从旧金额账本折算。
  */
 (function () {
   'use strict';
 
-  var DEFAULT_TENANT = '重庆东风南方渝兴';
-
-  function normalizeTenantName(name) {
-    return String(name || '').replace(/东风南方|东南方|南方/g, '').trim();
+  function escapeText(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
   }
 
   function formatMinutes(value) {
-    return Number(value || 0).toLocaleString('zh-CN', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }) + ' 分钟';
+    return Number(value || 0).toLocaleString('zh-CN', { maximumFractionDigits: 0 });
   }
-
-  function formatLocalDate(date) {
-    var y = date.getFullYear();
-    var m = String(date.getMonth() + 1).padStart(2, '0');
-    var d = String(date.getDate()).padStart(2, '0');
-    return y + '-' + m + '-' + d;
-  }
-
-  function currentBizDate() { return formatLocalDate(new Date()); }
-
-  function amountToMinutes(amount, unitPrice) {
-    var price = Number(unitPrice || 0);
-    return price > 0 ? Number(amount || 0) / price : 0;
-  }
-
-  function isRechargeActivated(row) {
-    return !!(row && (row.activated === true || row.validityActivated === true));
-  }
-
-  function canAddCallBalance(row) {
-    return row.rechargeStatus === '已支付' && (row.billingType === '仅通话费' || row.billingType === '坐席费+通话费');
-  }
-
-  function isFrozenExpired(createdAt) {
-    if (!createdAt) return true;
-    var created = new Date(createdAt.replace(/-/g, '/'));
-    if (Number.isNaN(created.getTime())) return true;
-    return ((new Date() - created) / (1000 * 60 * 60)) >= 24;
-  }
-
-  function getFrozenReleaseReason(task) {
-    if (!task || task.status !== '冻结中') return '';
-    if (task.taskStatus === '已完成') return '任务已完成';
-    if (task.taskStatus === '已终止') return '任务已终止';
-    if (isFrozenExpired(task.createdAt)) return '冻结超过24小时';
-    return '';
-  }
-
-  function releaseFrozenTask(task, reason, releasedAt) {
-    if (!task || task.status !== '冻结中' || !reason) return false;
-    task.status = '已释放';
-    task.releasedAt = releasedAt || formatLocalDateTime(new Date());
-    task.releaseReason = reason;
-    return true;
-  }
-
-  function formatLocalDateTime(date) {
-    var h = String(date.getHours()).padStart(2, '0');
-    var m = String(date.getMinutes()).padStart(2, '0');
-    var s = String(date.getSeconds()).padStart(2, '0');
-    return formatLocalDate(date) + ' ' + h + ':' + m + ':' + s;
-  }
-
-  function syncFrozenTaskReleases() {
-    var releasedAt = formatLocalDateTime(new Date());
-    var tasks = window.MockTenantFrozenTasks || [];
-    return tasks.reduce(function (released, task) {
-      var reason = getFrozenReleaseReason(task);
-      return releaseFrozenTask(task, reason, releasedAt) ? released + 1 : released;
-    }, 0);
-  }
-
-  /* ---- data accessors ---- */
-
-  function getTenantRows() { return window.MockTenantRows || []; }
-  function getPriceRules() { return window.MockTenantPriceRules || []; }
-  function getHistoryRows() {
-    window.MockTenantRechargeHistory = window.MockTenantRechargeHistory || [];
-    return window.MockTenantRechargeHistory;
-  }
-  function getFrozenTasks() { return window.MockTenantFrozenTasks || []; }
-  function getBalanceAdjustments() {
-    window.MockTenantBalanceAdjustments = window.MockTenantBalanceAdjustments || [];
-    return window.MockTenantBalanceAdjustments;
-  }
-  function getCallControlStates() {
-    window.MockTenantCallControlStates = window.MockTenantCallControlStates || [];
-    return window.MockTenantCallControlStates;
-  }
-
-  /* ---- billing summary ---- */
-
-  function getHomeSummary(tenantName) {
-    syncFrozenTaskReleases();
-
-    var priceConfigs = getPriceRules().filter(function (item) {
-      return normalizeTenantName(item.tenantName) === normalizeTenantName(tenantName) &&
-        item.pricingScope === 'MODEL_DEFAULT' && !item.providerCode && item.status === '启用';
-    });
-
-    var largeConfig = priceConfigs.filter(function (item) { return item.modelType === '大模型'; });
-    var smallConfig = priceConfigs.filter(function (item) { return item.modelType === '小模型'; });
-
-    var paidRows = getHistoryRows().filter(function (item) {
-      return item.status === '已支付' && normalizeTenantName(item.tenantName) === normalizeTenantName(tenantName);
-    });
-    var activatedRows = paidRows.filter(isRechargeActivated);
-
-    var totalRechargeAmount = activatedRows.reduce(function (sum, item) {
-      return sum + (canAddCallBalance({ rechargeStatus: item.status, billingType: item.billingType })
-        ? Number(item.rechargeAmount || 0) : 0);
-    }, 0);
-
-    var adjustments = getBalanceAdjustments().filter(function (item) {
-      return item.status === '已生效' && normalizeTenantName(item.tenantName) === normalizeTenantName(tenantName);
-    });
-    var adjustmentOutAmount = adjustments
-      .filter(function (item) { return item.direction === 'OUT'; })
-      .reduce(function (sum, item) { return sum + Number(item.amount || 0); }, 0);
-
-    var tenant = getTenantRows().find(function (item) {
-      return normalizeTenantName(item.name) === normalizeTenantName(tenantName);
-    });
-    var consumedAmount = Number(tenant && tenant.consumedAmount || 0);
-    var balanceAmount = totalRechargeAmount - adjustmentOutAmount - consumedAmount;
-
-    var frozenTasks = getFrozenTasks().filter(function (item) {
-      return item.status === '冻结中' && normalizeTenantName(item.tenantName) === normalizeTenantName(tenantName);
-    });
-    var totalFrozenAmount = frozenTasks.reduce(function (sum, item) {
-      return sum + Number(item.frozenMinutes || 0) * Number(item.unitPriceSnapshot || 0);
-    }, 0);
-
-    var availableAmount = Math.max(balanceAmount - totalFrozenAmount, 0);
-
-    var largeUnitPrice = largeConfig.length > 0 ? Number(largeConfig[0].unitPrice || 0) : 0;
-    var smallUnitPrice = smallConfig.length > 0 ? Number(smallConfig[0].unitPrice || 0) : 0;
-    var largeAvailableMinutes = amountToMinutes(availableAmount, largeUnitPrice);
-    var smallAvailableMinutes = amountToMinutes(availableAmount, smallUnitPrice);
-
-    var validityRow = activatedRows
-      .filter(function (item) { return item.validFrom && item.validFrom !== '-' && item.validTo && item.validTo !== '-'; })
-      .sort(function (a, b) { return String(b.validTo).localeCompare(String(a.validTo)); })[0];
-
-    var hasAvailableMinutes = availableAmount > 0 && (largeConfig.length > 0 || smallConfig.length > 0);
-    var baseCanCall = !!validityRow && validityRow.validFrom <= currentBizDate() &&
-      validityRow.validTo >= currentBizDate() && hasAvailableMinutes;
-    var controlState = getCallControlStates().find(function (item) {
-      return normalizeTenantName(item.tenantName) === normalizeTenantName(tenantName);
-    });
-    var manualEnabled = controlState ? controlState.enabled : true;
-    var canCall = baseCanCall && manualEnabled;
-
-    return {
-      tenantName: tenantName,
-      largeAvailableMinutes: largeAvailableMinutes,
-      smallAvailableMinutes: smallAvailableMinutes,
-      largeUnitPrice: largeUnitPrice,
-      smallUnitPrice: smallUnitPrice,
-      validity: validityRow ? validityRow.validFrom + ' ~ ' + validityRow.validTo : '未生成',
-      canCall: canCall,
-      callStatus: canCall ? '可发起' : '不可发起',
-      callStatusCls: canCall ? 'tenant-call-status-ok' : 'tenant-call-status-disabled'
-    };
-  }
-
-  /* ---- render ---- */
 
   function render() {
-    var summary = getHomeSummary(DEFAULT_TENANT);
-    return '' +
-      '<div class="home-page">' +
-        '<div class="home-header">' +
-          '<div class="home-title">用量余额</div>' +
-          '<div class="home-tenant-name">' + DEFAULT_TENANT + '</div>' +
-        '</div>' +
-        '<div class="home-card-grid" data-anno-page="home" data-anno-label="用量余额" data-anno-kind="region">' +
-          '<div class="home-card">' +
-            '<div class="home-card-label">大模型可用分钟数</div>' +
-            '<div class="home-card-value">' + formatMinutes(summary.largeAvailableMinutes) + '</div>' +
-          '</div>' +
-          '<div class="home-card">' +
-            '<div class="home-card-label">小模型可用分钟数</div>' +
-            '<div class="home-card-value">' + formatMinutes(summary.smallAvailableMinutes) + '</div>' +
-          '</div>' +
-          '<div class="home-card">' +
-            '<div class="home-card-label">有效期</div>' +
-            '<div class="home-card-value">' + summary.validity + '</div>' +
-          '</div>' +
-          '<div class="home-card">' +
-            '<div class="home-card-label">呼叫控制状态</div>' +
-            '<div class="home-card-value">' +
-              '<span class="tenant-call-status ' + summary.callStatusCls + '">' + summary.callStatus + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+    var data = window.MockRechargeIteration || {};
+    var auth = window.getDemoAuth ? window.getDemoAuth() : (data.authContexts || {})[data.activeAuthKey];
+    var tenantRole = auth && ['tenant_user', 'recharge_admin'].indexOf(auth.role) !== -1;
+    var canViewTenant = tenantRole && auth.currentTenantId &&
+      (auth.accessibleTenantIds || []).some(function (id) { return String(id) === String(auth.currentTenantId); });
+    if (tenantRole && !canViewTenant) {
+      return '<div class="home-page"><div class="home-header"><div class="home-title">套餐与用量</div><p class="home-tenant-name">当前租户信息暂不可用，请重新选择登录租户。</p></div></div>';
+    }
+    if (!canViewTenant) {
+      if (!auth || auth.role !== 'super_admin') {
+        return '<div class="home-page"><div class="home-header"><div class="home-title">平台工作台</div><p class="home-tenant-name">创建租户、充值和手工调增调减仅由超级管理员操作。</p></div></div>';
+      }
+      return '<div class="home-page"><div class="home-header"><div class="home-title">平台工作台</div><p class="home-tenant-name">在租户管理中维护租户套餐、服务有效期及充值记录。</p></div>' +
+        '<div class="home-overview"><h2 class="home-overview-title">租户服务管理</h2><p class="home-description">开通套餐、购买话费充值包，或手工调整服务时长与可用分钟。</p><button class="btn btn-primary" onclick="window.Nav.navigateTo(\'sys-tenant\', \'sys-tenant\')">进入租户管理</button></div></div>';
+    }
+    var tenant = (data.tenants || []).find(function (item) { return String(item.id) === String(auth.currentTenantId); });
+    if (!tenant) {
+      return '<div class="home-page"><div class="home-header"><div class="home-title">套餐与用量</div><p class="home-tenant-name">当前租户信息暂不可用，请重新选择登录租户。</p></div></div>';
+    }
+    if (tenant.usageState === 'error') {
+      return '<div class="home-page"><div class="home-header"><div class="home-title">套餐与用量</div><p class="home-tenant-name">' + escapeText(tenant.name) + '</p></div>' +
+        '<div class="home-overview"><h2 class="home-overview-title">账户信息加载失败</h2><p class="home-description">暂时无法获取套餐与用量信息，请重试。</p><button class="btn btn-primary" onclick="window.Pages.home.retry()">重新加载</button></div></div>';
+    }
+
+    var entitlement = tenant.entitlement || {};
+    var pool = tenant.unifiedMinutePool || {};
+    var status = entitlement.status || 'not_opened';
+    var statusText = { active: '服务有效', expired: '服务已过期', not_opened: '未开通' }[status] || '未开通';
+    var product = (data.products || {})[entitlement.productType];
+    var packageName = status === 'not_opened' ? '未开通套餐' : (product ? product.name : '服务套餐');
+    var flag = tenant.commercialFlag === 'commercial' ? 'commercial' : 'trial';
+    var validity = entitlement.effectiveAt && entitlement.expiresAt
+      ? escapeText(entitlement.effectiveAt.slice(0, 10)) + '<br><span class="home-validity-separator">至 </span>' + escapeText(entitlement.expiresAt.slice(0, 10))
+      : '—';
+    var control = (window.MockTenantCallControlStates || []).find(function (item) { return item.tenantName === tenant.name; });
+    var canCall = status === 'active' && Number(pool.availableMinutes) > 0 && (!control || control.enabled !== false);
+    var callHint = status !== 'active' ? '请联系管理员开通有效套餐'
+      : (Number(pool.availableMinutes) <= 0 ? '可用分钟不足，请联系管理员充值'
+        : (control && control.enabled === false ? '外呼已被管理员暂停' : '服务有效且可用分钟充足'));
+    return '<div class="home-page" data-current-tenant-id="' + escapeText(tenant.id) + '">' +
+      '<div class="home-header"><div class="home-title">套餐与用量</div><div class="home-tenant-name">当前租户 · ' + escapeText(tenant.name) +
+        ' <span class="tenant-commercial-tag ' + flag + '">' + (flag === 'commercial' ? '商用' : '试用') + '</span></div></div>' +
+      '<section class="home-card-grid" data-anno="home-tenant-overview" data-anno-page="home" data-anno-label="当前租户套餐与统一分钟余额" data-anno-kind="region" data-anno-fields="FLD-002,FLD-003,FLD-004,FLD-006,FLD-007,FLD-008,FLD-021,FLD-051">' +
+        '<div class="home-card"><div class="home-card-label">当前套餐</div><div class="home-card-value">' + escapeText(packageName) + '</div><p class="home-card-note">' + statusText + '</p></div>' +
+        '<div class="home-card home-card-primary"><div class="home-card-label">可用分钟</div><div class="home-card-value">' + formatMinutes(pool.availableMinutes) + '<span class="home-value-unit">分钟</span></div><p class="home-card-note">统一分钟池，大/小模型共用</p></div>' +
+        '<div class="home-card"><div class="home-card-label">服务有效期</div><div class="home-card-value home-validity">' + validity + '</div><p class="home-card-note">' + statusText + '</p></div>' +
+        '<div class="home-card"><div class="home-card-label">呼叫状态</div><div class="home-card-value"><span class="tenant-call-status ' + (canCall ? 'tenant-call-status-ok' : 'tenant-call-status-disabled') + '">' + (canCall ? '可发起外呼' : '暂不可外呼') + '</span></div><p class="home-card-note">' + callHint + '</p></div>' +
+      '</section><p class="home-description">' + (auth.role === 'tenant_user'
+        ? '按日消耗和每日任务明细可在右上角账户菜单的“使用情况”中查看。'
+        : '当前账号可查看本租户套餐状况，无充值及手工调增调减权限；本演示账号不提供使用情况明细入口。') + '</p></div>';
   }
 
-  function init() {}
+  function retry() {
+    var data = window.MockRechargeIteration || {};
+    var auth = window.getDemoAuth && window.getDemoAuth();
+    var tenant = (data.tenants || []).find(function (item) { return auth && String(item.id) === String(auth.currentTenantId); });
+    if (tenant) tenant.usageState = 'loaded';
+    window.Nav.navigateTo('home', 'nav-home');
+  }
 
   window.Pages = window.Pages || {};
-  window.Pages['home'] = { render: render, init: init };
+  window.Pages.home = { render: render, init: function () {}, retry: retry };
 })();

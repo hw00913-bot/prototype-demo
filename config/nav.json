@@ -6,9 +6,11 @@
       "icon": "🏠"
     },
     {
-      "label": "流程图集",
-      "icon": "流",
-      "href": "flowcharts/index.html"
+      "key": "usage",
+      "label": "使用情况",
+      "entry": "account-dropdown",
+      "roles": ["tenant_user"],
+      "tenantScope": "current"
     }
   ]
 }

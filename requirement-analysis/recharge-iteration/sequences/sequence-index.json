@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "sequences": [
+    {
+      "id": "SEQ-001",
+      "scenario_id": "SC-001",
+      "name": "维护租户商用/试用标记时序",
+      "file": "sequences/SEQ-001.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-002",
+      "scenario_id": "SC-002",
+      "name": "开通标准版年包时序",
+      "file": "sequences/SEQ-002.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-003",
+      "scenario_id": "SC-003",
+      "name": "购买话费充值包时序",
+      "file": "sequences/SEQ-003.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-004",
+      "scenario_id": "SC-004",
+      "name": "冻结、消耗、结算与释放时序",
+      "file": "sequences/SEQ-004.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-005",
+      "scenario_id": "SC-005",
+      "name": "查看租户充值与调整记录时序",
+      "file": "sequences/SEQ-005.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-008",
+      "scenario_id": "SC-008",
+      "name": "查看当前租户使用情况时序",
+      "file": "sequences/SEQ-008.json",
+      "status": "confirmed"
+    },
+    {
+      "id": "SEQ-009",
+      "scenario_id": "SC-009",
+      "name": "手工调增/调减使用时长与分钟时序",
+      "file": "sequences/SEQ-009.json",
+      "status": "confirmed"
+    }
+  ]
+}

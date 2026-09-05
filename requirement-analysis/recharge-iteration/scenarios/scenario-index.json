@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "scenarios": [
+    {
+      "id": "SC-001",
+      "name": "维护租户商用/试用标记",
+      "file": "scenarios/SC-001.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-001"
+      ],
+      "ui_surface": "required"
+    },
+    {
+      "id": "SC-002",
+      "name": "为租户开通标准版年包",
+      "file": "scenarios/SC-002.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-002",
+        "US-004",
+        "US-006",
+        "US-008"
+      ],
+      "ui_surface": "required"
+    },
+    {
+      "id": "SC-003",
+      "name": "在服务期内购买话费充值包",
+      "file": "scenarios/SC-003.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-003",
+        "US-004",
+        "US-006",
+        "US-008"
+      ],
+      "ui_surface": "required"
+    },
+    {
+      "id": "SC-004",
+      "name": "冻结、释放并结算通讯额度",
+      "file": "scenarios/SC-004.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-004",
+        "US-005"
+      ],
+      "ui_surface": "not_required"
+    },
+    {
+      "id": "SC-005",
+      "name": "充值管理员查看套餐、额度与内部充值记录",
+      "file": "scenarios/SC-005.json",
+      "priority": "P1",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-001",
+        "US-002",
+        "US-003",
+        "US-004",
+        "US-005",
+        "US-006",
+        "US-008",
+        "US-009"
+      ],
+      "ui_surface": "required"
+    },
+    {
+      "id": "SC-006",
+      "name": "读取并关联外部充值单",
+      "file": "scenarios/SC-006.json",
+      "priority": "P0",
+      "scope": "out_of_scope",
+      "status": "excluded_by_requirement",
+      "source_story_ids": [
+        "US-006"
+      ],
+      "ui_surface": "not_required"
+    },
+    {
+      "id": "SC-007",
+      "name": "按商用/试用实施差异化计费",
+      "file": "scenarios/SC-007.json",
+      "priority": "P1",
+      "scope": "out_of_scope",
+      "status": "excluded_by_requirement",
+      "source_story_ids": [
+        "US-001"
+      ],
+      "ui_surface": "not_required"
+    },
+    {
+      "id": "SC-008",
+      "name": "租户用户从右上角查看当前租户用量及按日/任务明细",
+      "file": "scenarios/SC-008.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-004",
+        "US-007"
+      ],
+      "ui_surface": "required"
+    },
+    {
+      "id": "SC-009",
+      "name": "充值管理员手工调增或调减租户使用时长/可用分钟数",
+      "file": "scenarios/SC-009.json",
+      "priority": "P0",
+      "scope": "in_scope",
+      "status": "confirmed",
+      "source_story_ids": [
+        "US-004",
+        "US-005",
+        "US-009"
+      ],
+      "ui_surface": "required"
+    }
+  ]
+}

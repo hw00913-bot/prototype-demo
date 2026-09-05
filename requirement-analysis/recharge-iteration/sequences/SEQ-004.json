@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-004",
+  "scenario_id": "SC-004",
+  "name": "冻结、消耗、结算与释放时序",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "租户运营人员",
+      "kind": "actor"
+    },
+    {
+      "id": "task_service",
+      "name": "外呼任务系统",
+      "kind": "internal_system"
+    },
+    {
+      "id": "call_result",
+      "name": "通话结果源",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "task_service",
+      "message": "提交外呼任务",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "task_service",
+      "to": "ledger",
+      "message": "请求从租户统一分钟池预冻结任务预估通讯额度",
+      "type": "request",
+      "api_id": null,
+      "condition": "任务参数校验通过"
+    },
+    {
+      "step": 3,
+      "from": "ledger",
+      "to": "task_service",
+      "message": "返回冻结成功和冻结记录号",
+      "type": "response",
+      "api_id": null,
+      "condition": "可用分钟充足"
+    },
+    {
+      "step": 4,
+      "from": "call_result",
+      "to": "task_service",
+      "message": "上报已接通/未接通及通话时长",
+      "type": "event",
+      "api_id": null,
+      "condition": "任务执行中"
+    },
+    {
+      "step": 5,
+      "from": "task_service",
+      "to": "ledger",
+      "message": "按已接通计量规则提交实际消耗结算",
+      "type": "request",
+      "api_id": null,
+      "condition": "任务完成或终止"
+    },
+    {
+      "step": 6,
+      "from": "ledger",
+      "to": "ledger",
+      "message": "从统一分钟池扣减实际消耗并释放未使用冻结额度",
+      "type": "event",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "ledger",
+      "to": "task_service",
+      "message": "返回结算、释放和更新后的统一分钟池可用分钟",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "未接通呼叫不计入已接通通讯分钟。",
+    "单次已接通通话不满 1 分钟按 1 分钟，超过 1 分钟按原有粒度。",
+    "大模型与小模型任务从同一租户级统一分钟池冻结、释放和消耗。",
+    "冻结不足时任务系统不启动任务；释放操作必须幂等。",
+    "通话结果源与外部供应商的具体接口不在本次充值需求的新增接口范围内，继续沿用现有链路。"
+  ]
+}

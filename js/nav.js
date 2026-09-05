@@ -7,6 +7,7 @@
 
   var RouteMap = {
     'nav-home':     { page: 'home', bc: [] },
+    'usage':        { page: 'usage', bc: ['使用情况'] },
     'nav-scene':    { page: null, bc: [] },
     'scene-list':   { page: 'scene-list', bc: [{ label: '外呼场景', link: 'nav-scene' }, '外呼列表'] },
     'scene-block':  { page: 'scene-block', bc: [{ label: '外呼场景', link: 'nav-scene' }, '外呼拦截'] },
@@ -53,7 +54,8 @@
       '.billing-call-backdrop', '.biz-drawer-backdrop', '.biz-dialog-backdrop',
       '.record-detail-backdrop', '.scene-more-menu', '.block-modal-mask',
       '.intent-config-backdrop', '#clueDetailBackdrop', '#clueTagBackdrop',
-      '#singleDetailBackdrop', '#clueReportDetailBackdrop'
+      '#singleDetailBackdrop', '#clueReportDetailBackdrop',
+      '.recharge-form-backdrop', '.adjustment-form-backdrop'
     ];
     selectors.forEach(function (sel) {
       document.querySelectorAll(sel).forEach(function (el) { el.remove(); });

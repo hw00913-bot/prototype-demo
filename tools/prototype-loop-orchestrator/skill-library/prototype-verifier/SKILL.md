@@ -116,7 +116,9 @@ description: PM 原型 loop 的验证协调技能。Use after each implementatio
 - 本地资源没有阻塞性 404。
 - JavaScript 没有阻塞性语法或运行错误。
 - 核心导航可用。
-- “原型页面 / 说明文档 / 流程图集”三个交付视图在桌面端和移动端可见，并在当前页面内切换；切换后外层页面不跳转，hash 与选中项一致，说明文档加载 `docs/interaction.html`，流程图集展示左目录右画布页面，嵌入页不重复生成顶部导航。
+- “原型页面 / 说明文档 / 业务流程图 / 时序交互图 / 关联系统展示”五个交付视图在桌面端和移动端可见，并在当前页面内切换；切换后外层页面不跳转，hash 与选中项一致，嵌入页不重复生成顶部导航。
+- 业务流程图直接加载 `flowcharts/business-process.html`，至少包含角色泳道、两个业务节点和一条流转关系；时序交互图直接加载 `flowcharts/sequence-interaction.html`，至少包含两个参与者和一条消息，并与项目记忆和核心用户路径一致。
+- 关联系统展示直接加载 `related-systems/index.html`；有关联系统时逐项展示其角色和关系，没有关联系统时允许明确空态。三类页面均不得依赖 ProcessOn 或远程 iframe。
 - 核心用户路径可走通。
 - 核心数据渲染符合验收标准。
 - `memory/execution-steps.md`、`memory/change-log.md` 和实际修改文件一致，或差异已解释。

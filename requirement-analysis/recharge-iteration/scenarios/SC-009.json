@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-009",
+  "name": "充值管理员手工调增或调减租户使用时长/可用分钟数",
+  "summary": "充值管理员不通过套餐充值或外部单号，直接对租户使用时长或统一分钟池可用分钟数执行手工调增/调减，并形成完整审计流水。",
+  "actors": [
+    "充值管理员",
+    "账户调整",
+    "内部额度账本"
+  ],
+  "trigger": "需要因特殊商务、账务更正或线下处理增加或减少租户账户值",
+  "preconditions": [
+    "操作人具备充值或账户调整权限",
+    "已选定需要调整的租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "充值管理员",
+      "action": "打开手工调整并选择调增或调减",
+      "system_response": "展示可调整对象和当前值",
+      "rule_ids": [
+        "BR-012"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "充值管理员",
+      "action": "选择调整使用时长或统一分钟池可用分钟数",
+      "system_response": "根据调整对象展示对应单位、输入和预览区域",
+      "rule_ids": [
+        "BR-012",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "充值管理员",
+      "action": "输入调整值和调整原因",
+      "system_response": "展示调整前值、调整后预计值及对冻结额度的边界提示",
+      "rule_ids": [
+        "BR-012",
+        "BR-013"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "充值管理员",
+      "action": "确认并提交手工调整",
+      "system_response": "不要求外部充值单号，校验调整后值；分钟调整更新统一分钟池且不改变已有冻结记录",
+      "rule_ids": [
+        "BR-012",
+        "BR-013",
+        "BR-014"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "内部额度账本",
+      "action": "记录手工调整结果",
+      "system_response": "生成不可篡改的内部调整流水并返回调整后账户状态",
+      "rule_ids": [
+        "BR-012"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "未选择调整方向或调整对象，或未填写有效值/原因",
+      "steps": [
+        "阻止提交并对应提示缺失字段"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "调减可用分钟数后将低于零或试图减少已冻结记录",
+      "steps": [
+        "拒绝调整",
+        "保留已有冻结记录不变并提示可调减上限"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "调减使用时长后低于系统允许下限",
+      "steps": [
+        "阻止提交并提示当前可调减上限"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "账本并发变更导致调整前值已失效",
+      "steps": [
+        "不直接覆盖最新值",
+        "刷新当前值并要求操作人重新确认"
+      ]
+    }
+  ],
+  "postconditions": [
+    "指定租户的使用时长或可用分钟数已按调增/调减结果更新",
+    "已有任务冻结记录未被直接篡改",
+    "调整结果已生成内部可追溯流水"
+  ],
+  "acceptance_points": [
+    "AC-031",
+    "AC-032",
+    "AC-033",
+    "AC-034",
+    "AC-035",
+    "AC-036"
+  ],
+  "source_story_ids": [
+    "US-004",
+    "US-005",
+    "US-009"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {"id": "admin", "name": "充值管理员", "kind": "actor"},
+      {"id": "adjust", "name": "账户调整", "kind": "system"},
+      {"id": "ledger", "name": "内部额度账本", "kind": "system"}
+    ],
+    "nodes": [
+      {"id": "N-START", "lane_id": "admin", "type": "start", "order": 1, "label": "发起手工调整"},
+      {"id": "N-001", "lane_id": "admin", "type": "action", "order": 2, "label": "选择调增/调减", "step_ref": 1},
+      {"id": "N-002", "lane_id": "admin", "type": "action", "order": 3, "label": "选择时长/统一分钟池并输入值与原因", "step_ref": 2},
+      {"id": "N-003", "lane_id": "adjust", "type": "action", "order": 4, "label": "预览调整前后值与冻结边界", "step_ref": 3},
+      {"id": "N-004", "lane_id": "admin", "type": "action", "order": 5, "label": "确认提交调整", "step_ref": 4},
+      {"id": "N-005", "lane_id": "adjust", "type": "decision", "order": 6, "label": "必填与有效值校验通过？"},
+      {"id": "N-MINUTE-CHECK", "lane_id": "adjust", "type": "decision", "order": 7, "label": "分钟调减越界？"},
+      {"id": "N-DURATION-CHECK", "lane_id": "adjust", "type": "decision", "order": 8, "label": "时长调减越界？"},
+      {"id": "N-006", "lane_id": "ledger", "type": "decision", "order": 9, "label": "账户版本未变？"},
+      {"id": "N-007", "lane_id": "ledger", "type": "action", "order": 10, "label": "原子更新时长或统一分钟池并写入流水", "step_ref": 5},
+      {"id": "N-SUCCESS", "lane_id": "admin", "type": "end", "order": 11, "label": "手工调整成功"},
+      {"id": "N-MISSING", "lane_id": "admin", "type": "end", "order": 7, "label": "提示补齐必填项"},
+      {"id": "N-MINUTE-LIMIT", "lane_id": "admin", "type": "end", "order": 8, "label": "提示分钟可调减上限"},
+      {"id": "N-DURATION-LIMIT", "lane_id": "admin", "type": "end", "order": 9, "label": "提示时长可调减上限"},
+      {"id": "N-CONFLICT", "lane_id": "admin", "type": "end", "order": 10, "label": "刷新当前值并重新确认"}
+    ],
+    "edges": [
+      {"from": "N-START", "to": "N-001"},
+      {"from": "N-001", "to": "N-002"},
+      {"from": "N-002", "to": "N-003"},
+      {"from": "N-003", "to": "N-004"},
+      {"from": "N-004", "to": "N-005"},
+      {"from": "N-005", "to": "N-MINUTE-CHECK", "label": "通过"},
+      {"from": "N-005", "to": "N-MISSING", "label": "不通过", "type": "failure", "path_id": "ALT-001"},
+      {"from": "N-MINUTE-CHECK", "to": "N-DURATION-CHECK", "label": "否"},
+      {"from": "N-MINUTE-CHECK", "to": "N-MINUTE-LIMIT", "label": "是", "type": "failure", "path_id": "ALT-002"},
+      {"from": "N-DURATION-CHECK", "to": "N-006", "label": "否"},
+      {"from": "N-DURATION-CHECK", "to": "N-DURATION-LIMIT", "label": "是", "type": "failure", "path_id": "ALT-003"},
+      {"from": "N-006", "to": "N-007", "label": "是"},
+      {"from": "N-006", "to": "N-CONFLICT", "label": "否", "type": "failure", "path_id": "ALT-004"},
+      {"from": "N-007", "to": "N-SUCCESS"}
+    ]
+  }
+}

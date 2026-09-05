@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-002",
+  "scenario_id": "SC-002",
+  "name": "开通标准版年包时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "充值管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "recharge_ui",
+      "name": "充值界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "recharge_service",
+      "name": "充值服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "recharge_ui",
+      "message": "为选定租户发起标准版开通",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "recharge_ui",
+      "to": "recharge_service",
+      "message": "读取租户当前服务期和标准版默认值",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "recharge_service",
+      "to": "recharge_ui",
+      "message": "返回 5,000 元/店、按一年有效期计算的默认使用天数、10,000 分钟及套餐说明",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "admin",
+      "to": "recharge_ui",
+      "message": "保留或按天手工编辑使用时长和入账分钟数，偏离默认值时填写原因",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "recharge_ui",
+      "to": "recharge_service",
+      "message": "提交标准版开通值及必要的偏离原因，不包含外部充值单号",
+      "type": "request",
+      "api_id": null,
+      "condition": "前端基础校验通过"
+    },
+    {
+      "step": 6,
+      "from": "recharge_service",
+      "to": "ledger",
+      "message": "校验正整数与偏离原因，原子更新有效期并将分钟计入统一分钟池",
+      "type": "request",
+      "api_id": null,
+      "condition": "权限、校验和续费规则通过"
+    },
+    {
+      "step": 7,
+      "from": "ledger",
+      "to": "recharge_service",
+      "message": "自动生成内部流水号，保存完整字段并返回有效期与统一分钟池余额",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "recharge_service",
+      "to": "recharge_ui",
+      "message": "返回开通成功并刷新租户账户状态",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "服务端必须重新校验使用天数与分钟数均为大于 0 的整数；偏离默认值时必须有原因，不能仅依赖前端校验。",
+    "校验通过后无需额外审批；大模型与小模型共同使用统一分钟池。",
+    "已在有效期内的续费起点受 ISSUE-006 影响；规则确认前不允许静默覆盖。",
+    "账本失败时开通不标记成功，需使用同一内部操作识别进行幂等重试；成功流水包含租户、充值类型、数量、价格、实际时长/分钟、前后值、操作人与时间、原因和状态。"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-005",
+  "scenario_id": "SC-005",
+  "name": "查看租户充值与调整记录时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "充值管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "recharge_ui",
+      "name": "充值管理界面",
+      "kind": "frontend"
+    },
+    {
+      "id": "recharge_service",
+      "name": "充值服务",
+      "kind": "internal_system"
+    },
+    {
+      "id": "ledger",
+      "name": "内部额度账本",
+      "kind": "internal_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "recharge_ui",
+      "message": "打开选定租户的充值管理",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "recharge_ui",
+      "to": "recharge_service",
+      "message": "请求租户标记、有效期、额度概览与历史列表",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "recharge_service",
+      "to": "ledger",
+      "message": "查询统一分钟池可用分钟、冻结额度、完整内部充值记录和手工调整流水",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "ledger",
+      "to": "recharge_service",
+      "message": "返回账户概览、内部流水完整字段与可追溯调整记录",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "recharge_service",
+      "to": "recharge_ui",
+      "message": "返回经租户权限过滤的充值管理数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "recharge_ui",
+      "to": "admin",
+      "message": "展示租户标记、当前状态、充值历史和调整流水",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "暂无记录时返回空列表，由界面展示空状态。",
+    "查询失败时展示失败提示和重试入口。",
+    "内部充值流水展示内部流水号、租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态。",
+    "历史金额调整记录在 ISSUE-014 确认前不自动折算。"
+  ]
+}

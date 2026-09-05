@@ -1,0 +1,454 @@
+{
+  "schema_version": "1.0",
+  "pages": [
+    {
+      "id": "PAGE-001",
+      "name": "租户管理列表与编辑",
+      "menu_path": [
+        "系统管理",
+        "租户管理"
+      ],
+      "roles": [
+        "平台管理员",
+        "充值管理员"
+      ],
+      "scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-005",
+        "SC-009"
+      ],
+      "states": [
+        "loading",
+        "loaded",
+        "empty",
+        "error",
+        "editing",
+        "saving"
+      ],
+      "fields": [
+        {
+          "name": "租户名称/租户 ID",
+          "description": "识别充值与手工调整的对象。"
+        },
+        {
+          "name": "租户类型",
+          "description": "保留现有租户类型字段。"
+        },
+        {
+          "name": "商用/试用标记",
+          "description": "新建、编辑可选，列表与充值管理中可识别展示。"
+        },
+        {
+          "name": "当前有效期/可用分钟",
+          "description": "展示当前有效期与租户统一分钟池可用分钟，作为进入充值管理前的账户概览。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-001",
+          "name": "保存租户商用/试用标记",
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "tenant:edit"
+        },
+        {
+          "id": "ACTION-002",
+          "name": "打开充值管理",
+          "source_scenario_ids": [
+            "SC-002",
+            "SC-003",
+            "SC-005",
+            "SC-009"
+          ],
+          "permission": "recharge:view"
+        }
+      ],
+      "acceptance_points": [
+        "AC-001：商用/试用标记可保存。",
+        "AC-002：列表以标签展示商用/试用。",
+        "AC-003：仅改标记不触发计费规则变更。"
+      ]
+    },
+    {
+      "id": "PAGE-002",
+      "name": "租户充值管理",
+      "menu_path": [
+        "系统管理",
+        "租户管理",
+        "充值管理"
+      ],
+      "roles": [
+        "充值管理员"
+      ],
+      "scenario_ids": [
+        "SC-002",
+        "SC-003",
+        "SC-005",
+        "SC-009"
+      ],
+      "states": [
+        "loading",
+        "loaded",
+        "empty_history",
+        "error"
+      ],
+      "fields": [
+        {
+          "name": "租户信息",
+          "description": "只读展示租户名称、ID 和商用/试用标记。"
+        },
+        {
+          "name": "账户概览",
+          "description": "展示有效期、统一分钟池可用分钟数、冻结额度和呼叫可用状态。"
+        },
+        {
+          "name": "内部充值记录",
+          "description": "展示内部流水号、租户、充值类型、数量、价格、实际使用时长、实际入账分钟数、调整前后值、操作人、操作时间、原因和状态。"
+        },
+        {
+          "name": "手工调整流水",
+          "description": "展示调增/调减、使用时长/可用分钟、调整前后值、原因、操作人和时间。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-003",
+          "name": "开通标准版",
+          "source_scenario_ids": [
+            "SC-002"
+          ],
+          "permission": "recharge:create"
+        },
+        {
+          "id": "ACTION-004",
+          "name": "购买话费充值包",
+          "source_scenario_ids": [
+            "SC-003"
+          ],
+          "permission": "recharge:create"
+        },
+        {
+          "id": "ACTION-005",
+          "name": "发起手工调整",
+          "source_scenario_ids": [
+            "SC-009"
+          ],
+          "permission": "recharge:adjust"
+        },
+        {
+          "id": "ACTION-006",
+          "name": "重试加载",
+          "source_scenario_ids": [
+            "SC-005"
+          ],
+          "permission": "recharge:view"
+        }
+      ],
+      "acceptance_points": [
+        "充值管理不展示外部充值单号作为新充值前置条件。",
+        "AC-018/AC-029：系统自动生成内部流水号并保存完整充值字段，实际分钟进入统一分钟池。",
+        "充值记录与手工调整流水可分别追溯。",
+        "无历史时展示空状态，加载失败时可重试。"
+      ]
+    },
+    {
+      "id": "PAGE-003",
+      "name": "套餐开通与充值包表单",
+      "menu_path": [
+        "系统管理",
+        "租户管理",
+        "充值管理",
+        "新增充值"
+      ],
+      "roles": [
+        "充值管理员"
+      ],
+      "scenario_ids": [
+        "SC-002",
+        "SC-003"
+      ],
+      "states": [
+        "initial",
+        "editing",
+        "validation_error",
+        "submitting",
+        "success",
+        "error"
+      ],
+      "fields": [
+        {
+          "name": "充值类型",
+          "description": "标准版年包或话费充值包。"
+        },
+        {
+          "name": "套餐价格/充值包单价",
+          "description": "只读展示 5,000 元/店或 1,000 元/包。"
+        },
+        {
+          "name": "充值包数量",
+          "description": "充值包模式可选，用于计算默认分钟数。"
+        },
+        {
+          "name": "使用时长",
+          "description": "按套餐规则带入默认值，以天为单位手工编辑，只允许大于 0 的整数。"
+        },
+        {
+          "name": "入账分钟数",
+          "description": "标准版默认 10,000 分钟；充值包默认按数量 × 3,500，允许编辑为大于 0 的整数，成功后计入统一分钟池。"
+        },
+        {
+          "name": "偏离默认值原因",
+          "description": "使用时长或入账分钟数任一值偏离套餐默认值时必填；未偏离时非必填。"
+        },
+        {
+          "name": "生效结果预览",
+          "description": "展示预计生效时间、有效期与入账后统一分钟池可用分钟。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-007",
+          "name": "提交充值",
+          "source_scenario_ids": [
+            "SC-002",
+            "SC-003"
+          ],
+          "permission": "recharge:create"
+        },
+        {
+          "id": "ACTION-008",
+          "name": "取消充值",
+          "source_scenario_ids": [
+            "SC-002",
+            "SC-003"
+          ],
+          "permission": "recharge:create"
+        }
+      ],
+      "acceptance_points": [
+        "AC-027：使用时长与入账分钟数均可编辑。",
+        "AC-028：未修改使用默认值，修改后以提交值生效。",
+        "AC-030：使用天数和分钟数须为大于 0 的整数；偏离默认值须填写原因；通过后无需额外审批。",
+        "AC-036：实际入账分钟数进入大/小模型共用的统一分钟池。",
+        "不要求输入外部充值单号。"
+      ]
+    },
+    {
+      "id": "PAGE-004",
+      "name": "手工调增/调减弹窗",
+      "menu_path": [
+        "系统管理",
+        "租户管理",
+        "充值管理",
+        "手工调整"
+      ],
+      "roles": [
+        "充值管理员"
+      ],
+      "scenario_ids": [
+        "SC-009"
+      ],
+      "states": [
+        "initial",
+        "editing",
+        "validation_error",
+        "submitting",
+        "success",
+        "conflict",
+        "error"
+      ],
+      "fields": [
+        {
+          "name": "调整方向",
+          "description": "必选调增或调减。"
+        },
+        {
+          "name": "调整对象",
+          "description": "必选按天记录的使用时长或统一分钟池可用分钟数；两个方向均支持两种对象。"
+        },
+        {
+          "name": "调整值",
+          "description": "按对象展示对应单位与取值校验。"
+        },
+        {
+          "name": "调整原因",
+          "description": "必填，用于内部审计和历史追溯。"
+        },
+        {
+          "name": "调整前/后值",
+          "description": "提交前预览当前值和预计结果。"
+        },
+        {
+          "name": "冻结边界",
+          "description": "只读提示已冻结额度，调减不直接修改冻结记录。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-009",
+          "name": "确认手工调整",
+          "source_scenario_ids": [
+            "SC-009"
+          ],
+          "permission": "recharge:adjust"
+        },
+        {
+          "id": "ACTION-010",
+          "name": "取消手工调整",
+          "source_scenario_ids": [
+            "SC-009"
+          ],
+          "permission": "recharge:adjust"
+        }
+      ],
+      "acceptance_points": [
+        "AC-031：调增/调减均可调整按天使用时长或统一分钟池可用分钟。",
+        "AC-032：不依赖外部充值单号。",
+        "AC-034：调减不篡改冻结记录，不得减为负数。",
+        "AC-035：方向、对象、调整值或原因缺失时阻止提交。"
+      ]
+    },
+    {
+      "id": "PAGE-005",
+      "name": "当前租户使用情况与按日明细",
+      "menu_path": [
+        "右上角",
+        "使用情况"
+      ],
+      "roles": [
+        "租户用户（不含超级管理员）"
+      ],
+      "scenario_ids": [
+        "SC-008"
+      ],
+      "states": [
+        "loading",
+        "loaded",
+        "empty_daily_usage",
+        "expired",
+        "error"
+      ],
+      "fields": [
+        {
+          "name": "当前登录租户",
+          "description": "只读展示，多租户账号仅查看当前登录租户。"
+        },
+        {
+          "name": "有效期起止时间/有效状态",
+          "description": "展示当前租户服务期及正常/已过期等状态。"
+        },
+        {
+          "name": "可用分钟数",
+          "description": "以分钟为单位展示大/小模型共用的统一分钟池余额，不展示金额余额。"
+        },
+        {
+          "name": "日期",
+          "description": "一级明细的按日汇总维度。"
+        },
+        {
+          "name": "当日消耗通话分钟",
+          "description": "与二级任务明细合计保持一致。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-011",
+          "name": "打开使用情况",
+          "source_scenario_ids": [
+            "SC-008"
+          ],
+          "permission": "usage:view_current_tenant"
+        },
+        {
+          "id": "ACTION-012",
+          "name": "查看当日任务明细",
+          "source_scenario_ids": [
+            "SC-008"
+          ],
+          "permission": "usage:view_current_tenant"
+        },
+        {
+          "id": "ACTION-013",
+          "name": "重试加载使用情况",
+          "source_scenario_ids": [
+            "SC-008"
+          ],
+          "permission": "usage:view_current_tenant"
+        }
+      ],
+      "acceptance_points": [
+        "AC-019：非超级管理员的租户用户可见右上角入口。",
+        "AC-020：展示有效期和当前状态。",
+        "AC-021/AC-036：余额展示统一分钟池可用分钟数，大/小模型不分池。",
+        "AC-022：一级明细按日展示消耗分钟。",
+        "AC-023/AC-026：强制当前租户隔离且超级管理员不提供该功能。"
+      ]
+    },
+    {
+      "id": "PAGE-006",
+      "name": "每日任务通话分钟消耗明细",
+      "menu_path": [
+        "右上角",
+        "使用情况",
+        "按日明细",
+        "任务明细"
+      ],
+      "roles": [
+        "租户用户（不含超级管理员）"
+      ],
+      "scenario_ids": [
+        "SC-008"
+      ],
+      "states": [
+        "loading",
+        "loaded",
+        "empty",
+        "error"
+      ],
+      "fields": [
+        {
+          "name": "当前租户/选中日期",
+          "description": "只读展示下钻条件。"
+        },
+        {
+          "name": "任务名称/任务标识",
+          "description": "识别当日产生通话分钟消耗的具体外呼任务。"
+        },
+        {
+          "name": "任务消耗通话分钟",
+          "description": "展示单个任务在该日从统一分钟池结算的消耗分钟数。"
+        },
+        {
+          "name": "当日合计",
+          "description": "必须与一级页面当日汇总值一致。"
+        }
+      ],
+      "actions": [
+        {
+          "id": "ACTION-014",
+          "name": "返回按日使用明细",
+          "source_scenario_ids": [
+            "SC-008"
+          ],
+          "permission": "usage:view_current_tenant"
+        },
+        {
+          "id": "ACTION-015",
+          "name": "重试加载任务明细",
+          "source_scenario_ids": [
+            "SC-008"
+          ],
+          "permission": "usage:view_current_tenant"
+        }
+      ],
+      "acceptance_points": [
+        "AC-025：展示指定日期每个具体任务的消耗分钟，且合计与当日汇总一致。",
+        "AC-024：无数据时显示空状态，加载失败时可重试。",
+        "二级页面继续使用当前登录租户的服务端租户上下文。"
+      ]
+    }
+  ]
+}

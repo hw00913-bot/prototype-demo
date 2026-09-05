@@ -1,7 +1,7 @@
 /**
  * js/pages/sys-tenant.js — 租户管理页
- * 100% 对齐参考项目（releases_demo/充值方案_demo_v1.0）：
- * - 租户列表完整列（序号、租户名称、有效期、计费配置、大/小模型可用分钟数、呼叫控制状态、租户类型、租户id、描述、状态、更新人、更新时间、操作）
+ * 基于原租户管理页迭代充值方案：
+ * - 租户列表展示商用/试用标记、服务状态、有效期和租户级统一分钟池
  * - 操作列包含：充值管理、管理呼叫、编辑、删除
  * - 充值管理抽屉（三 Tab：计费明细、充值单管理、余额调整）
  * - 充值单关联（支持付费单读取校验反显、试用单按月换算、二次确认关联、历史记录逐单生效确认时长/余额）
@@ -23,6 +23,170 @@
 
   function getTenantRows() {
     return window.MockTenantRows || [];
+  }
+
+  function canManageTenantBilling() {
+    var auth = window.getDemoAuth && window.getDemoAuth();
+    return !!(auth && auth.role === 'super_admin');
+  }
+
+  function requireTenantBillingPermission() {
+    if (canManageTenantBilling()) return true;
+    showToast('仅超级管理员可创建租户、充值或手工调增调减', 'warning');
+    return false;
+  }
+
+  function onAuthChanged() {
+    closeRechargeForm();
+    closeIterationAdjustmentForm();
+    closeTenantFormModal();
+    closeAdjustmentModal();
+    closeActivationDurationModal();
+    var drawer = document.getElementById('tenantBillingBackdrop');
+    if (drawer) drawer.remove();
+  }
+
+  function getRechargeIteration() {
+    window.MockRechargeIteration = window.MockRechargeIteration || { tenants: [] };
+    window.MockRechargeIteration.tenants = window.MockRechargeIteration.tenants || [];
+    return window.MockRechargeIteration;
+  }
+
+  function getTenantIterationProfile(tenantRef, createIfMissing) {
+    var tenantId = typeof tenantRef === 'object' ? tenantRef.tenantId : '';
+    var tenantName = typeof tenantRef === 'object' ? tenantRef.name : tenantRef;
+    var profiles = getRechargeIteration().tenants;
+    var profile = profiles.find(function (item) {
+      return (tenantId && String(item.id) === String(tenantId)) ||
+        normalizeTenantName(item.name) === normalizeTenantName(tenantName);
+    });
+    if (profile || !createIfMissing) return profile || null;
+    profile = {
+      id: String(tenantId || ('tenant-' + Date.now())),
+      name: tenantName || '未知租户',
+      type: tenantRef && tenantRef.type || '门店',
+      commercialFlag: 'trial',
+      commercialFlagLabel: '试用',
+      entitlement: { status: 'not_opened', effectiveAt: '', expiresAt: '', durationDays: 0 },
+      unifiedMinutePool: { availableMinutes: 0, frozenMinutes: 0, consumedMinutes: 0, accountVersion: 'NEW-001' },
+      usageState: 'empty'
+    };
+    profiles.push(profile);
+    return profile;
+  }
+
+  function serviceStatusMeta(status) {
+    var map = {
+      not_opened: { text: '未开通', cls: 'not-opened' },
+      active: { text: '有效', cls: 'active' },
+      expired: { text: '已过期', cls: 'expired' }
+    };
+    return map[status] || map.not_opened;
+  }
+
+  function iterationValidity(profile) {
+    var entitlement = profile && profile.entitlement || {};
+    if (!entitlement.effectiveAt || !entitlement.expiresAt) return '—';
+    return entitlement.effectiveAt.slice(0, 10) + ' 至 ' + entitlement.expiresAt.slice(0, 10);
+  }
+
+  function formatWholeMinutes(value) {
+    return Number(value || 0).toLocaleString('zh-CN') + ' 分钟';
+  }
+
+  function getUnifiedMinuteProfile(tenantId) {
+    return (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); }) || null;
+  }
+
+  function calculateBilledMinutes(callResults) {
+    return (callResults || []).reduce(function (sum, call) {
+      if (!call || !call.connected) return sum;
+      return sum + Math.max(1, Math.ceil(Number(call.durationSeconds || 0) / 60));
+    }, 0);
+  }
+
+  function canStartUnifiedTask(tenantId, estimatedMinutes) {
+    var profile = getUnifiedMinuteProfile(tenantId);
+    var estimate = Number(estimatedMinutes || 0);
+    var active = !!(profile && profile.entitlement && profile.entitlement.status === 'active');
+    var available = Number(profile && profile.unifiedMinutePool && profile.unifiedMinutePool.availableMinutes || 0);
+    return {
+      allowed: active && Number.isFinite(estimate) && estimate > 0 && available >= estimate,
+      availableMinutes: available,
+      estimatedMinutes: estimate,
+      reason: !active ? 'service_inactive' : (available < estimate ? 'insufficient_minutes' : '')
+    };
+  }
+
+  function startUnifiedTask(data) {
+    var check = canStartUnifiedTask(data && data.tenantId, data && data.estimatedMinutes);
+    if (!check.allowed) return check;
+    var profile = getUnifiedMinuteProfile(data.tenantId);
+    var existing = (getRechargeIteration().freezeLedger || []).find(function (item) { return item.taskId === data.taskId; });
+    if (existing) return Object.assign({}, check, { allowed: false, reason: 'duplicate_task' });
+    profile.unifiedMinutePool.availableMinutes -= check.estimatedMinutes;
+    profile.unifiedMinutePool.frozenMinutes += check.estimatedMinutes;
+    var record = {
+      taskId: data.taskId,
+      tenantId: data.tenantId,
+      sceneName: data.sceneName || '未命名任务',
+      estimatedMinutes: check.estimatedMinutes,
+      actualConsumedMinutes: 0,
+      releasedMinutes: 0,
+      status: 'frozen',
+      taskStatus: 'running'
+    };
+    getRechargeIteration().freezeLedger.push(record);
+    return Object.assign({}, check, { task: record });
+  }
+
+  function settleUnifiedTask(taskId, callResults, taskStatus) {
+    var task = (getRechargeIteration().freezeLedger || []).find(function (item) { return item.taskId === taskId; });
+    if (!task) return { changed: false, reason: 'task_not_found' };
+    if (task.status !== 'frozen') return { changed: false, reason: 'already_released', task: task };
+    var profile = getUnifiedMinuteProfile(task.tenantId);
+    if (!profile) return { changed: false, reason: 'tenant_not_found' };
+    var estimated = Number(task.estimatedMinutes || 0);
+    var actual = taskStatus === 'terminated' ? 0 : calculateBilledMinutes(callResults);
+    if (actual > estimated + Number(profile.unifiedMinutePool.availableMinutes || 0)) {
+      return { changed: false, reason: 'insufficient_minutes_for_settlement', actualConsumedMinutes: actual };
+    }
+    profile.unifiedMinutePool.frozenMinutes = Math.max(0, Number(profile.unifiedMinutePool.frozenMinutes || 0) - estimated);
+    profile.unifiedMinutePool.availableMinutes = Number(profile.unifiedMinutePool.availableMinutes || 0) + estimated - actual;
+    profile.unifiedMinutePool.consumedMinutes = Number(profile.unifiedMinutePool.consumedMinutes || 0) + actual;
+    task.actualConsumedMinutes = actual;
+    task.releasedMinutes = Math.max(0, estimated - actual);
+    task.taskStatus = taskStatus || 'completed';
+    task.status = task.taskStatus === 'terminated' ? 'released' : 'settled';
+    task.settledAt = getRechargeIteration().simulatedNow;
+    return { changed: true, task: task, availableMinutes: profile.unifiedMinutePool.availableMinutes, frozenMinutes: profile.unifiedMinutePool.frozenMinutes, consumedMinutes: profile.unifiedMinutePool.consumedMinutes };
+  }
+
+  function releaseUnifiedTask(taskId, reason) {
+    var task = (getRechargeIteration().freezeLedger || []).find(function (item) { return item.taskId === taskId; });
+    if (!task) return { changed: false, reason: 'task_not_found' };
+    if (task.status !== 'frozen') return { changed: false, reason: 'already_released', task: task };
+    var profile = getUnifiedMinuteProfile(task.tenantId);
+    if (!profile) return { changed: false, reason: 'tenant_not_found' };
+    var estimated = Number(task.estimatedMinutes || 0);
+    profile.unifiedMinutePool.frozenMinutes = Math.max(0, Number(profile.unifiedMinutePool.frozenMinutes || 0) - estimated);
+    profile.unifiedMinutePool.availableMinutes = Number(profile.unifiedMinutePool.availableMinutes || 0) + estimated;
+    task.actualConsumedMinutes = 0;
+    task.releasedMinutes = estimated;
+    task.taskStatus = 'terminated';
+    task.status = 'released';
+    task.releaseReason = reason || '任务终止';
+    task.settledAt = getRechargeIteration().simulatedNow;
+    return { changed: true, task: task, availableMinutes: profile.unifiedMinutePool.availableMinutes, frozenMinutes: profile.unifiedMinutePool.frozenMinutes };
+  }
+
+  function syncUnifiedFrozenTaskReleases() {
+    return (getRechargeIteration().freezeLedger || []).reduce(function (count, task) {
+      if (task.status !== 'frozen') return count;
+      if (task.taskStatus === 'terminated') return releaseUnifiedTask(task.taskId, '任务终止').changed ? count + 1 : count;
+      if (task.taskStatus === 'completed') return settleUnifiedTask(task.taskId, task.callResults || [], 'completed').changed ? count + 1 : count;
+      return count;
+    }, 0);
   }
 
   function getBillingRows() {
@@ -161,16 +325,18 @@
 
   function syncFrozenTaskReleases() {
     var releasedAt = formatLocalDateTime(new Date());
-    return getFrozenTasks().reduce(function (released, task) {
+    var legacyReleased = getFrozenTasks().reduce(function (released, task) {
       var reason = getFrozenReleaseReason(task);
       return releaseFrozenTask(task, reason, releasedAt) ? released + 1 : released;
     }, 0);
+    return legacyReleased + syncUnifiedFrozenTaskReleases();
   }
 
   function releaseFrozenTasksByScene(sceneName, taskStatus) {
     var releasedAt = formatLocalDateTime(new Date());
     var releasedCount = 0;
     var releasedAmount = 0;
+    var releasedMinutes = 0;
 
     getFrozenTasks().forEach(function (task) {
       if (task.sceneName !== sceneName || task.status !== '冻结中') return;
@@ -181,7 +347,20 @@
       releasedAmount += Number(task.frozenMinutes || 0) * Number(task.unitPriceSnapshot || 0);
     });
 
-    return { releasedCount: releasedCount, releasedAmount: releasedAmount };
+    (getRechargeIteration().freezeLedger || []).forEach(function (task) {
+      if (task.sceneName !== sceneName || task.status !== 'frozen') return;
+      var result;
+      if (taskStatus === '已完成' || taskStatus === 'completed') {
+        result = settleUnifiedTask(task.taskId, task.callResults || [], 'completed');
+      } else if (taskStatus === '已终止' || taskStatus === 'terminated') {
+        result = releaseUnifiedTask(task.taskId, '任务终止');
+      }
+      if (!result || !result.changed) return;
+      releasedCount += 1;
+      releasedMinutes += Number(result.task.releasedMinutes || 0);
+    });
+
+    return { releasedCount: releasedCount, releasedAmount: releasedAmount, releasedMinutes: releasedMinutes };
   }
 
   function latestValidTo(tenantName) {
@@ -374,6 +553,7 @@
   }
 
   function activateRecharge(rechargeNo) {
+    if (!requireTenantBillingPermission()) return;
     var historyRow = getHistoryRows().find(function (item) { return item.rechargeNo === rechargeNo; });
     if (!historyRow) {
       showToast('未找到关联充值单', 'error');
@@ -576,6 +756,7 @@
   }
 
   function confirmActivationDuration() {
+    if (!requireTenantBillingPermission()) return;
     var modal = document.getElementById('tenantActivationDurationModal');
     if (!modal) return;
     var historyRow = getHistoryRows().find(function (item) { return item.rechargeNo === modal.dataset.rechargeNo; });
@@ -654,18 +835,20 @@
 
   function renderRows() {
     return getTenantRows().map(function (row, idx) {
-      var summary = getTenantBillingSummary(row.name);
+      var profile = getTenantIterationProfile(row, true);
+      var entitlement = profile.entitlement || {};
+      var minutePool = profile.unifiedMinutePool || {};
+      var serviceMeta = serviceStatusMeta(entitlement.status);
+      var flagText = profile.commercialFlag === 'commercial' ? '商用' : '试用';
       return '' +
         '<tr>' +
           '<td>' + row.no + '</td>' +
           '<td>' + row.name + '</td>' +
-          '<td>' + summary.validity + '</td>' +
-          '<td>' +
-            '<button class="tenant-billing-config-btn" onclick="window.Pages[\'sys-tenant\'].showPricingConfigModal(\'' + row.name + '\')">计费配置</button>' +
-          '</td>' +
-          '<td class="tenant-minute-range">' + summary.largeAvailableRange + '</td>' +
-          '<td class="tenant-minute-range">' + summary.smallAvailableRange + '</td>' +
-          '<td><span class="tenant-call-status ' + summary.callStatusCls + '">' + summary.callStatus + '</span></td>' +
+          '<td><span class="tenant-commercial-tag ' + profile.commercialFlag + '">' + flagText + '</span></td>' +
+          '<td><span class="tenant-service-status ' + serviceMeta.cls + '">' + serviceMeta.text + '</span></td>' +
+          '<td>' + iterationValidity(profile) + '</td>' +
+          '<td class="tenant-minute-value"><strong>' + formatWholeMinutes(minutePool.availableMinutes) + '</strong></td>' +
+          '<td class="tenant-minute-value">' + formatWholeMinutes(minutePool.frozenMinutes) + '</td>' +
           '<td>' + row.type + '</td>' +
           '<td>' + row.tenantId + '</td>' +
           '<td>' + row.desc + '</td>' +
@@ -673,8 +856,7 @@
           '<td>' + row.updater + '</td>' +
           '<td>' + row.updateTime + '</td>' +
           '<td>' +
-            '<button class="tenant-op-btn primary" onclick="window.Pages[\'sys-tenant\'].showBillingDrawer(\'' + row.name + '\')">充值管理</button>' +
-            '<button class="tenant-op-btn control ' + (summary.callManageEnabled ? '' : 'disabled') + '" ' + (summary.callManageEnabled ? '' : 'disabled') + ' onclick="window.Pages[\'sys-tenant\'].toggleCallControl(\'' + row.name + '\')">' + (summary.callManageEnabled ? summary.callManageText : '管理呼叫') + '</button>' +
+            (canManageTenantBilling() ? '<button class="tenant-op-btn primary" onclick="window.Pages[\'sys-tenant\'].showBillingDrawer(\'' + row.name + '\')">充值管理</button>' : '') +
             '<button class="tenant-op-btn blue" onclick="window.Pages[\'sys-tenant\'].openEditTenantModal(\'' + row.tenantId + '\')">编辑</button>' +
             '<button class="tenant-op-btn red" onclick="window.Pages[\'sys-tenant\'].deleteTenant(\'' + row.tenantId + '\')">删除</button>' +
           '</td>' +
@@ -853,6 +1035,9 @@
     var activateAnnoAdded = false;
     return rows.map(function (item, index) {
       var activated = isRechargeActivated(item);
+      var validity = item.validFrom && item.validFrom !== '-' && item.validTo && item.validTo !== '-'
+        ? item.validFrom + ' ~ ' + item.validTo
+        : '-';
       var order = getOrders().find(function (orderItem) { return orderItem.no === item.rechargeNo; });
       var storeCode = item.storeCode || (order && order.storeCode) || '-';
       var storeName = item.storeName || (order && order.storeName) || '-';
@@ -886,21 +1071,21 @@
           '<div class="tenant-list-title"><span>租户管理</span></div>' +
           '<div class="tenant-list-desc">管理每个租户的信息。</div>' +
         '</div>' +
-        '<div class="filter-bar" data-anno-page="sys-tenant" data-anno-label="租户筛选" data-anno-kind="region" data-anno-fields="FLD-050" style="margin-bottom:16px;">' +
+        '<div class="filter-bar" style="margin-bottom:16px;">' +
           '<div class="filter-item"><label>租户名称：</label><input type="text" class="filter-input" placeholder="请输入" style="width:210px;"></div>' +
           '<div class="btn-group"><button class="btn btn-default" onclick="resetFilter(this.closest(\'.tenant-page\'))">重置</button><button class="btn btn-primary" onclick="doQuery()">查询</button></div>' +
         '</div>' +
         '<div class="tenant-list-card">' +
           '<div class="tenant-list-tools">' +
             '<button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].exportTenantBilling()" style="height:34px;padding:0 16px;">导出</button>' +
-            '<button class="btn btn-primary" data-anno-page="sys-tenant" data-anno-label="新建租户" data-anno-kind="action" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055" onclick="window.Pages[\'sys-tenant\'].openCreateTenantModal()" style="height:34px;padding:0 16px;">+ 新建</button>' +
+            (canManageTenantBilling() ? '<button class="btn btn-primary" data-anno="tenant-create-entry" data-anno-page="sys-tenant" data-anno-label="新建租户" data-anno-kind="action" data-anno-fields="FLD-001,FLD-002,FLD-003" onclick="window.Pages[\'sys-tenant\'].openCreateTenantModal()" style="height:34px;padding:0 16px;">+ 新建</button>' : '') +
             '<span class="biz-icon-btn" onclick="doRefresh()" title="刷新">&#x21bb;</span>' +
             '<span class="biz-icon-btn" onclick="showToast(\'设置功能开发中\',\'info\')" title="设置">&#x2699;</span>' +
           '</div>' +
           '<div class="table-container">' +
-            '<table class="data-table tenant-native-table" data-anno-page="sys-tenant" data-anno-label="租户列表" data-anno-kind="table" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055">' +
+            '<table class="data-table tenant-native-table" data-anno="tenant-iteration-list" data-anno-page="sys-tenant" data-anno-label="租户标记与统一分钟池列表" data-anno-kind="table" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-006,FLD-007,FLD-008,FLD-021,FLD-022">' +
               '<thead><tr>' +
-                '<th>序号</th><th>租户名称</th><th>有效期</th><th>计费配置</th><th>大模型可用分钟数</th><th>小模型可用分钟数</th><th>呼叫控制状态</th><th>租户类型</th><th>租户 id</th><th>描述</th><th>状态</th><th>更新人</th><th>更新时间</th><th>操作</th>' +
+                '<th>序号</th><th>租户名称</th><th data-anno="tenant-commercial-flag-column" data-anno-page="sys-tenant" data-anno-label="商用或试用标记" data-anno-kind="field" data-anno-fields="FLD-003">商用/试用</th><th>服务状态</th><th>有效期</th><th>可用分钟</th><th>冻结分钟</th><th>租户类型</th><th>租户 id</th><th>描述</th><th>状态</th><th>更新人</th><th>更新时间</th><th>操作</th>' +
               '</tr></thead>' +
               '<tbody>' + renderRows() + '</tbody>' +
             '</table>' +
@@ -1048,11 +1233,631 @@
     showToast('计费配置已保存', 'success');
   }
 
+  function rechargeStatusTag(status) {
+    var textMap = { processing: '处理中', effective: '已生效', failed: '失败' };
+    return '<span class="tenant-record-status ' + status + '">' + (textMap[status] || '状态异常') + '</span>';
+  }
+
+  function formatRecordMoney(value) {
+    return value == null ? '—' : '¥' + Number(value).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderInternalRechargeRows(profile) {
+    var records = (getRechargeIteration().rechargeRecords || []).filter(function (item) { return String(item.tenantId) === String(profile.id); });
+    if (!records.length) return '<tr><td colspan="12"><div class="tenant-record-empty">暂无内部充值记录</div></td></tr>';
+    return records.map(function (item) {
+      return '<tr>' +
+        '<td><strong>' + item.internalNo + '</strong></td>' +
+        '<td>' + item.productName + '</td>' +
+        '<td>' + item.quantity + '</td>' +
+        '<td>' + formatRecordMoney(item.price) + '</td>' +
+        '<td>' + item.actualDurationDays + ' 天</td>' +
+        '<td>' + formatWholeMinutes(item.actualCreditMinutes) + '</td>' +
+        '<td>' + Number(item.beforeValue).toLocaleString('zh-CN') + ' → ' + Number(item.afterValue).toLocaleString('zh-CN') + ' ' + item.valueUnit + '</td>' +
+        '<td>' + item.operatorName + '</td>' +
+        '<td>' + item.operatedAt + '</td>' +
+        '<td class="tenant-record-reason">' + (item.reason || '使用默认值') + '</td>' +
+        '<td>' + rechargeStatusTag(item.status) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderIterationAdjustmentRows(profile) {
+    var records = (getRechargeIteration().adjustmentRecords || []).filter(function (item) { return String(item.tenantId) === String(profile.id); });
+    if (!records.length) return '<tr><td colspan="10"><div class="tenant-record-empty">暂无手工调整流水</div></td></tr>';
+    return records.map(function (item) {
+      var directionText = item.direction === 'increase' ? '调增' : '调减';
+      var targetText = item.target === 'duration_days' ? '使用时长' : '可用分钟';
+      return '<tr>' +
+        '<td><strong>' + item.adjustmentNo + '</strong></td>' +
+        '<td><span class="tenant-adjust-direction ' + item.direction + '">' + directionText + '</span></td>' +
+        '<td>' + targetText + '</td>' +
+        '<td>' + Number(item.value).toLocaleString('zh-CN') + ' ' + item.valueUnit + '</td>' +
+        '<td>' + Number(item.beforeValue).toLocaleString('zh-CN') + ' → ' + Number(item.afterValue).toLocaleString('zh-CN') + ' ' + item.valueUnit + '</td>' +
+        '<td>' + item.reason + '</td>' +
+        '<td>' + item.operatorName + '</td>' +
+        '<td>' + item.operatedAt + '</td>' +
+        '<td>' + rechargeStatusTag(item.status) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderRechargeDrawerContent(profile) {
+    var entitlement = profile.entitlement || {};
+    var pool = profile.unifiedMinutePool || {};
+    var serviceMeta = serviceStatusMeta(entitlement.status);
+    if (profile.rechargeState === 'error') {
+      return '<div class="tenant-recharge-error" data-anno="recharge-load-error" data-anno-page="sys-tenant" data-anno-label="充值管理加载失败与重试" data-anno-kind="region" data-anno-fields="FLD-006,FLD-021">' +
+        '<div class="tenant-state-icon">!</div><strong>充值账户加载失败</strong><p>当前为异常演示状态，未覆盖或伪造账户数据。</p>' +
+        '<button class="btn btn-primary" onclick="window.Pages[\'sys-tenant\'].retryRechargeOverview(\'' + profile.id + '\')">重新加载</button>' +
+      '</div>';
+    }
+    return '' +
+      '<div class="tenant-account-overview" data-anno="recharge-account-overview" data-anno-page="sys-tenant" data-anno-label="租户服务与统一分钟池概览" data-anno-kind="region" data-anno-fields="FLD-006,FLD-007,FLD-008,FLD-020,FLD-021,FLD-022,FLD-023">' +
+        '<div class="tenant-account-card service"><span>服务状态</span><strong><em class="tenant-service-status ' + serviceMeta.cls + '">' + serviceMeta.text + '</em></strong><small>' + iterationValidity(profile) + '</small></div>' +
+        '<div class="tenant-account-card primary"><span>可用分钟</span><strong>' + formatWholeMinutes(pool.availableMinutes) + '</strong><small>大/小模型共用</small></div>' +
+        '<div class="tenant-account-card"><span>冻结分钟</span><strong>' + formatWholeMinutes(pool.frozenMinutes) + '</strong><small>任务预占，不可手工扣减</small></div>' +
+        '<div class="tenant-account-card"><span>累计消耗</span><strong>' + formatWholeMinutes(pool.consumedMinutes) + '</strong><small>仅统计已接通结算</small></div>' +
+      '</div>' +
+      '<div class="tenant-recharge-actions">' +
+        (rechargeTypesForProfile(profile).includes('trial_package') ? '<button class="btn btn-primary" data-anno="recharge-trial-entry" data-anno-page="sys-tenant" data-anno-label="试用套餐开通入口" data-anno-kind="action" data-anno-fields="FLD-003,FLD-010,FLD-014,FLD-016" onclick="window.Pages[\'sys-tenant\'].openRechargeForm(\'trial_package\')">+ 开通试用套餐</button>' : '') +
+        (rechargeTypesForProfile(profile).includes('standard_annual') ? '<button class="btn btn-primary" data-anno="recharge-standard-entry" data-anno-page="sys-tenant" data-anno-label="标准版年包充值入口" data-anno-kind="action" data-anno-fields="FLD-010,FLD-014,FLD-016" onclick="window.Pages[\'sys-tenant\'].openRechargeForm(\'standard_annual\')">+ 标准版开通</button>' : '') +
+        (rechargeTypesForProfile(profile).includes('call_credit_pack') ? '<button class="btn btn-default" data-anno="recharge-pack-entry" data-anno-page="sys-tenant" data-anno-label="话费充值包入口" data-anno-kind="action" data-anno-fields="FLD-010,FLD-012,FLD-016" onclick="window.Pages[\'sys-tenant\'].openRechargeForm(\'call_credit_pack\')">+ 话费充值包</button>' : '') +
+        '<button class="btn btn-default" data-anno="adjustment-entry" data-anno-page="sys-tenant" data-anno-label="手工调增调减入口" data-anno-kind="action" data-anno-fields="FLD-035,FLD-036,FLD-037" onclick="window.Pages[\'sys-tenant\'].openIterationAdjustmentForm()">手工调整</button>' +
+      '</div>' +
+      '<div class="tenant-billing-tabs" role="tablist">' +
+        '<button class="tenant-billing-tab active" role="tab" data-tab="internal" onclick="window.Pages[\'sys-tenant\'].switchBillingTab(\'internal\')">内部充值记录</button>' +
+        '<button class="tenant-billing-tab" role="tab" data-tab="adjustment" onclick="window.Pages[\'sys-tenant\'].switchBillingTab(\'adjustment\')">手工调整流水</button>' +
+      '</div>' +
+      '<div class="tenant-billing-tab-panel active" data-panel="internal" role="tabpanel">' +
+        '<div class="tenant-record-table-wrap" data-anno="internal-recharge-table" data-anno-page="sys-tenant" data-anno-label="内部充值流水" data-anno-kind="region" data-anno-fields="FLD-024,FLD-025,FLD-026,FLD-027,FLD-028,FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034">' +
+          '<table class="tenant-record-table"><thead><tr><th>内部流水号</th><th>充值类型</th><th>数量</th><th>价格</th><th>实际时长</th><th>入账分钟</th><th>调整前后</th><th>操作人</th><th>操作时间</th><th>原因</th><th>状态</th></tr></thead><tbody>' + renderInternalRechargeRows(profile) + '</tbody></table>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tenant-billing-tab-panel" data-panel="adjustment" role="tabpanel">' +
+        '<div class="tenant-record-table-wrap" data-anno="manual-adjustment-table" data-anno-page="sys-tenant" data-anno-label="手工调整流水" data-anno-kind="region" data-anno-fields="FLD-029,FLD-030,FLD-031,FLD-032,FLD-033,FLD-034,FLD-035,FLD-036,FLD-037">' +
+          '<table class="tenant-record-table"><thead><tr><th>调整单号</th><th>方向</th><th>对象</th><th>调整值</th><th>调整前后</th><th>原因</th><th>操作人</th><th>生效时间</th><th>状态</th></tr></thead><tbody>' + renderIterationAdjustmentRows(profile) + '</tbody></table>' +
+        '</div>' +
+      '</div>';
+  }
+
   function showBillingDrawer(tenantName) {
+    if (!requireTenantBillingPermission()) return;
+    var tenantBase = getTenantRows().find(function (item) { return normalizeTenantName(item.name) === normalizeTenantName(tenantName); });
+    var profile = getTenantIterationProfile(tenantBase || tenantName, true);
+    var flagText = profile.commercialFlag === 'commercial' ? '商用' : '试用';
+    var html = '' +
+      '<div class="biz-drawer-backdrop" id="tenantBillingBackdrop" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer(event)">' +
+        '<div class="biz-drawer tenant-drawer tenant-recharge-drawer" id="tenantBillingDrawer" data-anno="recharge-management-drawer" data-anno-page="sys-tenant" data-anno-label="租户充值管理" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003,FLD-006,FLD-021" onclick="event.stopPropagation()" data-tenant-id="' + profile.id + '">' +
+          '<div class="biz-drawer-header"><div><span class="biz-drawer-title">充值管理</span><span class="tenant-drawer-subtitle">新充值由系统生成内部流水，不依赖外部充值单号</span></div><span class="biz-drawer-close" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer()">&#x2715;</span></div>' +
+          '<div class="biz-drawer-body">' +
+            '<div class="tenant-iteration-context" data-anno="billing-tenant-context" data-anno-page="sys-tenant" data-anno-label="充值租户上下文" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003">' +
+              '<div><span>租户名称</span><strong>' + profile.name + '</strong></div><div><span>租户 ID</span><strong>' + profile.id + '</strong></div><div><span>租户标记</span><strong><em class="tenant-commercial-tag ' + profile.commercialFlag + '">' + flagText + '</em></strong></div>' +
+            '</div>' +
+            renderRechargeDrawerContent(profile) +
+          '</div>' +
+          '<div class="biz-drawer-footer"><button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer()">关闭</button></div>' +
+        '</div>' +
+      '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    requestAnimationFrame(function () {
+      var backdrop = document.getElementById('tenantBillingBackdrop');
+      var drawer = document.getElementById('tenantBillingDrawer');
+      if (backdrop) backdrop.classList.add('open');
+      if (drawer) drawer.classList.add('open');
+    });
+  }
+
+  function retryRechargeOverview(tenantId) {
+    var profile = (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); });
+    if (!profile) return;
+    profile.rechargeState = 'loaded';
+    var backdrop = document.getElementById('tenantBillingBackdrop');
+    if (backdrop) backdrop.remove();
+    showBillingDrawer(profile.name);
+    showToast('充值账户已重新加载', 'success');
+  }
+
+  function parseIterationDate(value) {
+    return new Date(String(value || '').replace(/-/g, '/'));
+  }
+
+  function remainingServiceDays(profile) {
+    var now = parseIterationDate(getRechargeIteration().simulatedNow);
+    var expires = parseIterationDate(profile.entitlement && profile.entitlement.expiresAt);
+    if (!Number.isFinite(now.getTime()) || !Number.isFinite(expires.getTime()) || expires <= now) return 0;
+    return Math.max(1, Math.ceil((expires - now) / 86400000));
+  }
+
+  function rechargeDefaults(profile, productType, quantity) {
+    var products = getRechargeIteration().products || {};
+    if (productType === 'call_credit_pack') {
+      var pack = products.call_credit_pack || {};
+      var packQuantity = Math.max(1, Number(quantity || 1));
+      return {
+        price: Number(pack.unitPrice || 1000) * packQuantity,
+        unitPrice: Number(pack.unitPrice || 1000),
+        quantity: packQuantity,
+        durationDays: remainingServiceDays(profile),
+        creditMinutes: Number(pack.defaultCreditMinutesPerPack || 3500) * packQuantity
+      };
+    }
+    var standard = products[productType] || {};
+    return {
+      price: Number(standard.unitPrice),
+      unitPrice: Number(standard.unitPrice),
+      quantity: 1,
+      durationDays: Number(standard.defaultDurationDays),
+      creditMinutes: Number(standard.defaultCreditMinutes)
+    };
+  }
+
+  function addIterationDays(dateValue, days) {
+    var date = parseIterationDate(dateValue);
+    date.setDate(date.getDate() + Number(days || 0));
+    return formatLocalDateTime(date);
+  }
+
+  function getRechargeFormProfile() {
+    var modal = document.getElementById('rechargeFormModal');
+    var tenantId = modal && modal.dataset.tenantId;
+    return (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); }) || null;
+  }
+
+  function renderProductDescription(productType) {
+    var products = getRechargeIteration().products || {};
+    if (productType === 'trial_package') {
+      return '<div class="recharge-product-note"><strong>试用套餐规则</strong><p>' + products.trial_package.usageRule + '</p></div>';
+    }
+    if (productType === 'call_credit_pack') {
+      return '<div class="recharge-product-note"><strong>话费充值包规则</strong><p>' + products.call_credit_pack.usageRule + '</p></div>';
+    }
+    var product = products.standard_annual || {};
+    return '<div class="recharge-product-note" data-anno="recharge-package-description" data-anno-page="sys-tenant" data-anno-label="标准版服务和话术规则" data-anno-kind="region" data-anno-fields="FLD-047,FLD-048,FLD-049">' +
+      '<strong>标准版服务内容</strong><p>' + (product.serviceItems || []).join('、') + '。</p>' +
+      '<p>包含 ' + product.scriptAllowance + ' 套场景话术；' + product.scriptChangeRule + '</p>' +
+    '</div>';
+  }
+
+  function rechargeTypesForProfile(profile) {
+    if (profile && profile.commercialFlag === 'trial') return ['trial_package'];
+    if (profile && profile.commercialFlag === 'commercial') return ['standard_annual', 'call_credit_pack'];
+    return [];
+  }
+
+  function rechargeTypeMismatchMessage(profile) {
+    if (profile && profile.commercialFlag === 'trial') return '试用租户仅可选择试用套餐';
+    if (profile && profile.commercialFlag === 'commercial') return '商用租户仅可选择标准版年包或话费充值包';
+    return '租户类型无效，请核对租户配置后重试';
+  }
+
+  function openRechargeForm(productType) {
+    if (!requireTenantBillingPermission()) return;
+    closeRechargeForm();
+    var drawer = document.getElementById('tenantBillingDrawer');
+    var tenantId = drawer && drawer.dataset.tenantId;
+    var profile = (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); });
+    if (!profile) {
+      showToast('未找到当前租户账户', 'error');
+      return;
+    }
+    if (!Object.prototype.hasOwnProperty.call(getRechargeIteration().products, productType)) {
+      showToast('请选择有效的充值类型', 'error');
+      return;
+    }
+    if (!rechargeTypesForProfile(profile).includes(productType)) {
+      showToast(rechargeTypeMismatchMessage(profile), 'error');
+      return;
+    }
+    var isPack = productType === 'call_credit_pack';
+    var defaults = rechargeDefaults(profile, productType, 1);
+    var entitlement = profile.entitlement || {};
+    var now = parseIterationDate(getRechargeIteration().simulatedNow);
+    var expires = parseIterationDate(entitlement.expiresAt);
+    var standardBlocked = !isPack && entitlement.status === 'active' && Number.isFinite(expires.getTime()) && expires > now;
+    var packBlocked = isPack && entitlement.status !== 'active';
+    var blockedText = standardBlocked
+      ? ('当前服务套餐已开通且尚未到期。' + (profile.commercialFlag === 'commercial' ? '可购买话费充值包增加分钟。' : '如需调整时长或分钟，可使用手工调整。'))
+      : (packBlocked ? '话费充值包仅能在服务有效期内购买，当前租户不可生效。' : '');
+    var effectiveAt = isPack ? entitlement.effectiveAt : getRechargeIteration().simulatedNow;
+    var expiresAt = isPack ? entitlement.expiresAt : addIterationDays(effectiveAt, defaults.durationDays);
+    var html = '' +
+      '<div class="modal-overlay recharge-form-backdrop" id="rechargeFormBackdrop" onclick="window.Pages[\'sys-tenant\'].closeRechargeForm(event)">' +
+        '<div class="recharge-form-modal" id="rechargeFormModal" data-tenant-id="' + profile.id + '" data-anno="recharge-product-form" data-anno-page="sys-tenant" data-anno-label="套餐开通与话费充值表单" data-anno-kind="region" data-anno-fields="FLD-010,FLD-011,FLD-012,FLD-013,FLD-014,FLD-015,FLD-016,FLD-017,FLD-018,FLD-019" onclick="event.stopPropagation()">' +
+          '<div class="tenant-form-modal-header"><div><div class="tenant-form-modal-title">新增充值</div><div class="recharge-form-subtitle">' + profile.name + ' · ' + profile.id + '</div></div><button class="tenant-form-modal-close" onclick="window.Pages[\'sys-tenant\'].closeRechargeForm()">✕</button></div>' +
+          '<div class="recharge-form-body">' +
+            (blockedText ? '<div class="recharge-blocked-notice">' + blockedText + '</div>' : '') +
+            '<div class="recharge-field" data-anno="recharge-type-field" data-anno-page="sys-tenant" data-anno-label="充值类型" data-anno-kind="region" data-anno-fields="FLD-010"><label>充值类型</label><div class="tenant-radio-group">' +
+              rechargeTypesForProfile(profile).map(function (type) {
+                return '<label class="tenant-radio-label"><input type="radio" name="rechargeProductType" value="' + type + '"' + (productType === type ? ' checked' : '') + ' onchange="window.Pages[\'sys-tenant\'].openRechargeForm(this.value)"> ' + getRechargeIteration().products[type].name + '</label>';
+              }).join('') +
+            '</div></div>' +
+            '<div class="recharge-form-grid">' +
+              '<div class="recharge-field" data-anno="recharge-price-field" data-anno-page="sys-tenant" data-anno-label="实际套餐价格" data-anno-kind="region" data-anno-fields="FLD-011,FLD-028,FLD-050"><label for="rechargePrice">套餐价格（本次总价）</label><div class="recharge-input-unit"><input id="rechargePrice" type="number" min="0" step="0.01" value="' + defaults.price.toFixed(2) + '" data-default-price="' + defaults.price + '" oninput="window.Pages[\'sys-tenant\'].updateRechargePreview(false)"><span>元</span></div><small>默认总价 <b id="rechargeDefaultPrice">' + formatRecordMoney(defaults.price) + '</b>，可手工编辑</small></div>' +
+              '<div class="recharge-field" id="rechargeQuantityField" data-anno="recharge-quantity-field" data-anno-page="sys-tenant" data-anno-label="充值包数量" data-anno-kind="region" data-anno-fields="FLD-012" style="display:' + (isPack ? 'block' : 'none') + '"><label>购买数量</label><div class="recharge-input-unit"><input id="rechargeQuantity" type="number" min="1" step="1" value="1" oninput="window.Pages[\'sys-tenant\'].updateRechargePreview(true)"><span>包</span></div><small>每包默认 3,500 分钟</small></div>' +
+              '<div class="recharge-field" data-anno="recharge-duration-field" data-anno-page="sys-tenant" data-anno-label="实际使用时长" data-anno-kind="region" data-anno-fields="FLD-013,FLD-014"><label>实际使用时长</label><div class="recharge-input-unit"><input id="rechargeActualDays" type="number" min="1" step="1" value="' + defaults.durationDays + '" oninput="window.Pages[\'sys-tenant\'].updateRechargePreview(false)"><span>天</span></div><small>默认值：<b id="rechargeDefaultDays">' + defaults.durationDays + '</b> 天，可手工编辑</small></div>' +
+              '<div class="recharge-field" data-anno="recharge-minutes-field" data-anno-page="sys-tenant" data-anno-label="实际入账分钟" data-anno-kind="region" data-anno-fields="FLD-015,FLD-016"><label>实际入账分钟</label><div class="recharge-input-unit"><input id="rechargeActualMinutes" type="number" min="1" step="1" value="' + defaults.creditMinutes + '" oninput="window.Pages[\'sys-tenant\'].updateRechargePreview(false)"><span>分钟</span></div><small>默认值：<b id="rechargeDefaultMinutes">' + defaults.creditMinutes + '</b> 分钟，可手工编辑</small></div>' +
+            '</div>' +
+            '<div class="recharge-field" data-anno="recharge-reason-field" data-anno-page="sys-tenant" data-anno-label="充值偏离原因" data-anno-kind="region" data-anno-fields="FLD-017"><label>调整原因 <em id="rechargeReasonRequired" class="recharge-required-mark"></em></label><textarea id="rechargeDeviationReason" rows="3" placeholder="实际价格、天数或分钟偏离默认值时必填" oninput="window.Pages[\'sys-tenant\'].updateRechargePreview(false)"></textarea></div>' +
+            '<div class="recharge-preview" data-anno="recharge-effect-preview" data-anno-page="sys-tenant" data-anno-label="充值生效预览" data-anno-kind="region" data-anno-fields="FLD-018,FLD-019,FLD-020,FLD-021"><div><span>预计生效</span><strong id="rechargePreviewEffective">' + (effectiveAt || '—') + '</strong></div><div><span>预计失效</span><strong id="rechargePreviewExpires">' + (expiresAt || '—') + '</strong></div><div><span>分钟变化</span><strong id="rechargePreviewMinutes">' + formatWholeMinutes(profile.unifiedMinutePool.availableMinutes) + ' → ' + formatWholeMinutes(profile.unifiedMinutePool.availableMinutes + defaults.creditMinutes) + '</strong></div></div>' +
+            renderProductDescription(productType) +
+            '<div class="recharge-validation" id="rechargeValidation" aria-live="polite"></div>' +
+            '<div class="recharge-write-failure" id="rechargeWriteFailure" style="display:none;"><strong>写账失败，账户未发生变化</strong><span>请保留当前输入后重试。</span><button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].retryRechargeWrite()">重试写账</button></div>' +
+          '</div>' +
+          '<div class="tenant-form-modal-footer recharge-form-footer"><button class="recharge-demo-fail" onclick="window.Pages[\'sys-tenant\'].simulateRechargeWriteFailure()"' + (blockedText ? ' disabled' : '') + '>演示写账失败</button><span class="recharge-footer-spacer"></span><button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].closeRechargeForm()">取消</button><button class="btn btn-primary" id="rechargeSubmitButton" data-anno="recharge-submit-action" data-anno-page="sys-tenant" data-anno-label="确认充值并生成内部流水" data-anno-kind="action" data-anno-fields="FLD-014,FLD-016,FLD-017,FLD-024" onclick="window.Pages[\'sys-tenant\'].submitRechargeForm()"' + (blockedText ? ' disabled' : '') + '>确认充值</button></div>' +
+        '</div>' +
+      '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    updateRechargePreview(false);
+  }
+
+  function closeRechargeForm(event) {
+    if (event && event.target !== event.currentTarget) return;
+    var backdrop = document.getElementById('rechargeFormBackdrop');
+    if (backdrop) backdrop.remove();
+  }
+
+  function updateRechargePreview(quantityChanged) {
+    var profile = getRechargeFormProfile();
+    if (!profile) return;
+    var typeInput = document.querySelector('input[name="rechargeProductType"]:checked');
+    var productType = typeInput ? typeInput.value : 'standard_annual';
+    var quantityInput = document.getElementById('rechargeQuantity');
+    var quantity = productType === 'call_credit_pack' ? Number(quantityInput && quantityInput.value || 0) : 1;
+    var oldDefaultMinutes = Number(document.getElementById('rechargeDefaultMinutes') && document.getElementById('rechargeDefaultMinutes').textContent || 0);
+    var defaults = rechargeDefaults(profile, productType, quantity || 1);
+    var actualMinutesInput = document.getElementById('rechargeActualMinutes');
+    if (quantityChanged && actualMinutesInput && Number(actualMinutesInput.value) === oldDefaultMinutes) actualMinutesInput.value = defaults.creditMinutes;
+    var defaultMinutes = document.getElementById('rechargeDefaultMinutes');
+    if (defaultMinutes) defaultMinutes.textContent = defaults.creditMinutes;
+    var price = document.getElementById('rechargePrice');
+    if (price) {
+      if (quantityChanged && Number(price.value) === Number(price.dataset.defaultPrice)) price.value = defaults.price.toFixed(2);
+      price.dataset.defaultPrice = defaults.price;
+    }
+    var defaultPrice = document.getElementById('rechargeDefaultPrice');
+    if (defaultPrice) defaultPrice.textContent = formatRecordMoney(defaults.price);
+    var actualDays = Number(document.getElementById('rechargeActualDays') && document.getElementById('rechargeActualDays').value || 0);
+    var actualMinutes = Number(actualMinutesInput && actualMinutesInput.value || 0);
+    var defaultDays = Number(document.getElementById('rechargeDefaultDays') && document.getElementById('rechargeDefaultDays').textContent || 0);
+    var deviated = actualDays !== defaultDays || actualMinutes !== defaults.creditMinutes || Number(price && price.value) !== defaults.price;
+    var required = document.getElementById('rechargeReasonRequired');
+    if (required) required.textContent = deviated ? '必填' : '选填';
+    var entitlement = profile.entitlement || {};
+    var effectiveAt = productType === 'call_credit_pack' ? entitlement.effectiveAt : getRechargeIteration().simulatedNow;
+    var expiresAt = productType === 'call_credit_pack' ? entitlement.expiresAt : (actualDays > 0 ? addIterationDays(effectiveAt, actualDays) : '—');
+    var effectiveEl = document.getElementById('rechargePreviewEffective');
+    var expiresEl = document.getElementById('rechargePreviewExpires');
+    var minutesEl = document.getElementById('rechargePreviewMinutes');
+    if (effectiveEl) effectiveEl.textContent = effectiveAt || '—';
+    if (expiresEl) expiresEl.textContent = expiresAt || '—';
+    if (minutesEl) minutesEl.textContent = formatWholeMinutes(profile.unifiedMinutePool.availableMinutes) + ' → ' + formatWholeMinutes(profile.unifiedMinutePool.availableMinutes + (Number.isFinite(actualMinutes) ? actualMinutes : 0));
+  }
+
+  function isPositiveInteger(value) {
+    return Number.isInteger(value) && value > 0;
+  }
+
+  function collectRechargeFormData() {
+    var profile = getRechargeFormProfile();
+    var typeInput = document.querySelector('input[name="rechargeProductType"]:checked');
+    var productType = typeInput ? typeInput.value : 'standard_annual';
+    var quantity = productType === 'call_credit_pack' ? Number(document.getElementById('rechargeQuantity').value) : 1;
+    var defaults = rechargeDefaults(profile, productType, quantity || 1);
+    return {
+      profile: profile,
+      productType: productType,
+      quantity: quantity,
+      defaults: defaults,
+      actualDurationDays: Number(document.getElementById('rechargeActualDays').value),
+      actualCreditMinutes: Number(document.getElementById('rechargeActualMinutes').value),
+      actualPrice: Number(document.getElementById('rechargePrice').value),
+      priceText: document.getElementById('rechargePrice').value.trim(),
+      reason: document.getElementById('rechargeDeviationReason').value.trim()
+    };
+  }
+
+  function validateRechargeForm(data) {
+    var errors = [];
+    if (!Object.prototype.hasOwnProperty.call(getRechargeIteration().products, data.productType)) errors.push('请选择有效的充值类型');
+    if (!rechargeTypesForProfile(data.profile).includes(data.productType)) errors.push(rechargeTypeMismatchMessage(data.profile));
+    if (!isPositiveInteger(data.quantity)) errors.push('购买数量必须为大于 0 的整数');
+    if (!isPositiveInteger(data.actualDurationDays)) errors.push('实际使用时长必须为大于 0 的整数');
+    if (!isPositiveInteger(data.actualCreditMinutes)) errors.push('实际入账分钟必须为大于 0 的整数');
+    if (!/^\d+(\.\d{1,2})?$/.test(data.priceText) || !Number.isFinite(data.actualPrice) || data.actualPrice < 0) errors.push('套餐价格须为不小于 0 的金额，最多保留两位小数');
+    var deviated = data.actualDurationDays !== data.defaults.durationDays || data.actualCreditMinutes !== data.defaults.creditMinutes || data.actualPrice !== data.defaults.price;
+    if (deviated && !data.reason) errors.push('实际值偏离默认值时必须填写调整原因');
+    if (data.productType === 'call_credit_pack') {
+      if (!data.profile || data.profile.entitlement.status !== 'active') errors.push('话费充值包仅能在服务有效期内购买');
+      if (data.actualDurationDays > remainingServiceDays(data.profile)) errors.push('充值包使用时长不能超过当前服务剩余天数');
+    }
+    if (data.productType !== 'call_credit_pack' && data.profile && data.profile.entitlement.status === 'active' && remainingServiceDays(data.profile) > 0) errors.push('当前服务套餐已生效，请勿重复开通');
+    return errors;
+  }
+
+  function showRechargeValidation(errors) {
+    var container = document.getElementById('rechargeValidation');
+    if (!container) return;
+    container.innerHTML = errors.length ? '<strong>请检查以下内容：</strong><ul><li>' + errors.join('</li><li>') + '</li></ul>' : '';
+    container.classList.toggle('visible', errors.length > 0);
+  }
+
+  function nextInternalRechargeNo() {
+    var datePart = getRechargeIteration().simulatedNow.slice(0, 10).replace(/-/g, '');
+    var sequence = (getRechargeIteration().rechargeRecords || []).length + 1;
+    return 'RC' + datePart + String(sequence).padStart(4, '0');
+  }
+
+  function executeRechargeWrite(data) {
+    if (!requireTenantBillingPermission()) return null;
+    var profile = data.profile;
+    var pool = profile.unifiedMinutePool;
+    var beforeValue = Number(pool.availableMinutes || 0);
+    var afterValue = beforeValue + data.actualCreditMinutes;
+    var now = getRechargeIteration().simulatedNow;
+    if (data.productType === 'standard_annual' || data.productType === 'trial_package') {
+      profile.entitlement.productType = data.productType;
+      profile.entitlement.status = 'active';
+      profile.entitlement.effectiveAt = now;
+      profile.entitlement.expiresAt = addIterationDays(now, data.actualDurationDays);
+      profile.entitlement.durationDays = data.actualDurationDays;
+      if (profile.usageState === 'expired') profile.usageState = 'loaded';
+    }
+    pool.availableMinutes = afterValue;
+    pool.accountVersion = profile.id.slice(-4) + '-MP-' + String(Date.now()).slice(-6);
+    var product = getRechargeIteration().products[data.productType];
+    var record = {
+      internalNo: nextInternalRechargeNo(), tenantId: profile.id, tenantName: profile.name,
+      productType: data.productType, productName: product.name, quantity: data.quantity,
+      price: data.actualPrice, defaultPrice: data.defaults.price, actualDurationDays: data.actualDurationDays,
+      actualCreditMinutes: data.actualCreditMinutes, beforeValue: beforeValue, afterValue: afterValue,
+      valueUnit: '分钟', operatorName: window.getDemoAuth().displayName,
+      operatedAt: now, reason: data.reason || '使用默认值', status: 'effective'
+    };
+    getRechargeIteration().rechargeRecords.unshift(record);
+    return record;
+  }
+
+  function submitRechargeForm() {
+    if (!requireTenantBillingPermission()) return;
+    var data = collectRechargeFormData();
+    var errors = validateRechargeForm(data);
+    showRechargeValidation(errors);
+    if (errors.length) {
+      showToast(errors[0], 'warning');
+      return;
+    }
+    if (getRechargeIteration().demoStates.failNextRecharge) {
+      getRechargeIteration().demoStates.failNextRecharge = false;
+      var failure = document.getElementById('rechargeWriteFailure');
+      if (failure) failure.style.display = 'flex';
+      showToast('写账失败，账户未发生变化', 'error');
+      return;
+    }
+    var button = document.getElementById('rechargeSubmitButton');
+    if (button) { button.disabled = true; button.textContent = '处理中…'; }
+    var submittedModal = document.getElementById('rechargeFormModal');
+    setTimeout(function () {
+      if (document.getElementById('rechargeFormModal') !== submittedModal || !requireTenantBillingPermission()) return;
+      var record = executeRechargeWrite(data);
+      if (!record) return;
+      closeRechargeForm();
+      var backdrop = document.getElementById('tenantBillingBackdrop');
+      if (backdrop) backdrop.remove();
+      showBillingDrawer(data.profile.name);
+      refreshTenantTable();
+      showToast('充值已生效，内部流水 ' + record.internalNo, 'success');
+    }, 360);
+  }
+
+  function simulateRechargeWriteFailure() {
+    if (!requireTenantBillingPermission()) return;
+    getRechargeIteration().demoStates.failNextRecharge = true;
+    submitRechargeForm();
+  }
+
+  function retryRechargeWrite() {
+    var failure = document.getElementById('rechargeWriteFailure');
+    if (failure) failure.style.display = 'none';
+    submitRechargeForm();
+  }
+
+  function adjustmentCurrentValue(profile, target) {
+    if (target === 'duration_days') return Number(profile.entitlement && profile.entitlement.durationDays || 0);
+    return Number(profile.unifiedMinutePool && profile.unifiedMinutePool.availableMinutes || 0);
+  }
+
+  function adjustmentUnit(target) {
+    return target === 'duration_days' ? '天' : '分钟';
+  }
+
+  function adjustmentMaxDecrease(profile, target) {
+    var current = adjustmentCurrentValue(profile, target);
+    return target === 'duration_days' ? Math.max(0, current - 1) : current;
+  }
+
+  function getIterationAdjustmentProfile() {
+    var modal = document.getElementById('iterationAdjustmentModal');
+    var tenantId = modal && modal.dataset.tenantId;
+    return (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); }) || null;
+  }
+
+  function openIterationAdjustmentForm() {
+    if (!requireTenantBillingPermission()) return;
+    closeIterationAdjustmentForm();
+    var drawer = document.getElementById('tenantBillingDrawer');
+    var tenantId = drawer && drawer.dataset.tenantId;
+    var profile = (getRechargeIteration().tenants || []).find(function (item) { return String(item.id) === String(tenantId); });
+    if (!profile) {
+      showToast('未找到当前租户账户', 'error');
+      return;
+    }
+    var current = adjustmentCurrentValue(profile, 'available_minutes');
+    var maxDecrease = adjustmentMaxDecrease(profile, 'available_minutes');
+    var html = '' +
+      '<div class="modal-overlay adjustment-form-backdrop" id="iterationAdjustmentBackdrop" onclick="window.Pages[\'sys-tenant\'].closeIterationAdjustmentForm(event)">' +
+        '<div class="iteration-adjustment-modal" id="iterationAdjustmentModal" data-tenant-id="' + profile.id + '" data-account-version="' + profile.unifiedMinutePool.accountVersion + '" data-anno="iteration-adjustment-form" data-anno-page="sys-tenant" data-anno-label="使用时长与可用分钟手工调整" data-anno-kind="region" data-anno-fields="FLD-035,FLD-036,FLD-037,FLD-038,FLD-039,FLD-040" onclick="event.stopPropagation()">' +
+          '<div class="tenant-form-modal-header"><div><div class="tenant-form-modal-title">手工调整</div><div class="recharge-form-subtitle">' + profile.name + ' · 账户版本 ' + profile.unifiedMinutePool.accountVersion + '</div></div><button class="tenant-form-modal-close" onclick="window.Pages[\'sys-tenant\'].closeIterationAdjustmentForm()">✕</button></div>' +
+          '<div class="recharge-form-body">' +
+            '<div class="adjustment-choice-grid">' +
+              '<div class="recharge-field" data-anno="adjustment-direction-field" data-anno-page="sys-tenant" data-anno-label="调整方向" data-anno-kind="region" data-anno-fields="FLD-035"><label>调整方向</label><div class="tenant-radio-group"><label class="tenant-radio-label"><input type="radio" name="iterationAdjustmentDirection" value="increase" checked onchange="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"> 调增</label><label class="tenant-radio-label"><input type="radio" name="iterationAdjustmentDirection" value="decrease" onchange="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"> 调减</label></div></div>' +
+              '<div class="recharge-field" data-anno="adjustment-target-field" data-anno-page="sys-tenant" data-anno-label="调整对象" data-anno-kind="region" data-anno-fields="FLD-036"><label>调整对象</label><div class="tenant-radio-group"><label class="tenant-radio-label"><input type="radio" name="iterationAdjustmentTarget" value="available_minutes" checked onchange="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"> 可用分钟</label><label class="tenant-radio-label"><input type="radio" name="iterationAdjustmentTarget" value="duration_days" onchange="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"> 使用时长</label></div></div>' +
+            '</div>' +
+            '<div class="adjustment-account-snapshot" data-anno="adjustment-boundary-state" data-anno-page="sys-tenant" data-anno-label="调整边界与冻结保护" data-anno-kind="region" data-anno-fields="FLD-022,FLD-039,FLD-040"><div><span>当前值</span><strong id="adjustmentCurrentValue">' + formatWholeMinutes(current) + '</strong></div><div><span>最多可调减</span><strong id="adjustmentMaxDecrease">' + formatWholeMinutes(maxDecrease) + '</strong></div><div><span>冻结分钟</span><strong>' + formatWholeMinutes(profile.unifiedMinutePool.frozenMinutes) + '</strong><small>调整不会修改</small></div></div>' +
+            '<div class="adjustment-input-grid">' +
+              '<div class="recharge-field" data-anno="adjustment-value-field" data-anno-page="sys-tenant" data-anno-label="手工调整值" data-anno-kind="region" data-anno-fields="FLD-037"><label>调整值</label><div class="recharge-input-unit"><input id="iterationAdjustmentValue" type="number" min="1" step="1" placeholder="请输入大于 0 的整数" oninput="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"><span id="iterationAdjustmentUnit">分钟</span></div></div>' +
+              '<div class="recharge-field" data-anno="adjustment-result-preview" data-anno-page="sys-tenant" data-anno-label="手工调整前后值预览" data-anno-kind="region" data-anno-fields="FLD-029,FLD-030"><label>结果预览</label><div class="recharge-readonly" id="iterationAdjustmentPreview">' + formatWholeMinutes(current) + ' → —</div></div>' +
+            '</div>' +
+            '<div class="recharge-field" data-anno="adjustment-reason-field" data-anno-page="sys-tenant" data-anno-label="手工调整原因" data-anno-kind="region" data-anno-fields="FLD-038"><label>调整原因 <em class="recharge-required-mark">必填</em></label><textarea id="iterationAdjustmentReason" rows="3" placeholder="请填写本次调整的业务原因"></textarea></div>' +
+            '<div class="recharge-validation" id="iterationAdjustmentValidation" aria-live="polite"></div>' +
+            '<div class="adjustment-conflict" id="iterationAdjustmentConflict" style="display:none;"><strong>账户版本已变化</strong><span id="iterationAdjustmentConflictText">已刷新当前值，请重新确认。</span></div>' +
+          '</div>' +
+          '<div class="tenant-form-modal-footer recharge-form-footer"><button class="recharge-demo-fail" onclick="window.Pages[\'sys-tenant\'].simulateAdjustmentConflict()">演示版本冲突</button><span class="recharge-footer-spacer"></span><button class="btn btn-default" onclick="window.Pages[\'sys-tenant\'].closeIterationAdjustmentForm()">取消</button><button class="btn btn-primary" data-anno="adjustment-submit-action" data-anno-page="sys-tenant" data-anno-label="确认手工调整" data-anno-kind="action" data-anno-fields="FLD-035,FLD-036,FLD-037,FLD-038,FLD-040" onclick="window.Pages[\'sys-tenant\'].submitIterationAdjustment()">确认调整</button></div>' +
+        '</div>' +
+      '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    updateIterationAdjustmentPreview();
+  }
+
+  function closeIterationAdjustmentForm(event) {
+    if (event && event.target !== event.currentTarget) return;
+    var backdrop = document.getElementById('iterationAdjustmentBackdrop');
+    if (backdrop) backdrop.remove();
+  }
+
+  function getSelectedAdjustmentValue(name) {
+    var input = document.querySelector('input[name="' + name + '"]:checked');
+    return input ? input.value : '';
+  }
+
+  function updateIterationAdjustmentPreview() {
+    var profile = getIterationAdjustmentProfile();
+    if (!profile) return;
+    var direction = getSelectedAdjustmentValue('iterationAdjustmentDirection') || 'increase';
+    var target = getSelectedAdjustmentValue('iterationAdjustmentTarget') || 'available_minutes';
+    var value = Number(document.getElementById('iterationAdjustmentValue') && document.getElementById('iterationAdjustmentValue').value || 0);
+    var current = adjustmentCurrentValue(profile, target);
+    var maxDecrease = adjustmentMaxDecrease(profile, target);
+    var unit = adjustmentUnit(target);
+    var after = direction === 'decrease' ? current - value : current + value;
+    var currentEl = document.getElementById('adjustmentCurrentValue');
+    var maxEl = document.getElementById('adjustmentMaxDecrease');
+    var unitEl = document.getElementById('iterationAdjustmentUnit');
+    var previewEl = document.getElementById('iterationAdjustmentPreview');
+    if (currentEl) currentEl.textContent = Number(current).toLocaleString('zh-CN') + ' ' + unit;
+    if (maxEl) maxEl.textContent = Number(maxDecrease).toLocaleString('zh-CN') + ' ' + unit;
+    if (unitEl) unitEl.textContent = unit;
+    if (previewEl) previewEl.textContent = Number(current).toLocaleString('zh-CN') + ' ' + unit + ' → ' + (isPositiveInteger(value) ? Number(after).toLocaleString('zh-CN') + ' ' + unit : '—');
+  }
+
+  function collectIterationAdjustment() {
+    var profile = getIterationAdjustmentProfile();
+    var direction = getSelectedAdjustmentValue('iterationAdjustmentDirection');
+    var target = getSelectedAdjustmentValue('iterationAdjustmentTarget');
+    var valueInput = document.getElementById('iterationAdjustmentValue');
+    var reasonInput = document.getElementById('iterationAdjustmentReason');
+    return {
+      profile: profile,
+      direction: direction,
+      target: target,
+      value: Number(valueInput && valueInput.value || 0),
+      reason: String(reasonInput && reasonInput.value || '').trim()
+    };
+  }
+
+  function validateIterationAdjustment(data) {
+    var errors = [];
+    if (!data.direction) errors.push('请选择调整方向');
+    if (!data.target) errors.push('请选择调整对象');
+    if (!isPositiveInteger(data.value)) errors.push('调整值必须为大于 0 的整数');
+    if (!data.reason) errors.push('请填写调整原因');
+    if (data.profile && data.direction === 'decrease' && isPositiveInteger(data.value) && data.value > adjustmentMaxDecrease(data.profile, data.target)) {
+      errors.push('调减值超过当前最大可调减范围');
+    }
+    return errors;
+  }
+
+  function showIterationAdjustmentValidation(errors) {
+    var container = document.getElementById('iterationAdjustmentValidation');
+    if (!container) return;
+    container.innerHTML = errors.length ? '<strong>请检查以下内容：</strong><ul><li>' + errors.join('</li><li>') + '</li></ul>' : '';
+    container.classList.toggle('visible', errors.length > 0);
+  }
+
+  function nextAdjustmentNo() {
+    var datePart = getRechargeIteration().simulatedNow.slice(0, 10).replace(/-/g, '');
+    return 'ADJ' + datePart + String((getRechargeIteration().adjustmentRecords || []).length + 1).padStart(4, '0');
+  }
+
+  function submitIterationAdjustment() {
+    if (!requireTenantBillingPermission()) return;
+    var data = collectIterationAdjustment();
+    var errors = validateIterationAdjustment(data);
+    showIterationAdjustmentValidation(errors);
+    if (errors.length) {
+      showToast(errors[0], 'warning');
+      return;
+    }
+    var modal = document.getElementById('iterationAdjustmentModal');
+    var openedVersion = modal && modal.dataset.accountVersion;
+    var latestVersion = data.profile.unifiedMinutePool.accountVersion;
+    if (openedVersion !== latestVersion) {
+      if (modal) modal.dataset.accountVersion = latestVersion;
+      var conflict = document.getElementById('iterationAdjustmentConflict');
+      var conflictText = document.getElementById('iterationAdjustmentConflictText');
+      if (conflict) conflict.style.display = 'flex';
+      if (conflictText) conflictText.textContent = '账户版本已从 ' + openedVersion + ' 更新为 ' + latestVersion + '，当前值已刷新，请再次点击确认。';
+      updateIterationAdjustmentPreview();
+      showToast('账户数据已变化，请按刷新后的值重新确认', 'warning');
+      return;
+    }
+    var profile = data.profile;
+    var before = adjustmentCurrentValue(profile, data.target);
+    var after = data.direction === 'decrease' ? before - data.value : before + data.value;
+    var frozenBefore = Number(profile.unifiedMinutePool.frozenMinutes || 0);
+    if (data.target === 'available_minutes') {
+      profile.unifiedMinutePool.availableMinutes = after;
+    } else {
+      profile.entitlement.durationDays = after;
+      profile.entitlement.expiresAt = addIterationDays(profile.entitlement.expiresAt || getRechargeIteration().simulatedNow, data.direction === 'decrease' ? -data.value : data.value);
+    }
+    profile.unifiedMinutePool.accountVersion = profile.id.slice(-4) + '-MP-' + String(Date.now()).slice(-6);
+    var unit = adjustmentUnit(data.target);
+    var record = {
+      adjustmentNo: nextAdjustmentNo(), tenantId: profile.id, tenantName: profile.name,
+      direction: data.direction, target: data.target, value: data.value,
+      beforeValue: before, afterValue: after, valueUnit: unit, reason: data.reason,
+      operatorName: window.getDemoAuth().displayName,
+      operatedAt: getRechargeIteration().simulatedNow,
+      accountVersion: profile.unifiedMinutePool.accountVersion,
+      frozenMinutesBefore: frozenBefore, frozenMinutesAfter: profile.unifiedMinutePool.frozenMinutes,
+      status: 'effective'
+    };
+    getRechargeIteration().adjustmentRecords.unshift(record);
+    closeIterationAdjustmentForm();
+    var backdrop = document.getElementById('tenantBillingBackdrop');
+    if (backdrop) backdrop.remove();
+    showBillingDrawer(profile.name);
+    refreshTenantTable();
+    showToast('手工调整已生效，流水 ' + record.adjustmentNo, 'success');
+  }
+
+  function simulateAdjustmentConflict() {
+    if (!requireTenantBillingPermission()) return;
+    var profile = getIterationAdjustmentProfile();
+    if (!profile) return;
+    profile.unifiedMinutePool.accountVersion = profile.unifiedMinutePool.accountVersion + '-NEW';
+    submitIterationAdjustment();
+  }
+
+  function showLegacyBillingDrawer(tenantName) {
     var existed = findBillingByTenant(tenantName);
     var row = existed || buildBillingSeed(tenantName);
     var tenantLocked = tenantName || row.tenantName;
     var summary = getTenantBillingSummary(tenantLocked);
+    var tenantBase = getTenantRows().find(function (item) { return normalizeTenantName(item.name) === normalizeTenantName(tenantLocked); });
+    var iterationProfile = getTenantIterationProfile(tenantBase || tenantLocked, true);
+    var iterationFlagText = iterationProfile.commercialFlag === 'commercial' ? '商用' : '试用';
     var html = '' +
       '<div class="biz-drawer-backdrop" id="tenantBillingBackdrop" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer(event)">' +
         '<div class="biz-drawer tenant-drawer" id="tenantBillingDrawer" data-anno-page="sys-tenant" data-anno-label="租户充值与余额管理" data-anno-kind="region" data-anno-fields="FLD-050,FLD-055" onclick="event.stopPropagation()" data-row-id="' + row.id + '" data-new="' + (existed ? '0' : '1') + '">' +
@@ -1061,6 +1866,11 @@
             '<span class="biz-drawer-close" onclick="window.Pages[\'sys-tenant\'].closeBillingDrawer()">&#x2715;</span>' +
           '</div>' +
           '<div class="biz-drawer-body">' +
+            '<div class="tenant-iteration-context">' +
+              '<div><span>租户名称</span><strong>' + tenantLocked + '</strong></div>' +
+              '<div><span>租户 ID</span><strong>' + iterationProfile.id + '</strong></div>' +
+              '<div><span>租户标记</span><strong><em class="tenant-commercial-tag ' + iterationProfile.commercialFlag + '">' + iterationFlagText + '</em></strong></div>' +
+            '</div>' +
             '<div class="tenant-drawer-section">' +
               '<div class="tenant-section-title">租户信息</div>' +
               '<div class="biz-form-row">' +
@@ -1205,6 +2015,8 @@
   function switchBillingTab(tabName) {
     var drawer = document.getElementById('tenantBillingDrawer');
     if (!drawer) return;
+    var hasTab = Array.from(drawer.querySelectorAll('.tenant-billing-tab')).some(function (tab) { return tab.dataset.tab === tabName; });
+    if (!hasTab) return;
     drawer.querySelectorAll('.tenant-billing-tab').forEach(function (tab) {
       tab.classList.toggle('active', tab.dataset.tab === tabName);
     });
@@ -1235,6 +2047,7 @@
   }
 
   function confirmTrialOrder() {
+    if (!requireTenantBillingPermission()) return;
     var tenantInput = document.getElementById('tenantName');
     var tenantName = tenantInput ? tenantInput.value : '';
     var monthsSelect = document.getElementById('tenantTrialValidityMonths');
@@ -1421,6 +2234,7 @@
   }
 
   function confirmRechargeOrder() {
+    if (!requireTenantBillingPermission()) return;
     var drawer = document.getElementById('tenantBillingDrawer');
     if (!drawer) return;
     var order = drawer._checkedOrder;
@@ -1515,6 +2329,7 @@
   }
 
   function showAdjustmentModal() {
+    if (!requireTenantBillingPermission()) return;
     closeAdjustmentModal();
     var tenantInput = document.getElementById('tenantName');
     var tenantName = tenantInput ? tenantInput.value : '';
@@ -1564,6 +2379,7 @@
   }
 
   function submitAdjustmentFromModal() {
+    if (!requireTenantBillingPermission()) return;
     var tenantInput = document.getElementById('tenantName');
     var tenantName = tenantInput ? tenantInput.value : '';
     var amountInput = document.getElementById('tenantAdjustmentModalAmount');
@@ -1596,11 +2412,13 @@
   var currentEditingTenantId = null;
 
   function openCreateTenantModal() {
+    if (!requireTenantBillingPermission()) return;
     currentEditingTenantId = null;
     showTenantFormModal({
       title: '新建租户',
       name: '',
       type: '总部',
+      commercialFlag: 'trial',
       desc: '',
       status: '启用'
     });
@@ -1613,10 +2431,12 @@
       return;
     }
     currentEditingTenantId = String(tenantId);
+    var profile = getTenantIterationProfile(row, true);
     showTenantFormModal({
       title: '编辑租户',
       name: row.name,
       type: row.type || '总部',
+      commercialFlag: profile.commercialFlag || 'trial',
       desc: row.desc === '-' ? '' : (row.desc || ''),
       status: row.status || '启用'
     });
@@ -1631,17 +2451,21 @@
   }
 
   function showTenantFormModal(data) {
+    var editingId = currentEditingTenantId;
     closeTenantFormModal();
+    currentEditingTenantId = editingId;
     var nameLength = (data.name || '').length;
     var descLength = (data.desc || '').length;
     var isHq = data.type === '总部';
     var isStore = data.type === '门店';
+    var isCommercial = data.commercialFlag === 'commercial';
+    var isTrial = !isCommercial;
     var isEnabled = data.status === '启用';
     var isDisabled = data.status === '禁用';
 
     var html = '' +
       '<div class="modal-overlay" id="tenantFormModalBackdrop" style="position:fixed;inset:0;z-index:5500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);" onclick="window.Pages[\'sys-tenant\'].closeTenantFormModal(event)">' +
-        '<div class="tenant-form-modal" id="tenantFormModal" data-anno-page="sys-tenant" data-anno-label="租户信息表单" data-anno-kind="region" data-anno-fields="FLD-050,FLD-051,FLD-052,FLD-053,FLD-054,FLD-055" onclick="event.stopPropagation()">' +
+        '<div class="tenant-form-modal" id="tenantFormModal" data-anno="tenant-edit-form" data-anno-page="sys-tenant" data-anno-label="租户信息表单" data-anno-kind="region" data-anno-fields="FLD-001,FLD-002,FLD-003" onclick="event.stopPropagation()">' +
           '<div class="tenant-form-modal-header">' +
             '<span class="tenant-form-modal-title" id="tenantFormModalTitle">' + data.title + '</span>' +
             '<button class="tenant-form-modal-close" onclick="window.Pages[\'sys-tenant\'].closeTenantFormModal()">✕</button>' +
@@ -1664,6 +2488,16 @@
                   '<label class="tenant-radio-label"><input type="radio" name="tenantFormType" value="总部"' + (isHq ? ' checked' : '') + '> 总部</label>' +
                   '<label class="tenant-radio-label"><input type="radio" name="tenantFormType" value="门店"' + (isStore ? ' checked' : '') + '> 门店</label>' +
                 '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="tenant-form-row" data-anno="tenant-commercial-flag-field" data-anno-page="sys-tenant" data-anno-label="商用或试用标记选择" data-anno-kind="region" data-anno-fields="FLD-003">' +
+              '<label class="tenant-form-label"><span class="tenant-required">*</span> 商用/试用：</label>' +
+              '<div class="tenant-form-control">' +
+                '<div class="tenant-radio-group">' +
+                  '<label class="tenant-radio-label"><input type="radio" name="tenantCommercialFlag" value="commercial"' + (isCommercial ? ' checked' : '') + '> 商用</label>' +
+                  '<label class="tenant-radio-label"><input type="radio" name="tenantCommercialFlag" value="trial"' + (isTrial ? ' checked' : '') + '> 试用</label>' +
+                '</div>' +
+                '<div class="tenant-form-hint">该标记仅用于展示，不改变有效期、分钟余额、冻结或消耗规则。</div>' +
               '</div>' +
             '</div>' +
             '<div class="tenant-form-row">' +
@@ -1736,14 +2570,17 @@
   }
 
   function submitTenantFormModal() {
+    if (!currentEditingTenantId && !requireTenantBillingPermission()) return;
     var nameInput = document.getElementById('tenantFormNameInput');
     var errEl = document.getElementById('tenantNameError');
     var descInput = document.getElementById('tenantFormDescInput');
     var typeRadio = document.querySelector('input[name="tenantFormType"]:checked');
+    var commercialFlagRadio = document.querySelector('input[name="tenantCommercialFlag"]:checked');
     var statusRadio = document.querySelector('input[name="tenantFormStatus"]:checked');
 
     var name = nameInput ? nameInput.value.trim() : '';
     var type = typeRadio ? typeRadio.value : '总部';
+    var commercialFlag = commercialFlagRadio ? commercialFlagRadio.value : 'trial';
     var desc = descInput ? descInput.value.trim() : '';
     var status = statusRadio ? statusRadio.value : '启用';
 
@@ -1777,12 +2614,17 @@
       var row = getTenantRows().find(function (r) { return String(r.tenantId) === currentEditingTenantId; });
       if (row) {
         var oldName = row.name;
+        var iterationProfile = getTenantIterationProfile(row, true);
         row.name = name;
         row.type = type;
         row.desc = desc || '-';
         row.status = status;
         row.updater = 'xtadmin';
         row.updateTime = nowStr;
+        iterationProfile.name = name;
+        iterationProfile.type = type;
+        iterationProfile.commercialFlag = commercialFlag;
+        iterationProfile.commercialFlagLabel = commercialFlag === 'commercial' ? '商用' : '试用';
 
         if (oldName !== name) {
           getPriceRules().forEach(function(p) {
@@ -1808,10 +2650,13 @@
         tenantId: newTenantId,
         desc: desc || '-',
         status: status,
-        updater: 'xtadmin',
+        updater: window.getDemoAuth().displayName,
         updateTime: nowStr
       };
       getTenantRows().unshift(newRow);
+      var newProfile = getTenantIterationProfile(newRow, true);
+      newProfile.commercialFlag = commercialFlag;
+      newProfile.commercialFlagLabel = commercialFlag === 'commercial' ? '商用' : '试用';
 
       // 默认价格规则
       var rules = getPriceRules();
@@ -1847,9 +2692,22 @@
 
   window.Pages = window.Pages || {};
   window.Pages['sys-tenant'] = {
+    onAuthChanged: onAuthChanged,
     render: render,
     init: init,
     showBillingDrawer: showBillingDrawer,
+    retryRechargeOverview: retryRechargeOverview,
+    openRechargeForm: openRechargeForm,
+    closeRechargeForm: closeRechargeForm,
+    updateRechargePreview: updateRechargePreview,
+    submitRechargeForm: submitRechargeForm,
+    simulateRechargeWriteFailure: simulateRechargeWriteFailure,
+    retryRechargeWrite: retryRechargeWrite,
+    openIterationAdjustmentForm: openIterationAdjustmentForm,
+    closeIterationAdjustmentForm: closeIterationAdjustmentForm,
+    updateIterationAdjustmentPreview: updateIterationAdjustmentPreview,
+    submitIterationAdjustment: submitIterationAdjustment,
+    simulateAdjustmentConflict: simulateAdjustmentConflict,
     closeBillingDrawer: closeBillingDrawer,
     switchBillingTab: switchBillingTab,
     exportTenantBilling: exportTenantBilling,
@@ -1869,6 +2727,12 @@
     toggleCallControl: toggleCallControl,
     getImportCapacity: getImportCapacity,
     createImportFreeze: createImportFreeze,
+    calculateBilledMinutes: calculateBilledMinutes,
+    canStartUnifiedTask: canStartUnifiedTask,
+    startUnifiedTask: startUnifiedTask,
+    settleUnifiedTask: settleUnifiedTask,
+    releaseUnifiedTask: releaseUnifiedTask,
+    syncUnifiedFrozenTaskReleases: syncUnifiedFrozenTaskReleases,
     syncFrozenTaskReleases: syncFrozenTaskReleases,
     releaseFrozenTasksByScene: releaseFrozenTasksByScene,
     showPricingConfigModal: showPricingConfigModal,
