@@ -1,5 +1,75 @@
 # 执行步骤
 
+## Step 20: 使用时长允许调减归零
+
+### Goal
+
+移除实现额外添加的1天下限，允许超管将配置使用时长调减至0，保留余额与冻结结算。
+
+### Files
+
+- `js/pages/sys-tenant.js`
+- `index.html`
+- `docs/功能说明文档.md`
+- `docs/功能说明文档.html`
+- `docs/计算逻辑.html`
+- `docs/interaction.html`
+- `docs/decisions.md`
+- `memory/source-materials.md`
+- `memory/business-rules.md`
+- `memory/field-map.md`
+- `memory/acceptance-map.md`
+- `memory/change-log.md`
+- `memory/annotation-prompt.md`
+- `memory/annotation-coverage.md`
+- `annotations/annotations.js`（业务验证后仅维护本轮已核验标注中的相同规则，不新增、重建或读取历史标注）
+
+### Expected Change
+
+- update
+
+### Inputs
+
+- SRC-020，D-019，BR-021，用户明确要求“改成可以归0”；现行时长调整以配置总天数为基准。
+
+### Work
+
+- 可调减上限改为当前总天数，调整量仍为正整数且原因必填；预览明确归零影响。
+- 归零服务标记已过期，首页/使用情况/任务开通状态同步；普通时长调整继续平移原到期日，并据到期时间刷新状态。0可再调增，但是否恢复服务仍按到期时间判断。
+- 不改可用/冻结/消耗及既有冻结记录；归零流水记录真实0。同步现行文档、字段及当前标注下限说明。
+
+### Acceptance
+
+- 30减30、1减1可归零；超额调减拒绝；0输入/负数/小数/缺原因继续拒绝。
+- 归零后已过期且不能启动新任务；分钟池不变，既有任务仍可幂等结算或释放。
+- 版本冲突不写账，重新确认后可归零；归零可调增，普通分钟调整及充值输入正整数规则不变。
+- 全量说明、计算说明及正式标注不再要求最少保留1天，原全文和48个标注身份保留。
+
+### Verification
+
+- 语法、真实表单边界操作、前后值/流水/状态跨页核对、冻结结算回归；文档同步与标注合同检查及五视图回归。
+
+### Verification Skill
+
+- Verification Skill: `prototype-verifier`
+- Browser Evidence Tool: `playwright-cli when needed`
+- Support Skill: `superpowers-pm-prototype/skills/verification-before-completion`
+
+### Annotation Impact
+
+- affected-pages: sys-tenant
+- annotation-required: yes
+- annotation-targets: sys-tenant | 使用时长与可用分钟手工调整 | region | FLD-035,FLD-036,FLD-037,FLD-038,FLD-039,FLD-040
+- 仅修正当前标注下限事实和来源，保留ID/target/fieldRefs，无新增锚点。
+
+### Dependencies
+
+- STEP-19
+
+### Failure Handling
+
+- 留在本步修正，不清空分钟或冻结，不回写冻结分析原图，不自动提交GitHub。
+
 ## Step 19: 套餐展示、正式标注与计算说明修正
 
 ### Goal

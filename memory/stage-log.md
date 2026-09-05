@@ -342,3 +342,19 @@ decision: manual annotations approved and final revalidated
 next_stage: none
 blocked_by: none
 notes: none
+
+date: 2026-09-05T15:19:06
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 46269415a164
+preflight_result_hash: 3378bccfc9cc8ab1
+stage: S9
+stage_name: 标注提示词准备
+input_artifacts: annotations/annotations.js
+output_artifacts: memory/final-snapshot.json
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/33-智能外呼/DEMO_PRESENT/tools/loop_preflight.py /Users/huhaowen/Documents/33-智能外呼/DEMO_PRESENT --stage final --completing-stage S9
+gate_result: pass
+decision: manual annotations approved and final revalidated
+next_stage: none
+blocked_by: none
+notes: SRC-020时长调减归零：25项业务、11项当前规则与文档、48条标注及五视图10组验证通过；同一已验收标注规则维护，原文档完整保留，未推送GitHub。

@@ -1,4 +1,6 @@
-# 当前标注生成说明 · SRC-019 / Step 19
+# 当前标注生成说明 · SRC-019 / Step 19，SRC-020 / Step20维护
+
+SRC-020 / D-019 / BR-021 / R-034：在Step20业务25项和五视图全局验证通过后，仅维护已验收的本轮正式标注26、29、31、33及现行文档版本。使用时长调减可归0，归零后服务到期并禁止新外呼；分钟余额与已有冻结结算保留。保留全部48个编号与锚点，不读取或继承历史标注。
 
 ## 手动标注提示词
 
@@ -6,14 +8,14 @@
 
 ## 标注输入资料
 
-- memory/project.md、memory/business-rules.md、memory/field-map.md、memory/source-materials.md、docs/decisions.md：当前事实以D-018/SRC-019及各已确认最新评审为准。
-- memory/execution-steps.md、memory/change-log.md、memory/verification-log.md及下方当前验收：Step19与本次global通过，正式数据仍需S9后独立回写验收。
+- memory/project.md、memory/business-rules.md、memory/field-map.md、memory/source-materials.md、docs/decisions.md：当前事实以D-019/SRC-020及各已确认最新评审为准。
+- memory/execution-steps.md、memory/change-log.md、memory/verification-log.md及当前验收：Step19正式回写已验收；Step20与当前global通过后维护同一归零规则，再复验标注。
 - memory/project-startup-plan.md只读溯源；旧角色、同套餐和兼容假设已由后续评审覆盖，不复制为现行事实。本项目非新式imported模式，不伪造feature-list或基线指纹。
-- 唯一权限出处docs/功能说明文档.html#sub-23；当前摘要#sub-24、docs/interaction.html v1.8及docs/计算逻辑.html v2.0。
-- 当前修改：mock/data.js、js/pages/home.js、js/app.js、index.html、annotations/annotation-runtime.js、上述三份说明及对应当前记忆；无冻结原图或菜单隔离改动。
-- 来源：SRC-001、SRC-002、SRC-003、SRC-004、SRC-005、SRC-006、SRC-007、SRC-008、SRC-009、SRC-010、SRC-011、SRC-012、SRC-013、SRC-014、SRC-015、SRC-016、SRC-017、SRC-018、SRC-019。
+- 唯一权限出处docs/功能说明文档.html#sub-23；当前摘要#sub-24、docs/interaction.html v1.9及docs/计算逻辑.html v2.1。
+- 当前修改：js/pages/sys-tenant.js、index.html、三份说明、当前正式标注及对应记忆；无冻结原图或菜单隔离改动。
+- 来源：SRC-001、SRC-002、SRC-003、SRC-004、SRC-005、SRC-006、SRC-007、SRC-008、SRC-009、SRC-010、SRC-011、SRC-012、SRC-013、SRC-014、SRC-015、SRC-016、SRC-017、SRC-018、SRC-019、SRC-020。
 - 字段：FLD-001、FLD-002、FLD-003、FLD-004、FLD-005、FLD-006、FLD-007、FLD-008、FLD-009、FLD-010、FLD-011、FLD-012、FLD-013、FLD-014、FLD-015、FLD-016、FLD-017、FLD-018、FLD-019、FLD-020、FLD-021、FLD-022、FLD-023、FLD-024、FLD-025、FLD-026、FLD-027、FLD-028、FLD-029、FLD-030、FLD-031、FLD-032、FLD-033、FLD-034、FLD-035、FLD-036、FLD-037、FLD-038、FLD-039、FLD-040、FLD-041、FLD-042、FLD-043、FLD-044、FLD-045、FLD-046、FLD-047、FLD-048、FLD-049、FLD-050、FLD-051。
-- 验收：R-001、R-002、R-003、R-004、R-005、R-006、R-007、R-008、R-009、R-010、R-011、R-012、R-013、R-014、R-015、R-016、R-017、R-018、R-019、R-020、R-021、R-022、R-023、R-024、R-025、R-026、R-027、R-028、R-029、R-030、R-031、R-032、R-033。R-015按SRC-015/D-014取消；其余通过项保留原AC/SC/PAGE/ACTION追溯，不仅引用R编号。
+- 验收：R-001、R-002、R-003、R-004、R-005、R-006、R-007、R-008、R-009、R-010、R-011、R-012、R-013、R-014、R-015、R-016、R-017、R-018、R-019、R-020、R-021、R-022、R-023、R-024、R-025、R-026、R-027、R-028、R-029、R-030、R-031、R-032、R-033、R-034。R-015按SRC-015/D-014取消；其余通过项保留原AC/SC/PAGE/ACTION追溯，不仅引用R编号。
 
 ### 当前关键事实
 
@@ -21,7 +23,7 @@
 
 渝发显示试用套餐并保留手改120天、7800可用分钟。其他管理员演示绑定渝发，只读当前授权租户首页，无创建/充值/调整或使用明细权限；超管为平台工作台且无用量明细。普通/多租户从账户下拉查看当前租户使用情况，日汇总等于任务合计，缺有效上下文时不回退其他租户。
 
-时长调整作用于配置总天数（最低1）和原到期日；分钟调整作用于可用余额（最低0）且不改冻结；版本冲突刷新后再确认。可用余额已经排除冻结，不二次扣冻或按价格换算。未接通0；已接通max(1,ceil(秒/60))，先每通取整再求和。结算A'=A+E-S、F'=F-E、C'=C+S，不足补扣拒绝且保留冻结，重复回调幂等。
+时长调整作用于配置总天数（最低0）和原到期日，归零后服务到期并禁止新外呼，分钟余额和已有冻结结算保留；调整量仍须正整数；分钟调整作用于可用余额（最低0）且不改冻结；版本冲突刷新后再确认。可用余额已经排除冻结，不二次扣冻或按价格换算。未接通0；已接通max(1,ceil(秒/60))，先每通取整再求和。结算A'=A+E-S、F'=F-E、C'=C+S，不足补扣拒绝且保留冻结，重复回调幂等。
 
 租户管理正式规则是超管专属，当前菜单/页面未全面隔离，必须注明演示差异。旧金额说明和原始分析图不是当前充值外部依赖。所有数据来自智能外呼中台本地Mock模拟，不宣称接通生产支付、账本、权限或接口。只写当前真实加载、空态、过期、冲突、失败和重试行为。
 
@@ -35,6 +37,7 @@
 
 | Source ID | Type | Title | Received At | Key Points | Status / Coverage | Used In |
 | --- | --- | --- | --- | --- | --- | --- |
+| SRC-020 | User correction | 使用时长调减允许归0 | 2026-09-05 | 用户确认“改成可以归0”；纠正额外1天下限，归零后服务到期并禁止新外呼，分钟余额和既有冻结结算保留；不放宽充值输入与调整量正整数要求 | confirmed / full | STEP-20、D-019、BR-021、R-034、当前文档及标注规则维护 |
 | SRC-019 | User correction | 四项修正：试用套餐、管理员首页、标注及计算逻辑 | 2026-09-05 | 渝发试用首页不得显示标准版；其他管理员显示本租户套餐但无充值权限；明确解决标注未显示，作为当前空骨架完整回写触发；计算文档同步现行规则 | confirmed / full；保留SRC-018菜单演示差异 | STEP-19、D-018、BR-020、R-033、全量v3.3、迭代v1.8、计算v2.0与正式标注 |
 
 SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC-015 无历史兼容与 SRC-014 试用/商用互斥配置继续有效。
@@ -98,7 +101,7 @@ SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC
 | FLD-006 | SRC-004 | PAGE-001/PAGE-002/PAGE-005 | entitlement.status | 服务状态 | 表示租户 AI 服务是否未开通、有效或已过期 | 根据生效时间、失效时间和当前模拟日期计算 | 状态标签 | not_opened=未开通；active=有效；expired=已过期 | 无时间数据时显示“未开通” | service-status | AC-004、AC-020 |
 | FLD-007 | SRC-005 | PAGE-002/PAGE-005 | entitlement.effectiveAt | 生效时间 | 当前服务期开始生效的时间 | 首次开通取提交成功时间；已有权益直接读取 | YYYY-MM-DD HH:mm | 无 | 未开通显示“—” | effective-at | AC-004、AC-020 |
 | FLD-008 | SRC-005 | PAGE-002/PAGE-005 | entitlement.expiresAt | 失效时间 | 当前服务期结束时间 | 由 FLD-007 加实际使用天数计算，已有权益直接读取 | YYYY-MM-DD HH:mm | 无 | 未开通显示“—”；过期使用警示色 | expires-at | AC-004、AC-020 |
-| FLD-009 | SRC-002 | PAGE-003/PAGE-004 | entitlement.durationDays | 使用时长 | 本次充值或调整作用于服务期的天数 | 读取权益配置总天数；调增/调减直接加减该值，到期日同步加减相同天数，不是对剩余天数直接改值 | 正整数 + 天 | 无 | 非正整数阻止提交；调减低于合法下限时报错 | duration-days | AC-027、AC-030、AC-031 |
+| FLD-009 | SRC-020 | PAGE-003/PAGE-004 | entitlement.durationDays | 使用时长 | 本次充值或调整作用于服务期的天数 | 读取权益配置总天数；调减结果允许0，到期日同步加减；归零后服务到期，不动分钟或冻结 | 非负整数 + 天 | 无 | 调整量仍为正整数，调减不得超过当前总天数 | duration-days | AC-027、AC-030、AC-031 |
 | FLD-010 | SRC-014 | PAGE-003 | recharge.type | 充值类型 | 区分标准版年包、话费充值包与试用专用试用套餐 | 由超级管理员单选，驱动默认价格、天数、分钟和数量字段 | 单选/标签 | standard_annual=标准版年包；call_credit_pack=话费充值包；trial_package=试用套餐（试用唯一选项）；其余两种仅商用 | 未选择或不属于当前租户类型时阻止提交；试用仅trial_package，商用仅另外两种（SRC-014） | recharge-type | AC-004、AC-008 |
 | FLD-011 | SRC-003 | PAGE-003 | recharge.unitPrice | 套餐默认单价 | 商品给出的初始参考单价 | 标准版默认 5000；充值包默认 1000；试用套餐默认 0（SRC-013）；本次总价由 FLD-050 独立记录 | ¥#,##0.00 | standard_annual；call_credit_pack；trial_package | 未知类型禁止提交 | recharge-price-field | AC-005、AC-008、R-023 |
 | FLD-012 | SRC-003 | PAGE-003 | recharge.packageQuantity | 充值包数量 | 本次购买的话费充值包个数 | 仅充值包模式由用户输入正整数；标准版与试用套餐固定为 1 或隐藏 | 正整数 + 包 | 无 | 非正整数阻止提交；标准版与试用套餐不展示 | package-quantity | AC-008、AC-010 |
@@ -128,7 +131,7 @@ SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC
 | FLD-036 | SRC-005 | PAGE-004 | adjustment.target | 调整对象 | 指定本次作用于使用时长或可用分钟 | 由超级管理员必选并决定单位和边界 | 单选/标签 | duration_days=使用时长；available_minutes=可用分钟 | 未选择阻止提交 | adjustment-target | AC-031、AC-035 |
 | FLD-037 | SRC-005 | PAGE-004 | adjustment.value | 调整值 | 本次对目标字段增加或减少的绝对数值 | 用户输入正整数；根据 FLD-035 决定加减 | 正整数 + 天/分钟 | 单位随 FLD-036 | 非正整数阻止提交 | adjustment-value | AC-031、AC-035 |
 | FLD-038 | SRC-005 | PAGE-004 | adjustment.reason | 调整原因 | 手工调整必须保留的审计说明 | 用户必填并写入调整流水 | 多行文本 | 无 | 为空阻止提交 | adjustment-reason | AC-033、AC-035 |
-| FLD-039 | SRC-004 | PAGE-004 | adjustment.maxDecrease | 可调减上限 | 不修改冻结记录前提下允许减少的最大值 | 分钟上限=当前可用分钟；时长上限=当前配置总天数减1 | 数值 + 单位 | 天或分钟 | 无可调空间时禁用确认 | max-decrease | AC-034 |
+| FLD-039 | SRC-020 | PAGE-004 | adjustment.maxDecrease | 可调减上限 | 不修改冻结记录前提下允许减少的最大值 | 分钟上限=当前可用分钟；时长上限=当前配置总天数，允许调减归0 | 数值 + 单位 | 天或分钟 | 无可调空间时拒绝调减，可切换调增 | max-decrease | AC-034 |
 | FLD-040 | SRC-004 | PAGE-004 | adjustment.accountVersion | 账户版本 | 用于判断预览后账户是否被并发修改 | 打开弹窗时读取，提交时与最新版本比对 | 文本/隐藏 | 无 | 不一致进入 conflict 并要求刷新 | account-version | SC-009 ALT-004 |
 | FLD-041 | SRC-005 | PAGE-005 | usage.date | 日期 | 一级使用明细的自然日汇总维度 | 由已结算通话记录按当前租户和日期分组 | YYYY-MM-DD | 无 | 无记录时展示空状态 | usage-date | AC-022、AC-025 |
 | FLD-042 | SRC-005 | PAGE-005 | usage.dailyConsumedMinutes | 当日消耗通话分钟 | 当前租户某日所有任务已结算通讯分钟之和 | 对同日 FLD-045 求和，未接通不计入 | #,##0 分钟 | 无 | 无数据不生成伪记录 | daily-consumed | AC-022、AC-025 |
@@ -165,6 +168,7 @@ SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC
 | Requirement ID | Requirement | Acceptance Criteria | Verification | Status | Decision / Reason |
 | --- | --- | --- | --- | --- | --- |
 | R-033 | 四项评审修正 | 渝发显示试用套餐；其他管理员只读本租户套餐；标注运行时识别首页/用量及账户锚点；计算说明统一分钟池并保留原文 | STEP-19；SRC-019；D-018；BR-020；账户/权限/计算及文档21项断言 | Pass | S7业务和运行时通过；正式48条数据按S9后回写另行验收，全部回写验证前不宣称用户四项全部完成；菜单和已编辑额度保留 |
+| R-034 | 时长调减允许归零 | 最大调减量=当前总天数，结果可为0且服务过期；不清空分钟或冻结，超额/非法输入/缺原因/版本冲突不写账；文档及当前标注一致 | STEP-20；SRC-020；D-019；BR-021；/tmp/recharge-zero-days.M70AM4/check.js | Pass | 25项业务、11项规则与文档、五视图10组通过；120/30/1归零与0再调增通过，48条标注合同和当前4条规则已核对，原文档保留 |
 | R-001 | 商用/试用标记 | 可创建/编辑并展示两种标记；仅改标记不影响账务 | STEP-02；AC-001~003；SRC-002；FLD-003；编辑后对比有效期和分钟池 | Pass | step-02 标记保存回显，账户值前后不变 |
 | R-002 | 标准版年包 | 默认 5,000 元、365 天、10,000 分钟，服务与两套话术说明完整 | STEP-04；AC-004~007；SRC-003；FLD-011、013、015、047~049；默认值和预览检查 | Pass | step-04 默认商品、套餐说明及写账结果符合规则 |
 | R-003 | 话费充值包 | 有效服务期内可购买；默认 1,000 元/包、3,500 分钟/包，数量叠加正确 | STEP-04；AC-008~010；FLD-010~016；多包、改值和过期租户检查 | Pass | step-04 两包联动 2,000 元/7,000 分钟，过期购买被拦截 |
@@ -250,8 +254,8 @@ SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC
 - page: sys-tenant | data-anno: adjustment-result-preview | selector: [data-anno="adjustment-result-preview"] | label: 手工调整前后值预览 | kind: region | fieldRefs: FLD-029,FLD-030 | file: js/pages/sys-tenant.js:1709
 - page: sys-tenant | data-anno: adjustment-reason-field | selector: [data-anno="adjustment-reason-field"] | label: 手工调整原因 | kind: region | fieldRefs: FLD-038 | file: js/pages/sys-tenant.js:1711
 - page: sys-tenant | data-anno: adjustment-submit-action | selector: [data-anno="adjustment-submit-action"] | label: 确认手工调整 | kind: action | fieldRefs: FLD-035,FLD-036,FLD-037,FLD-038,FLD-040 | file: js/pages/sys-tenant.js:1715
-- page: sys-tenant | data-anno: tenant-edit-form | selector: [data-anno="tenant-edit-form"] | label: 租户信息表单 | kind: region | fieldRefs: FLD-001,FLD-002,FLD-003 | file: js/pages/sys-tenant.js:2468
-- page: sys-tenant | data-anno: tenant-commercial-flag-field | selector: [data-anno="tenant-commercial-flag-field"] | label: 商用或试用标记选择 | kind: region | fieldRefs: FLD-003 | file: js/pages/sys-tenant.js:2493
+- page: sys-tenant | data-anno: tenant-edit-form | selector: [data-anno="tenant-edit-form"] | label: 租户信息表单 | kind: region | fieldRefs: FLD-001,FLD-002,FLD-003 | file: js/pages/sys-tenant.js:2476
+- page: sys-tenant | data-anno: tenant-commercial-flag-field | selector: [data-anno="tenant-commercial-flag-field"] | label: 商用或试用标记选择 | kind: region | fieldRefs: FLD-003 | file: js/pages/sys-tenant.js:2501
 - page: usage | data-anno: usage-access-denied | selector: [data-anno="usage-access-denied"] | label: 使用情况权限拦截 | kind: region | fieldRefs: FLD-004,FLD-005 | file: js/pages/usage.js:45
 - page: usage | data-anno: usage-current-tenant-overview | selector: [data-anno="usage-current-tenant-overview"] | label: 当前租户有效期与可用分钟 | kind: region | fieldRefs: FLD-002,FLD-004,FLD-006,FLD-007,FLD-008,FLD-021 | file: js/pages/usage.js:52
 - page: usage | data-anno: usage-daily-empty | selector: [data-anno="usage-daily-empty"] | label: 按日使用明细空状态 | kind: region | fieldRefs: FLD-041,FLD-042 | file: js/pages/usage.js:61

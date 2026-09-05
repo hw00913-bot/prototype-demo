@@ -6,6 +6,10 @@
 
 | Source ID | Type | Title | Received At | Key Points | Status / Coverage | Used In |
 | --- | --- | --- | --- | --- | --- | --- |
+| SRC-020 | User correction | 使用时长调减允许归0 | 2026-09-05 | 用户确认“改成可以归0”；纠正额外1天下限，归零后服务到期并禁止新外呼，分钟余额和既有冻结结算保留；不放宽充值输入与调整量正整数要求 | confirmed / full | STEP-20、D-019、BR-021、R-034、当前文档及标注规则维护 |
+
+| Source ID | Type | Title | Received At | Key Points | Status / Coverage | Used In |
+| --- | --- | --- | --- | --- | --- | --- |
 | SRC-019 | User correction | 四项修正：试用套餐、管理员首页、标注及计算逻辑 | 2026-09-05 | 渝发试用首页不得显示标准版；其他管理员显示本租户套餐但无充值权限；明确解决标注未显示，作为当前空骨架完整回写触发；计算文档同步现行规则 | confirmed / full；保留SRC-018菜单演示差异 | STEP-19、D-018、BR-020、R-033、全量v3.3、迭代v1.8、计算v2.0与正式标注 |
 
 SRC-016 指定创建租户、充值、调增调减由超级管理员操作；SRC-015 无历史兼容与 SRC-014 试用/商用互斥配置继续有效。

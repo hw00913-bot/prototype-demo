@@ -14,7 +14,7 @@
 | FLD-006 | SRC-004 | PAGE-001/PAGE-002/PAGE-005 | entitlement.status | 服务状态 | 表示租户 AI 服务是否未开通、有效或已过期 | 根据生效时间、失效时间和当前模拟日期计算 | 状态标签 | not_opened=未开通；active=有效；expired=已过期 | 无时间数据时显示“未开通” | service-status | AC-004、AC-020 |
 | FLD-007 | SRC-005 | PAGE-002/PAGE-005 | entitlement.effectiveAt | 生效时间 | 当前服务期开始生效的时间 | 首次开通取提交成功时间；已有权益直接读取 | YYYY-MM-DD HH:mm | 无 | 未开通显示“—” | effective-at | AC-004、AC-020 |
 | FLD-008 | SRC-005 | PAGE-002/PAGE-005 | entitlement.expiresAt | 失效时间 | 当前服务期结束时间 | 由 FLD-007 加实际使用天数计算，已有权益直接读取 | YYYY-MM-DD HH:mm | 无 | 未开通显示“—”；过期使用警示色 | expires-at | AC-004、AC-020 |
-| FLD-009 | SRC-002 | PAGE-003/PAGE-004 | entitlement.durationDays | 使用时长 | 本次充值或调整作用于服务期的天数 | 读取权益配置总天数；调增/调减直接加减该值，到期日同步加减相同天数，不是对剩余天数直接改值 | 正整数 + 天 | 无 | 非正整数阻止提交；调减低于合法下限时报错 | duration-days | AC-027、AC-030、AC-031 |
+| FLD-009 | SRC-020 | PAGE-003/PAGE-004 | entitlement.durationDays | 使用时长 | 本次充值或调整作用于服务期的天数 | 读取权益配置总天数；调减结果允许0，到期日同步加减；归零后服务到期，不动分钟或冻结 | 非负整数 + 天 | 无 | 调整量仍为正整数，调减不得超过当前总天数 | duration-days | AC-027、AC-030、AC-031 |
 | FLD-010 | SRC-014 | PAGE-003 | recharge.type | 充值类型 | 区分标准版年包、话费充值包与试用专用试用套餐 | 由超级管理员单选，驱动默认价格、天数、分钟和数量字段 | 单选/标签 | standard_annual=标准版年包；call_credit_pack=话费充值包；trial_package=试用套餐（试用唯一选项）；其余两种仅商用 | 未选择或不属于当前租户类型时阻止提交；试用仅trial_package，商用仅另外两种（SRC-014） | recharge-type | AC-004、AC-008 |
 | FLD-011 | SRC-003 | PAGE-003 | recharge.unitPrice | 套餐默认单价 | 商品给出的初始参考单价 | 标准版默认 5000；充值包默认 1000；试用套餐默认 0（SRC-013）；本次总价由 FLD-050 独立记录 | ¥#,##0.00 | standard_annual；call_credit_pack；trial_package | 未知类型禁止提交 | recharge-price-field | AC-005、AC-008、R-023 |
 | FLD-012 | SRC-003 | PAGE-003 | recharge.packageQuantity | 充值包数量 | 本次购买的话费充值包个数 | 仅充值包模式由用户输入正整数；标准版与试用套餐固定为 1 或隐藏 | 正整数 + 包 | 无 | 非正整数阻止提交；标准版与试用套餐不展示 | package-quantity | AC-008、AC-010 |
@@ -44,7 +44,7 @@
 | FLD-036 | SRC-005 | PAGE-004 | adjustment.target | 调整对象 | 指定本次作用于使用时长或可用分钟 | 由超级管理员必选并决定单位和边界 | 单选/标签 | duration_days=使用时长；available_minutes=可用分钟 | 未选择阻止提交 | adjustment-target | AC-031、AC-035 |
 | FLD-037 | SRC-005 | PAGE-004 | adjustment.value | 调整值 | 本次对目标字段增加或减少的绝对数值 | 用户输入正整数；根据 FLD-035 决定加减 | 正整数 + 天/分钟 | 单位随 FLD-036 | 非正整数阻止提交 | adjustment-value | AC-031、AC-035 |
 | FLD-038 | SRC-005 | PAGE-004 | adjustment.reason | 调整原因 | 手工调整必须保留的审计说明 | 用户必填并写入调整流水 | 多行文本 | 无 | 为空阻止提交 | adjustment-reason | AC-033、AC-035 |
-| FLD-039 | SRC-004 | PAGE-004 | adjustment.maxDecrease | 可调减上限 | 不修改冻结记录前提下允许减少的最大值 | 分钟上限=当前可用分钟；时长上限=当前配置总天数减1 | 数值 + 单位 | 天或分钟 | 无可调空间时禁用确认 | max-decrease | AC-034 |
+| FLD-039 | SRC-020 | PAGE-004 | adjustment.maxDecrease | 可调减上限 | 不修改冻结记录前提下允许减少的最大值 | 分钟上限=当前可用分钟；时长上限=当前配置总天数，允许调减归0 | 数值 + 单位 | 天或分钟 | 无可调空间时拒绝调减，可切换调增 | max-decrease | AC-034 |
 | FLD-040 | SRC-004 | PAGE-004 | adjustment.accountVersion | 账户版本 | 用于判断预览后账户是否被并发修改 | 打开弹窗时读取，提交时与最新版本比对 | 文本/隐藏 | 无 | 不一致进入 conflict 并要求刷新 | account-version | SC-009 ALT-004 |
 | FLD-041 | SRC-005 | PAGE-005 | usage.date | 日期 | 一级使用明细的自然日汇总维度 | 由已结算通话记录按当前租户和日期分组 | YYYY-MM-DD | 无 | 无记录时展示空状态 | usage-date | AC-022、AC-025 |
 | FLD-042 | SRC-005 | PAGE-005 | usage.dailyConsumedMinutes | 当日消耗通话分钟 | 当前租户某日所有任务已结算通讯分钟之和 | 对同日 FLD-045 求和，未接通不计入 | #,##0 分钟 | 无 | 无数据不生成伪记录 | daily-consumed | AC-022、AC-025 |

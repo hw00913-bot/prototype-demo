@@ -1673,7 +1673,7 @@
 
   function adjustmentMaxDecrease(profile, target) {
     var current = adjustmentCurrentValue(profile, target);
-    return target === 'duration_days' ? Math.max(0, current - 1) : current;
+    return Math.max(0, current);
   }
 
   function getIterationAdjustmentProfile() {
@@ -1706,7 +1706,7 @@
             '<div class="adjustment-account-snapshot" data-anno="adjustment-boundary-state" data-anno-page="sys-tenant" data-anno-label="调整边界与冻结保护" data-anno-kind="region" data-anno-fields="FLD-022,FLD-039,FLD-040"><div><span>当前值</span><strong id="adjustmentCurrentValue">' + formatWholeMinutes(current) + '</strong></div><div><span>最多可调减</span><strong id="adjustmentMaxDecrease">' + formatWholeMinutes(maxDecrease) + '</strong></div><div><span>冻结分钟</span><strong>' + formatWholeMinutes(profile.unifiedMinutePool.frozenMinutes) + '</strong><small>调整不会修改</small></div></div>' +
             '<div class="adjustment-input-grid">' +
               '<div class="recharge-field" data-anno="adjustment-value-field" data-anno-page="sys-tenant" data-anno-label="手工调整值" data-anno-kind="region" data-anno-fields="FLD-037"><label>调整值</label><div class="recharge-input-unit"><input id="iterationAdjustmentValue" type="number" min="1" step="1" placeholder="请输入大于 0 的整数" oninput="window.Pages[\'sys-tenant\'].updateIterationAdjustmentPreview()"><span id="iterationAdjustmentUnit">分钟</span></div></div>' +
-              '<div class="recharge-field" data-anno="adjustment-result-preview" data-anno-page="sys-tenant" data-anno-label="手工调整前后值预览" data-anno-kind="region" data-anno-fields="FLD-029,FLD-030"><label>结果预览</label><div class="recharge-readonly" id="iterationAdjustmentPreview">' + formatWholeMinutes(current) + ' → —</div></div>' +
+              '<div class="recharge-field" data-anno="adjustment-result-preview" data-anno-page="sys-tenant" data-anno-label="手工调整前后值预览" data-anno-kind="region" data-anno-fields="FLD-029,FLD-030"><label>结果预览</label><div class="recharge-readonly" id="iterationAdjustmentPreview">' + formatWholeMinutes(current) + ' → —</div><small id="iterationAdjustmentZeroNotice" style="display:none;">归零后服务将到期，不能发起新外呼；分钟余额与已有冻结、结算保留。</small></div>' +
             '</div>' +
             '<div class="recharge-field" data-anno="adjustment-reason-field" data-anno-page="sys-tenant" data-anno-label="手工调整原因" data-anno-kind="region" data-anno-fields="FLD-038"><label>调整原因 <em class="recharge-required-mark">必填</em></label><textarea id="iterationAdjustmentReason" rows="3" placeholder="请填写本次调整的业务原因"></textarea></div>' +
             '<div class="recharge-validation" id="iterationAdjustmentValidation" aria-live="polite"></div>' +
@@ -1748,6 +1748,8 @@
     if (maxEl) maxEl.textContent = Number(maxDecrease).toLocaleString('zh-CN') + ' ' + unit;
     if (unitEl) unitEl.textContent = unit;
     if (previewEl) previewEl.textContent = Number(current).toLocaleString('zh-CN') + ' ' + unit + ' → ' + (isPositiveInteger(value) ? Number(after).toLocaleString('zh-CN') + ' ' + unit : '—');
+    var zeroNotice = document.getElementById('iterationAdjustmentZeroNotice');
+    if (zeroNotice) zeroNotice.style.display = target === 'duration_days' && direction === 'decrease' && isPositiveInteger(value) && after === 0 ? 'block' : 'none';
   }
 
   function collectIterationAdjustment() {
@@ -1820,6 +1822,12 @@
     } else {
       profile.entitlement.durationDays = after;
       profile.entitlement.expiresAt = addIterationDays(profile.entitlement.expiresAt || getRechargeIteration().simulatedNow, data.direction === 'decrease' ? -data.value : data.value);
+      var serviceExpired = after === 0 || parseIterationDate(profile.entitlement.expiresAt) <= parseIterationDate(getRechargeIteration().simulatedNow);
+      profile.entitlement.status = !profile.entitlement.effectiveAt ? 'not_opened' : (serviceExpired ? 'expired' : 'active');
+      if (profile.usageState !== 'error') {
+        if (profile.entitlement.status === 'expired') profile.usageState = 'expired';
+        else if (profile.usageState === 'expired') profile.usageState = 'loaded';
+      }
     }
     profile.unifiedMinutePool.accountVersion = profile.id.slice(-4) + '-MP-' + String(Date.now()).slice(-6);
     var unit = adjustmentUnit(data.target);

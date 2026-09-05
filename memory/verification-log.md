@@ -1,5 +1,61 @@
 # 验证记录
 
+Date: 2026-09-05 15:18:14
+Step: global
+Scope: global
+Checkpoint: zero-duration-final
+Local URL: http://127.0.0.1:8876/index.html?review=zero-final
+Tool: prototype-verifier + playwright-cli + verification-before-completion
+Command / Check: 当前版本重跑check.js、annotations.js、final.js、global.js；原文档渲染--check、JS语法与git diff --check；正式标注合同及原文档保留检查
+Passed: 归零业务25项、当前规则与文档11项、五视图10组全部通过；48条正式标注实际出现且唯一，26/29/31/33已显示归零规则；48编号/锚点/字段未变化；原全量说明全部标题、旧计算14节完整保留；全量v3.4、迭代v1.9、计算v2.1已可访问
+Failed: None
+Evidence: Browser Evidence — /tmp/recharge-zero-days.M70AM4/zero-clean.png、zero-mobile.png、zero-annotation.png均已查看，1440x960和390x844归零提示与标注可读；五视图1440/390回归正常；console 0 errors，静态资源全部可用。仅浏览器内存模拟账户，无种子、冻结规则、原图、菜单隔离或远端仓库修改。
+Result: pass
+Consecutive Failures: 0
+Next Action: approve-annotations终检并刷新当前快照，不推送GitHub
+
+Date: 2026-09-05 15:18:13
+Step: step-20
+Scope: step
+Checkpoint: zero-duration-annotations
+Local URL: http://127.0.0.1:8876/index.html?review=zero-final
+Tool: prototype-verifier + playwright-cli + verification-before-completion
+Command / Check: /tmp/recharge-zero-days.M70AM4/check.js、final.js；/tmp/recharge-four-fixes.ux4u0X/annotations.js
+Passed: 25项业务断言再次通过；4个当前规则标注弹窗文字同步；正常路径无校验错误，窄屏归零提示不溢出；三份说明版本与归零规则已加载；48条红点仍全部可见且合同完整
+Failed: None
+Evidence: Browser Evidence — 当前本地页面与桌面/窄屏截图；console 0 errors，静态资源全部可用。SRC-020只维护当前已验收标注，未新增编号或锚点。
+Result: pass
+Consecutive Failures: 0
+Next Action: 当前全局终检
+
+Date: 2026-09-05 15:10:32
+Step: global
+Scope: global
+Checkpoint: zero-duration-global
+Local URL: http://127.0.0.1:8876/index.html?demoAccount=multiTenantUser
+Tool: prototype-verifier + playwright-cli + verification-before-completion
+Command / Check: s8预检；/tmp/recharge-four-fixes.ux4u0X/global.js 在当前代码重新执行；step-20的25项业务断言
+Passed: 1440与390宽度下五交付视图共10组通过；外层地址保留、选中同步、嵌入页无重复导航、原分析图ready及关联系统empty；文档图集无背景业务标注，手动隐藏后切换仍正常；归零业务验证通过
+Failed: None
+Evidence: Browser Evidence — 当前本地页面1440x960和390x960；console 0 errors，静态资源全部可用；测试没有修改种子资料或原需求分析图。
+Result: pass
+Consecutive Failures: 0
+Next Action: s9预检，仅同步当前正式标注中的同一归零规则
+
+Date: 2026-09-05 15:06:30
+Step: step-20
+Scope: step
+Checkpoint: zero-duration
+Local URL: http://127.0.0.1:8876/index.html?review=zero-days
+Tool: prototype-verifier + playwright-cli + verification-before-completion
+Command / Check: /tmp/recharge-zero-days.M70AM4/check.js；node --check js/pages/sys-tenant.js；原文档渲染及git diff --check
+Passed: 25项断言通过；真实渝发120归零、30减30、1减1、归零再调增；超额/0输入/负数/小数/缺原因拒绝；版本冲突要求再次确认；真实零值流水；分钟池与冻结记录不变，既有任务仍可幂等结算；首页和使用情况已过期、新外呼拒绝；充值天数仍禁止0
+Failed: None
+Evidence: Browser Evidence — 1440x960，zero-preview.png已查看，归零提示完整；console 0 errors，静态资源全部可用。Mock种子未修改，测试只在浏览器内存模拟30天/1天边界。
+Result: pass
+Consecutive Failures: 0
+Next Action: 五视图全局回归，再维护本轮当前标注同一规则
+
 Date: 2026-09-05 14:41:30
 Step: global
 Scope: global

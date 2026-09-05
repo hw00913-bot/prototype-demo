@@ -1,12 +1,12 @@
 {
   "toolVersion": "2026-09-05-analysis-handoff-v1",
-  "createdAt": "2026-09-05T14:42:15",
+  "createdAt": "2026-09-05T15:19:06",
   "gate": "final",
   "files": [
     {
       "path": "annotations/annotations.js",
-      "sha256": "0ce628679bc88ca207e04eabbd93f87ae97489d05a6f95a8e734193dd9620ba8",
-      "mtime": "2026-09-05T14:39:33"
+      "sha256": "6b2af702cc086ac941fe34f1a52be77e2c11df1ee2e0eb3e5cd733eba07783fc",
+      "mtime": "2026-09-05T15:15:12"
     },
     {
       "path": "assets/css/app.css",
@@ -25,18 +25,18 @@
     },
     {
       "path": "docs/interaction.html",
-      "sha256": "41c8e3ed2260bf04cddef0572747b3826b022a7bf0f4be3a8f9bc6cfd77e6432",
-      "mtime": "2026-09-05T14:22:30"
+      "sha256": "aafd66ed4590ed2780078943d6702e8fa22f956ab65f5da8700e4e97bfe3c50a",
+      "mtime": "2026-09-05T15:15:12"
     },
     {
       "path": "docs/功能说明文档.html",
-      "sha256": "a188e94a9c70f697a36339f83ea871252d71cfc0c42bf708da116931477587e6",
-      "mtime": "2026-09-05T14:22:31"
+      "sha256": "a589efd04f6f6456e78d69237c0439ae3a0c64f10abb320263f28b279d7e2642",
+      "mtime": "2026-09-05T15:04:23"
     },
     {
       "path": "docs/计算逻辑.html",
-      "sha256": "06bca4baf946a471031ba37e6874c637b70b60474e286cca1dad771863f0b856",
-      "mtime": "2026-09-05T14:21:18"
+      "sha256": "618b18491168f6e4e25cee540e660e352906d675f47136612743f66ef72c9f42",
+      "mtime": "2026-09-05T15:04:23"
     },
     {
       "path": "flowcharts/business-process.html",
@@ -50,8 +50,8 @@
     },
     {
       "path": "index.html",
-      "sha256": "3d0c012809a6f34ec76ae5e55c3d60621f675e4e6b66ab756ba83fe23ff675a3",
-      "mtime": "2026-09-05T14:42:04"
+      "sha256": "b69602379616f98f1c1e93147324e24c3941b616e6e24290e19183a4ab8e3894",
+      "mtime": "2026-09-05T15:15:12"
     },
     {
       "path": "js/app.js",
@@ -130,8 +130,8 @@
     },
     {
       "path": "js/pages/sys-tenant.js",
-      "sha256": "058ebb56aa6baf06221ffc16036574cddc7fdd472f2aafeb74c3b7bb907e9012",
-      "mtime": "2026-09-05T11:09:23"
+      "sha256": "12bad543ad9bc44eceb91352efe187e64194f3703c41b880bdb613e176f4d086",
+      "mtime": "2026-09-05T15:03:26"
     },
     {
       "path": "js/pages/usage.js",
@@ -140,38 +140,38 @@
     },
     {
       "path": "memory/acceptance-map.md",
-      "sha256": "c3600463f2328de6db229a8f071a4231f308eeb78b97f4d9af88ed02b7888df9",
-      "mtime": "2026-09-05T14:42:14"
+      "sha256": "48dcb233041aacfe7831db2d327ef81598b959b6f794da0470f651eceac2c834",
+      "mtime": "2026-09-05T15:19:06"
     },
     {
       "path": "memory/annotation-coverage.md",
-      "sha256": "47bc4d17264a2769ea94cabe90b194316c6160a212415e9010b3625d066539d1",
-      "mtime": "2026-09-05T14:42:14"
+      "sha256": "035a2de4899f5b80a7129372839a2c47e80daf8c7dd848a99bcd392e0c7d7c6f",
+      "mtime": "2026-09-05T15:19:06"
     },
     {
       "path": "memory/annotation-prompt.md",
-      "sha256": "ee47bd55c470fec000a21f6ece641bd36bc7a6f95fa3704e793e63e87d5c3eda",
-      "mtime": "2026-09-05T14:39:32"
+      "sha256": "aa9f1a8f854c9fe010905a9ae3d2c0c58ea92fba191fc739d41739eca561bda6",
+      "mtime": "2026-09-05T15:19:06"
     },
     {
       "path": "memory/execution-steps.md",
-      "sha256": "32293fb6e2a38de4f53f6061650e9c42ae66f033bcd5469cd69275670cf95cb5",
-      "mtime": "2026-09-05T14:18:43"
+      "sha256": "7669e9137353bf018c14ce7e86c4f9dd9ea58a1f09a2e2ba83ac7d6a90eb4a8e",
+      "mtime": "2026-09-05T15:02:06"
     },
     {
       "path": "memory/field-map.md",
-      "sha256": "ceebd61157eaf77409ad5d4d41448c245a13e4544974df5d1805a1a66ab44205",
-      "mtime": "2026-09-05T14:39:32"
+      "sha256": "7f553d55751708aba38cf49ebfef8f6f9b939f318ca7e5692e5685d2dddff8c2",
+      "mtime": "2026-09-05T15:04:23"
     },
     {
       "path": "memory/source-materials.md",
-      "sha256": "cefbd40607c1a599d5f4e72196ff5b607575ffa8bc51420130e95465def1028d",
-      "mtime": "2026-09-05T14:18:43"
+      "sha256": "28224afa32b9d1b1306a1a97cb802b0bae0ed19458830cf7fbf64d8434480b8b",
+      "mtime": "2026-09-05T15:02:06"
     },
     {
       "path": "memory/verification-log.md",
-      "sha256": "e366ad5d7cddd3a8b4988d5ecea4d459ddd9c27a078fb88535b6b5f7d248a438",
-      "mtime": "2026-09-05T14:42:14"
+      "sha256": "2359a088e799127b82b01c3388024565d413167f8a4ffa45b33a77ec7dacedf9",
+      "mtime": "2026-09-05T15:19:05"
     },
     {
       "path": "mock/data.js",
